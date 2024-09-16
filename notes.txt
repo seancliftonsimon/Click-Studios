@@ -1,0 +1,124 @@
+Ability later to hire in people to sell projects for you automatically?
+
+
+
+
+Colors: 
+
+#931621 Curtain Red
+#fad01c Academy Gold
+#313b72 Night Sky
+#fff5bf  Pale Popcorn  
+#cfcfcf Gray
+#0f0f0f Black
+[#ffffff]  White
+
+
+fix the write tool thing
+
+then do tax pitch split
+
+then g and s 
+
+
+ideas: make projects section replace genre section and go long, and move genre section to be part of the first row?!
+
+
+To implement a system for managing milestones and toggling component visibility 
+based on achieving certain thresholds, 
+you can use a structured approach with flags to indicate whether each milestone
+ has been achieved. 
+This method allows for efficient checking within actions that modify
+ related state values, like `dollarCount` and `wordCount`. 
+Additionally, mapping actions to specific component visibility enables
+ reusability for toggling any component's visibility based on milestone achievements. 
+Here's how you could structure this within your Vuex store:
+
+### Step 1: Define Milestones with Flags
+
+Add a milestones object within your state to manage milestones 
+and their achievement status:
+
+```javascript
+state: {
+  // Other state properties...
+
+  milestones: {
+    millionaire: false,
+    specialBonusVisible: false,
+    wroteABook: false,
+  },
+  componentVisibility: {
+    specialBonusComponent: false,
+    // Add other components' initial visibility as needed
+  }
+},
+```
+
+### Step 2: Implement Actions for Milestone Checks
+
+Create actions that check for specific conditions and update the milestone flags and component visibility accordingly:
+
+```javascript
+actions: {
+  // Action to check and update dollar count related milestones
+  checkAndUpdateDollarMilestones({ state, commit }, amount) {
+    commit('INCREASE_DOLLAR_COUNT', amount);
+    
+    if (state.dollarCount > 1000000 && !state.milestones.millionaire) {
+      alert("You're a millionaire!");
+      commit('SET_MILESTONE_ACHIEVED', 'millionaire');
+    }
+    
+    if (state.dollarCount > 10000 && !state.componentVisibility.specialBonusComponent) {
+      commit('TOGGLE_COMPONENT_VISIBILITY', 'specialBonusComponent');
+    }
+  },
+
+  // Similar action for word count related milestones
+  checkAndUpdateWordMilestones({ state, commit }, amount) {
+    commit('INCREASE_WORD_COUNT', amount);
+    
+    if (state.wordCount > 50000 && !state.milestones.wroteABook) {
+      alert("You wrote a book!");
+      commit('SET_MILESTONE_ACHIEVED', 'wroteABook');
+    }
+  },
+},
+```
+
+### Step 3: Define Mutations for Updating State
+
+Add mutations to handle the actual state updates based on the actions:
+
+```javascript
+mutations: {
+  // Mutations for updating counts
+  INCREASE_DOLLAR_COUNT(state, amount) {
+    state.dollarCount += amount;
+  },
+  INCREASE_WORD_COUNT(state, amount) {
+    state.wordCount += amount;
+  },
+
+  // Mutation to mark a milestone as achieved
+  SET_MILESTONE_ACHIEVED(state, milestoneKey) {
+    state.milestones[milestoneKey] = true;
+  },
+
+  // Mutation to toggle component visibility
+  TOGGLE_COMPONENT_VISIBILITY(state, componentName) {
+    state.componentVisibility[componentName] = !state.componentVisibility[componentName];
+  },
+},
+```
+
+### Step 4: Reusability for Component Visibility
+
+By using the `componentVisibility` object within your state and the `TOGGLE_COMPONENT_VISIBILITY` mutation, you can easily control the visibility of any component based on achieving milestones. This setup allows you to map specific milestones to the visibility of components and provides a scalable way to manage game dynamics as you introduce new milestones and components.
+
+This approach ensures that milestone checks are performed only when relevant state changes occur, improving efficiency and maintainability. It also offers flexibility in managing the visibility of components based on player achievements, enhancing the gameplay experience.
+
+
+Scratchpad here: structure for new product cards (PurchaseCard.vue)
+
