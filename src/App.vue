@@ -116,8 +116,8 @@ export default {
 	},
 	mounted() {
 		// Dispatch the action when the component mounts
-		//this.$store.dispatch("updateWordCount");
-		//this.$store.dispatch("showPopup", "tutorialOne");
+		this.$store.dispatch("updateWordCount");
+		this.$store.dispatch("showPopup", "tutorialOne");
 		// XYZ this is where the beginner pop ups need to be reactivated
 	},
 };
