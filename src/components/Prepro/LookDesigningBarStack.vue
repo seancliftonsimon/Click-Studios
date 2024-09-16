@@ -1,8 +1,11 @@
 <template>
-	<v-container v-if="hasLooksToDesign">
+	<v-container>
 		<v-card class="d-flex flex-column align-center">
-			<h4 class="py-0">🪞 Designing: {{ currentLook.name }}</h4>
-			<v-list class="pl-0">
+			<h4 class="py-0">
+				🪞 Designing:
+				{{ currentLook ? currentLook.name : "All looks designed" }}
+			</h4>
+			<v-list v-show="hasLooksToDesign" class="pl-0">
 				<v-list-item style="color: maroon" class="px-0">
 					<v-col class="pb-1 pt-0">
 						<h3>Test Fits</h3>
@@ -116,6 +119,7 @@ export default {
 	},
 	methods: {
 		updateProgress() {
+			if (!this.hasLooksToDesign) return;
 			this.progressBarThree += this.ticksPerSecond;
 			// Calculate the initial overflow for progressBarThree
 			let overflowThree = this.progressBarThree - this.progressbarThreeMax;
@@ -181,10 +185,12 @@ export default {
 				);
 				if (nextLookIndex !== -1) {
 					this.currentLookIndex = nextLookIndex;
-				} else {
-					console.log("All looks have been designed.");
-				}
+				} 
+			
 				this.$emit("lookDesigned", lastLook);
+			}
+			else {
+				console.log("All looks have been designed.");
 			}
 		},
 		assignEmployee() {

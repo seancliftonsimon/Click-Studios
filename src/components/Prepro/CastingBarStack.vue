@@ -1,8 +1,8 @@
 <template>
 	<v-container>
 		<v-card class="d-flex flex-column align-center">
-			<h4 class="py-0">🔭 Casting: {{ currentRole.name }}</h4>
-			<v-list v-if="hasRolesToCast" class="pl-0">
+			<h4 class="py-0">🔭 Casting: {{ currentRole ? currentRole.name : "All roles cast" }}</h4>
+			<v-list v-show="hasRolesToCast" class="pl-0">
 				<v-list-item style="color: maroon" class="px-0">
 					<v-col class="pb-1 pt-0">
 						<h3>Callbacks</h3>
@@ -116,6 +116,7 @@ export default {
 	},
 	methods: {
 		updateProgress() {
+			if (!this.hasRolesToCast) return;
 			this.progressBarThree += this.ticksPerSecond;
 			// Calculate the initial overflow for progressBarThree
 			let overflowThree = this.progressBarThree - this.progressbarThreeMax;
@@ -181,10 +182,10 @@ export default {
 				);
 				if (nextRoleIndex !== -1) {
 					this.currentRoleIndex = nextRoleIndex;
-				} else {
-					console.log("All roles have been cast.");
 				}
 				this.$emit("roleCast", lastRole);
+			} else {
+				console.log("All roles have been cast.");
 			}
 		},
 		assignEmployee() {

@@ -1,5 +1,4 @@
 <!-- Preproductioncomponent.vue -->
-
 <template>
 	<v-snackbar v-model="snackbarVisible" :timeout="4000" right color="success">
 		<span> {{ snackbarMessage }}</span>

@@ -1,8 +1,11 @@
 <template>
-	<v-container v-if="hasLocationsToScout">
+	<v-container>
 		<v-card class="d-flex flex-column align-center">
-			<h4 class="py-0">📍 Scouting: {{ currentLocation.name }}</h4>
-			<v-list class="pl-0">
+			<h4 class="py-0">
+				📍 Scouting:
+				{{ currentLocation ? currentLocation.name : "All locations scouted" }}
+			</h4>
+			<v-list v-show="hasLocationsToScout" class="pl-0">
 				<v-list-item style="color: maroon" class="px-0">
 					<v-col class="pb-1 pt-0">
 						<h3>Permitting</h3>
@@ -116,6 +119,7 @@ export default {
 
 	methods: {
 		updateProgress() {
+			if (!this.hasLocationsToScout) return;
 			this.progressBarThree += this.ticksPerSecond;
 			// Calculate the initial overflow for progressBarThree
 			let overflowThree = this.progressBarThree - this.progressbarThreeMax;
@@ -183,10 +187,10 @@ export default {
 				);
 				if (nextLocationIndex !== -1) {
 					this.currentLocationIndex = nextLocationIndex;
-				} else {
-					console.log("All locations have been scouted.");
 				}
 				this.$emit("locationScouted", lastLocation);
+			} else {
+				console.log("All locations have been scouted.");
 			}
 		},
 		assignEmployee() {

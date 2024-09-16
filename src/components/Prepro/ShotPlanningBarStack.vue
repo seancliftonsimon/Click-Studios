@@ -1,8 +1,10 @@
 <template>
-	<v-container v-if="hasShotsToPlan">
+	<v-container>
 		<v-card class="d-flex flex-column align-center">
-			<h4 class="py-0">🖼️ Planning: {{ currentShot.name }}</h4>
-			<v-list class="pl-0">
+			<h4 class="py-0">
+				🖼️ Planning: {{ currentShot ? currentShot.name : "All shots planned" }}
+			</h4>
+			<v-list v-show="hasShotsToPlan" class="pl-0">
 				<v-list-item style="color: maroon" class="px-0">
 					<v-col class="pb-1 pt-0">
 						<h3>Frames</h3>
@@ -115,6 +117,7 @@ export default {
 	},
 	methods: {
 		updateProgress() {
+			if (!this.hasShotsToPlan) return;
 			this.progressBarThree += this.ticksPerSecond;
 			// Calculate the initial overflow for progressBarThree
 			let overflowThree = this.progressBarThree - this.progressbarThreeMax;

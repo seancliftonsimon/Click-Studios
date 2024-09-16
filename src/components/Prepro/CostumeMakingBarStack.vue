@@ -1,8 +1,11 @@
 <template>
-	<v-container v-if="hasCostumesToMake">
+	<v-container>
 		<v-card class="d-flex flex-column align-center">
-			<h4 class="py-0">🪡 Making: {{ currentCostume.name }}</h4>
-			<v-list class="pl-0">
+			<h4 class="py-0">
+				🪡 Making:
+				{{ currentCostume ? currentCostume.name : "All costumes made" }}
+			</h4>
+			<v-list v-show="hasCostumesToMake" class="pl-0">
 				<v-list-item style="color: maroon" class="px-0">
 					<v-col class="pb-1 pt-0">
 						<h3>Patterns</h3>
@@ -115,6 +118,7 @@ export default {
 	},
 	methods: {
 		updateProgress() {
+			if (!this.hasCostumesToMake) return;
 			this.progressBarThree += this.ticksPerSecond;
 			// Calculate the initial overflow for progressBarThree
 			let overflowThree = this.progressBarThree - this.progressbarThreeMax;
@@ -181,10 +185,11 @@ export default {
 				);
 				if (nextCostumeIndex !== -1) {
 					this.currentCostumeIndex = nextCostumeIndex;
-				} else {
-					console.log("All costumes have been made.");
 				}
+
 				this.$emit("costumeMade", lastCostume);
+			} else {
+				console.log("All costumes have been made.");
 			}
 		},
 		assignEmployee() {

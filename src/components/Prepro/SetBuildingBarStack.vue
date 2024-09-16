@@ -1,8 +1,10 @@
 <template>
-	<v-container v-if="hasSetsToBuild">
+	<v-container>
 		<v-card class="d-flex flex-column align-center">
-			<h4 class="py-0">🪚 Building: {{ currentSet.name }}</h4>
-			<v-list class="pl-0">
+			<h4 class="py-0">
+				🪚 Building: {{ currentSet ? currentSet.name : "All sets built" }}
+			</h4>
+			<v-list v-show="hasSetsToBuild" class="pl-0">
 				<v-list-item style="color: maroon" class="px-0">
 					<v-col class="pb-1 pt-0">
 						<h3>Construction</h3>
@@ -115,6 +117,7 @@ export default {
 	},
 	methods: {
 		updateProgress() {
+			if (!this.hasSetsToBuild) return;
 			this.progressBarThree += this.ticksPerSecond;
 			// Calculate the initial overflow for progressBarThree
 			let overflowThree = this.progressBarThree - this.progressbarThreeMax;
