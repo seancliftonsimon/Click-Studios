@@ -6,7 +6,7 @@ export default createStore({
 
 		// Phase Unlocks
 		isPreproductionUnlocked: true,
-		isFilmingUnlocked: false,
+		isFilmingUnlocked: true,
 		isPostproductionUnlocked: false,
 		isMarketingUnlocked: false,
 		isReleaseUnlocked: false,
