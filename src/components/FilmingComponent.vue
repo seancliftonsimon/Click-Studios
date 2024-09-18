@@ -1,10 +1,10 @@
+<!-- FilmingComponent.vue-->
 <template>
-	<v-container>
-		<h2>Filming Component</h2>
-		<v-card style="max-width: 400px; background-color: palegoldenrod">
-			<v-card-title> FILMING STUFF </v-card-title>
+	<v-container fluid class="phase-container bg-grey-lighten-2">
+		<v-card class="fill-height center-content">
+			<v-card-title> Filming </v-card-title>
+			<ViewFinder />
 		</v-card>
-		<ViewFinder />
 	</v-container>
 </template>
 
@@ -17,3 +17,12 @@ export default {
 	},
 };
 </script>
+
+<style scoped>
+.phase-container {
+	padding-left: 5%;
+	padding-right: 5%;
+	padding-top: 2.5%;
+	height: 100%;
+}
+</style>

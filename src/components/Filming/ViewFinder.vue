@@ -6,7 +6,6 @@
 			flex-direction: column;
 			justify-content: center;
 			align-items: center;
-			height: 100vh;
 		"
 	>
 		<div class="image-wrapper">
@@ -17,22 +16,32 @@
 				:style="{ filter: computedFilter }"
 			/>
 		</div>
-		<div class="sliders">
-			<label>
-				Focus:
-				<input type="range" v-model="focusValue" min="0" max="100" steps="1" />
-			</label>
-			<label>
-				Lighten:
-				<input
-					type="range"
-					v-model="lightenValue"
-					min="0"
-					max="100"
-					steps="1"
-				/>
-			</label>
-		</div>
+		<v-row class="sliders">
+			<v-col>
+				<label>
+					Focus:
+					<input
+						type="range"
+						v-model="focusValue"
+						min="0"
+						max="100"
+						steps="1"
+					/>
+				</label>
+			</v-col>
+			<v-col>
+				<label>
+					Lighten:
+					<input
+						type="range"
+						v-model="lightenValue"
+						min="0"
+						max="100"
+						steps="1"
+					/>
+				</label>
+			</v-col>
+		</v-row>
 		<v-btn @click="showRandomImage" class="mb-3" color="primary">
 			Show Random Image
 		</v-btn>
@@ -153,7 +162,7 @@ export default {
 }
 
 .sliders {
-	margin-top: 20px;
+	padding-bottom: 0px;
 }
 
 .sliders label {
