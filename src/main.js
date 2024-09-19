@@ -35,3 +35,12 @@ app.config.globalProperties.$formatNumberShort = (value) => {
 	}
 };
 app.use(router).use(store).use(vuetify).mount("#app");
+
+document.addEventListener("keydown", function (event) {
+	// Check if '2' and 'P' are pressed together (key '2' and key 'p')
+	if (event.key === "p") {
+		console.log("Second Phase Unlocked");
+		// Load the secondPhaseSaveState preset
+		localStorage.setItem("gameState", store.state.secondPhaseSaveState); // this isn't working, I need to just call the action in the store itself and let it run there.
+	}
+});

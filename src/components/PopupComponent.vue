@@ -6,7 +6,7 @@
 	>
 		<v-card class="popup-card" style="border-radius: 12px">
 			<v-card-title class="text-h4 my-4 text-center">{{
-				currentPopupContent.title
+				popupTitle
 			}}</v-card-title>
 			<div class="text-center px-16">
 				<span class="emoji" v-html="currentPopupContent.emoji"></span>
@@ -43,7 +43,16 @@ export default {
 		};
 	},
 	computed: {
-		...mapGetters(["currentPopupContent", "popupVisible"]),
+		...mapGetters(["currentPopupContent", "popupVisible", "currentTitle"]),
+
+		popupTitle() {
+			if (this.currentPopupContent.title == "Script Details") {
+				return this.currentTitle;
+			} else {
+				return this.currentPopupContent.title;
+			}
+		},
+
 		buttonText() {
 			return this.currentPopupContent.buttonType === "next" ? "Next" : "Close";
 		},
@@ -67,6 +76,10 @@ export default {
 					key: this.currentPopupContent.inputTarget,
 					value: this.inputValue,
 				});
+				console.log(
+					`Updated ${this.currentPopupContent.inputTarget} state variable to be ${this.inputValue}`
+				);
+				console.log(`Current title is:  ${this.currentTitle}`);
 			}
 			if (
 				this.currentPopupContent.buttonType === "next" &&
