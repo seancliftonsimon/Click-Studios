@@ -1,14 +1,14 @@
 <template>
-	<div
-		class="image-container"
-		style="
-			display: flex;
-			flex-direction: column;
-			justify-content: center;
-			align-items: center;
-		"
-	>
-		<v-row class="side-by-side">
+	<v-row class="side-by-side">
+		<div
+			class="image-container"
+			style="
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+			"
+		>
 			<div class="image-wrapper">
 				<img
 					v-if="selectedImage"
@@ -17,76 +17,65 @@
 					:style="{ filter: computedFilter }"
 				/>
 			</div>
-			<div class="slider-container">
-				<!-- Soundband Target Slider -->
-				<v-range-slider
-					class="soundBandTarget no-pointer-events"
-					v-model="soundBandTarget"
-					readonly="true"
-					thumb-size="0"
-					direction="vertical"
-					:min="audioRangeMin"
-					:max="audioRangeMax"
-					track-color="red"
-					track-size="12"
-					track-fill-color="green"
-				></v-range-slider>
-				<!-- User Adjusted Slider -->
-				<v-range-slider
-					class="soundBandSlider"
-					v-model="soundBand"
-					strict
-					thumb-label="always"
-					direction="vertical"
-					:min="audioRangeMin"
-					:max="audioRangeMax"
-				></v-range-slider>
+		</div>
+		<div class="slider-container">
+			<!-- Soundband Target Slider -->
+			<v-range-slider
+				class="soundBandTarget no-pointer-events"
+				v-model="soundBandTarget"
+				readonly="true"
+				thumb-size="0"
+				direction="vertical"
+				:min="audioRangeMin"
+				:max="audioRangeMax"
+				track-color="red"
+				track-size="12"
+				track-fill-color="green"
+			></v-range-slider>
+			<!-- User Adjusted Slider -->
+			<v-range-slider
+				class="soundBandSlider"
+				v-model="soundBand"
+				strict
+				thumb-label="always"
+				direction="vertical"
+				:min="audioRangeMin"
+				:max="audioRangeMax"
+			></v-range-slider>
+		</div>
+	</v-row>
+	<v-row class="sliders">
+		<v-col>
+			<label>
+				Focus:
+				<input type="range" v-model="focusValue" min="0" max="100" steps="1" />
+			</label>
+		</v-col>
+		<v-col>
+			<label>
+				Lighten:
+				<input
+					type="range"
+					v-model="lightenValue"
+					min="0"
+					max="100"
+					steps="1"
+				/>
+			</label>
+		</v-col>
+	</v-row>
+	<v-tooltip top :disabled="shotReady">
+		<template v-slot:activator="{ props }">
+			<div v-bind="props" class="d-inline-block">
+				<v-btn :disabled="!shotReady" @click="wrapCurrentShot" color="primary">
+					<span style="font-size: 2em">📣</span> <span>Action!</span>
+				</v-btn>
 			</div>
-		</v-row>
-		<v-row class="sliders">
-			<v-col>
-				<label>
-					Focus:
-					<input
-						type="range"
-						v-model="focusValue"
-						min="0"
-						max="100"
-						steps="1"
-					/>
-				</label>
-			</v-col>
-			<v-col>
-				<label>
-					Lighten:
-					<input
-						type="range"
-						v-model="lightenValue"
-						min="0"
-						max="100"
-						steps="1"
-					/>
-				</label>
-			</v-col>
-		</v-row>
-		<v-tooltip top :disabled="shotReady">
-			<template v-slot:activator="{ props }">
-				<div v-bind="props" class="d-inline-block">
-					<v-btn
-						:disabled="!shotReady"
-						@click="wrapCurrentShot"
-						class="mb-3"
-						color="primary"
-					>
-						Action!
-					</v-btn>
-				</div>
-			</template>
-			<span v-for="(error, index) in actionButtonErrors" :key="index">
-				{{ error }}<br />
-			</span>
-		</v-tooltip>
-	</div>
+		</template>
+		<span v-for="(error, index) in actionButtonErrors" :key="index">
+			{{ error }}<br />
+		</span>
+	</v-tooltip>
 </template>
 
 <script>
@@ -289,6 +278,7 @@ export default {
 
 .side-by-side {
 	gap: 40px;
+	flex-grow: 0;
 }
 
 .slider-container {
@@ -325,6 +315,7 @@ export default {
 
 .sliders {
 	padding-bottom: 0px;
+	flex-grow: 0;
 }
 
 .sliders label {
