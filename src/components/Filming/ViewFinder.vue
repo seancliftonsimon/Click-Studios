@@ -8,14 +8,40 @@
 			align-items: center;
 		"
 	>
-		<div class="image-wrapper">
-			<img
-				v-if="selectedImage"
-				:src="selectedImage"
-				alt="Viewfinder Image"
-				:style="{ filter: computedFilter }"
-			/>
-		</div>
+		<v-row>
+			<div class="image-wrapper">
+				<img
+					v-if="selectedImage"
+					:src="selectedImage"
+					alt="Viewfinder Image"
+					:style="{ filter: computedFilter }"
+				/>
+			</div>
+			<div class="slider-container">
+				<!-- Soundband Target Slider -->
+				<v-range-slider
+					class="soundBandTarget no-pointer-events"
+					v-model="soundBandTarget"
+					readonly="true"
+					thumb-size="0"
+					direction="vertical"
+					:min="-45"
+					:max="-35"
+					track-color="red"
+					track-size="12"
+					track-fill-color="green"
+				></v-range-slider>
+				<!-- User Adjusted Slider -->
+				<v-range-slider
+					class="soundBandSlider"
+					v-model="soundBand"
+					strict
+					direction="vertical"
+					min="-45"
+					max="-35"
+				></v-range-slider>
+			</div>
+		</v-row>
 		<v-row class="sliders">
 			<v-col>
 				<label>
@@ -116,6 +142,8 @@ export default {
 			selectedImage: null,
 			focusValue: 0,
 			lightenValue: 0,
+			soundBand: [-42, -38],
+			soundBandTarget: [-40, -36],
 		};
 	},
 	computed: {
@@ -146,6 +174,25 @@ export default {
 	display: block;
 	margin: 0 auto;
 	transition: filter 0.3s ease;
+}
+
+.slider-container {
+	display: flex;
+	flex-direction: row;
+	gap: 20px;
+}
+
+.no-pointer-events {
+	pointer-events: none; /* Disables interaction while keeping the appearance */
+}
+
+.soundBandSlider {
+	height: 200px;
+}
+
+.soundBandTarget {
+	height: 200px;
+	border-radius: 0px !important; /* Remove rounding on the unfilled part */
 }
 
 .image-wrapper {
