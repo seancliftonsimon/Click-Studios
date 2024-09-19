@@ -8,7 +8,7 @@
 			align-items: center;
 		"
 	>
-		<v-row>
+		<v-row class="side-by-side">
 			<div class="image-wrapper">
 				<img
 					v-if="selectedImage"
@@ -25,8 +25,8 @@
 					readonly="true"
 					thumb-size="0"
 					direction="vertical"
-					:min="-45"
-					:max="-35"
+					:min="audioRangeMin"
+					:max="audioRangeMax"
 					track-color="red"
 					track-size="12"
 					track-fill-color="green"
@@ -36,9 +36,10 @@
 					class="soundBandSlider"
 					v-model="soundBand"
 					strict
+					thumb-label="always"
 					direction="vertical"
-					min="-45"
-					max="-35"
+					:min="audioRangeMin"
+					:max="audioRangeMax"
 				></v-range-slider>
 			</div>
 		</v-row>
@@ -68,8 +69,13 @@
 				</label>
 			</v-col>
 		</v-row>
-		<v-btn @click="showRandomImage" class="mb-3" color="primary">
-			Show Random Image
+		<v-btn
+			:disabled="!shotReady"
+			@click="wrapCurrentShot"
+			class="mb-3"
+			color="primary"
+		>
+			Action!
 		</v-btn>
 	</div>
 </template>
@@ -78,6 +84,7 @@
 export default {
 	data() {
 		return {
+			// Image list and index
 			images: [
 				require("@/assets/ShotArt/volcano.png"),
 				require("@/assets/ShotArt/savanna.png"),
@@ -140,10 +147,23 @@ export default {
 				require("@/assets/ShotArt/prairie.png"),
 			],
 			selectedImage: null,
+
+			// Viewfinder Values
 			focusValue: 0,
 			lightenValue: 0,
+			audioRangeMin: -45,
+			audioRangeMax: -35,
+
+			// soundBand values
 			soundBand: [-42, -38],
 			soundBandTarget: [-40, -36],
+			calibrationThreshold: 1.25,
+
+			// Limits for the soundBandTarget slider
+			soundBandMinLowerLimit: -45, // Lower limit for the minimum value
+			soundBandMinUpperLimit: -39, // Upper limit for the minimum value
+			soundBandMaxLowerBuffer: 2, // Minimum gap between min and max values
+			soundBandMaxUpperLimit: -35, // Upper limit for the maximum value
 		};
 	},
 	computed: {
@@ -156,8 +176,30 @@ export default {
 				minBrightness + (1 - minBrightness) * (this.lightenValue / 100);
 			return `blur(${blurAmount}px) brightness(${brightnessAmount})`;
 		},
+		soundBandCalibrated() {
+			const targetMin = this.soundBandTarget[0];
+			const targetMax = this.soundBandTarget[1];
+			const userMin = this.soundBand[0];
+			const userMax = this.soundBand[1];
+
+			return (
+				Math.abs(userMin - targetMin) <= this.calibrationThreshold &&
+				Math.abs(userMax - targetMax) <= this.calibrationThreshold
+			);
+		},
+		shotReady() {
+			return (
+				this.soundBandCalibrated &&
+				this.focusValue >= 99 &&
+				this.lightenValue >= 99
+			);
+		},
 	},
 	methods: {
+		wrapCurrentShot() {
+			this.showRandomImage();
+			this.generateRandomSoundBandTarget();
+		},
 		showRandomImage() {
 			const randomIndex = Math.floor(Math.random() * this.images.length);
 			this.selectedImage = this.images[randomIndex];
@@ -165,6 +207,27 @@ export default {
 			this.focusValue = 0;
 			this.lightenValue = 0;
 		},
+		generateRandomSoundBandTarget() {
+			const minLowerLimit = this.soundBandMinLowerLimit;
+			const minUpperLimit = this.soundBandMinUpperLimit;
+
+			const min =
+				Math.floor(Math.random() * (minUpperLimit - minLowerLimit + 1)) +
+				minLowerLimit;
+
+			const maxLowerLimit = min + this.soundBandMaxLowerBuffer;
+			const maxUpperLimit = this.soundBandMaxUpperLimit;
+
+			const max =
+				Math.floor(Math.random() * (maxUpperLimit - maxLowerLimit + 1)) +
+				maxLowerLimit;
+
+			// Set new soundBandTarget values
+			this.soundBandTarget = [min, max];
+		},
+	},
+	mounted() {
+		this.wrapCurrentShot();
 	},
 };
 </script>
@@ -174,6 +237,10 @@ export default {
 	display: block;
 	margin: 0 auto;
 	transition: filter 0.3s ease;
+}
+
+.side-by-side {
+	gap: 40px;
 }
 
 .slider-container {
