@@ -53,6 +53,10 @@
 						:title="releaseDisabled ? '🔒 Release' : 'Release'"
 						:disabled="releaseDisabled"
 					></v-list-item>
+					<v-row>
+						<v-btn @click="saveGame">Save Game</v-btn>
+						<v-btn @click="loadGame">Load Game</v-btn>
+					</v-row>
 				</v-container>
 			</v-app-bar>
 
@@ -78,6 +82,16 @@ export default {
 			ticketImage: require("@/assets/title-ticket.png"),
 			bannerImage: require("@/assets/SuperEarlyPrototypeBanner.png"),
 		};
+	},
+	methods: {
+		saveGame() {
+			this.$store.commit("SAVE_STATE");
+			console.log("Game Saved");
+		},
+		loadGame() {
+			this.$store.commit("LOAD_STATE");
+			console.log("Game Loaded");
+		},
 	},
 	computed: {
 		...mapGetters([

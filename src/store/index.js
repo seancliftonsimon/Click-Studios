@@ -2,6 +2,8 @@ import { createStore } from "vuex";
 
 export default createStore({
 	state: {
+		// DYNAMIC VARIABLES BELOW
+
 		studioName: "Click Studios",
 
 		// Phase Unlocks
@@ -19,14 +21,431 @@ export default createStore({
 		wordAccumulator: 0,
 		lastUpdate: 0,
 
+		// Writing Tool
+		currentWriteTool: "pen", // Default write tool available for purchase
+		writingToolCardVisible: false,
+
+		// Writers Room
+		writersRoomVisible: false,
+		currentCapacityIndex: 1, // Keeps track of the current capacity level
+
+		writersRoomUpgradeVisible: false,
+
 		// Dollar Variables
 		writingDollarCount: 0,
 		totalWritingDollarCount: 0,
 
 		preproDollarCount: 0,
 		totalPreproDollarCount: 0,
+		// I should put the wpS value above in a compute function later probably XYZ
 
-		// I should put the wpS value above in a compute function later probably
+		//Pop Ups
+		currentPopup: null,
+		popupVisible: false,
+
+		// Script and Roles
+		scriptDescription: "No script.",
+		roleDescription: "No roles.",
+		currentTitle: "Tomorrow's Tears",
+		currentGenre: "drama", // Default genre (for now)
+
+		// Milestone tracking
+		milestones: {
+			fiveLoglines: false,
+			fiveSynopses: false,
+			fiveOutlines: false,
+			fiveTreatments: false,
+			fiveDraftScripts: false,
+			firstShootingScript: false,
+			fiveInterns: false,
+			fiveJuniors: false,
+			fiveScreenwriters: false,
+			fiveCowriters: false,
+			fiftyWords: false,
+			genreLevelTwo: false,
+			sixtyDollars: false,
+			threeWorkers: false,
+			secondWritersRoomUpgrade: false,
+		},
+
+		// Genre Progress
+		genres: {
+			horror: {
+				name: "Horror",
+				emoji: "😱",
+				level: 1,
+				wordsNeeded: 100,
+				quality: 1,
+				roles: [
+					"Alien",
+					"Babysitter",
+					"Beast",
+					"Clairvoyant",
+					"Copycat Killer",
+					"Cryptid",
+					"Cultist",
+					"Cursed One",
+					"Dark Magic Priest",
+					"Demon",
+					"Detective",
+					"Exorcist",
+					"Final Girl",
+					"Fugitive",
+					"Ghost",
+					"Ghoul",
+					"Gravekeeper",
+					"Healer",
+					"Hermit",
+					"Hunter",
+					"Mad Scientist",
+					"Medium",
+					"Mummy",
+					"Mutant",
+					"Nurse",
+					"Occultist",
+					"Paranormal Investigator",
+					"Phantom",
+					"Poltergeist",
+					"Recluse",
+					"Serial Killer",
+					"Shape-shifter",
+					"Siren",
+					"Skeptic",
+					"Sorcerer",
+					"Survivor",
+					"Vampire",
+					"Victim",
+					"Werewolf",
+					"Witch",
+					"Zombie",
+				],
+			},
+			comedy: {
+				name: "Comedy",
+				emoji: "🤣",
+				level: 1,
+				wordsNeeded: 100,
+				quality: 1,
+				roles: [
+					"Boss",
+					"Busybody",
+					"Cat Lady",
+					"Chef",
+					"Conspiracy Theorist",
+					"Creep",
+					"Diva",
+					"Dreamer",
+					"Ex-boyfriend",
+					"Ex-girlfriend",
+					"Fashionista",
+					"Gamer",
+					"Goofball",
+					"Grump",
+					"Guru",
+					"Hipster",
+					"Imposter",
+					"Intern",
+					"Inventor",
+					"Journalist",
+					"Kid Genius",
+					"Klutz",
+					"Magician",
+					"Matchmaker",
+					"Neighbor",
+					"Nerd",
+					"Overachiever",
+					"Prankster",
+					"Psychic",
+					"Retiree",
+					"Roommate",
+					"Schemer",
+					"Slacker",
+					"Snob",
+					"Socialite",
+					"Stoner",
+					"Tourist",
+					"Town Gossip",
+					"Twin",
+					"Tycoon",
+					"Vlogger",
+				],
+			},
+			drama: {
+				name: "Drama",
+				emoji: "🥲",
+				level: 1,
+				wordsNeeded: 100,
+				quality: 1,
+				roles: [
+					"Activist",
+					"Artist",
+					"Babysitter",
+					"Baron",
+					"Brother",
+					"Caregiver",
+					"Composer",
+					"Con Artist",
+					"Dancer",
+					"Debutante",
+					"Diplomat",
+					"Divorcee",
+					"Envoy",
+					"Executive",
+					"Fugitive",
+					"Godparent",
+					"Heiress",
+					"Homeless Person",
+					"Immigrant",
+					"Journalist",
+					"Lawyer",
+					"Lobbyist",
+					"Mentor",
+					"Musician",
+					"Nomad",
+					"Orphan",
+					"Philanthropist",
+					"Poet",
+					"Priest",
+					"Prodigy",
+					"Rebel",
+					"Refugee",
+					"Reporter",
+					"Sister",
+					"Social Worker",
+					"Step-parent",
+					"Survivor",
+					"Teacher",
+					"Therapist",
+					"Veteran",
+					"Widow",
+				],
+			},
+			action: {
+				name: "Action",
+				emoji: "😎",
+				level: 1,
+				wordsNeeded: 100,
+				quality: 1,
+				roles: [
+					"Accomplice",
+					"Arms Dealer",
+					"Assassin",
+					"Bodyguard",
+					"Bounty Hunter",
+					"Burglar",
+					"CIA Agent",
+					"Commando",
+					"Conspirator",
+					"Cop",
+					"Coroner",
+					"Deserter",
+					"Double Agent",
+					"Escape Artist",
+					"Fighter Pilot",
+					"Gang Leader",
+					"Gladiator",
+					"Guard",
+					"Gun Runner",
+					"Hacker",
+					"Interrogator",
+					"KGB Agent",
+					"Martial Artist",
+					"Mercenary",
+					"MI6 Agent",
+					"Ninja",
+					"Parole Officer",
+					"Pilot",
+					"President",
+					"Private Investigator",
+					"Rebel Leader",
+					"Scientist",
+					"Secret Service Agent",
+					"Security Guard",
+					"Smuggler",
+					"Sniper",
+					"Soldier",
+					"Spy Master",
+					"Terrorist",
+					"Thief",
+					"Undercover Agent",
+					"Warrior",
+				],
+			},
+		},
+		switchGenreVisible: false,
+
+		// Workers
+		workers: {
+			scriptDoctor: {
+				name: "Script Doctor",
+				count: 0,
+				totalcount: 0,
+				cost: 24000,
+				wps: 0,
+				duration: 120,
+				emoji: "👩‍⚕️",
+				effect: 1.4,
+				visible: false,
+			},
+			intern: {
+				name: "Intern",
+				count: 0,
+				totalcount: 0,
+				cost: 25,
+				wps: 1,
+				duration: 0.5,
+				emoji: "🙋",
+				visible: false,
+			},
+			junior: {
+				name: "Junior",
+				count: 0,
+				totalcount: 0,
+				cost: 70,
+				wps: 5,
+				duration: 1,
+				emoji: "🧑‍💻",
+				visible: false,
+			},
+			screenwriter: {
+				name: "Screenwriter",
+				count: 0,
+				totalcount: 0,
+				cost: 200,
+				wps: 15,
+				duration: 5,
+				emoji: "🧑‍💼",
+				visible: false,
+			},
+			cowriters: {
+				name: "Cowriters",
+				count: 0,
+				totalcount: 0,
+				cost: 1400,
+				wps: 70,
+				duration: 15,
+				emoji: "👥",
+				visible: false,
+			},
+		},
+		currentWorkers: [],
+
+		// Products
+		products: {
+			logline: {
+				title: "Logline",
+				emoji: "💡",
+				text: "Earn $6",
+				cost: 20,
+				count: 0,
+				totalcount: 0,
+				currency: "words",
+				pay: 6,
+				visible: true,
+			},
+			synopsis: {
+				title: "Synopsis",
+				emoji: "💭",
+				text: "Earn $40",
+				cost: 120,
+				count: 0,
+				totalcount: 0,
+				currency: "words",
+				pay: 40,
+				visible: false,
+			},
+			outline: {
+				title: "Outline",
+				emoji: "📋",
+				text: "Earn $220",
+				cost: 800,
+				count: 0,
+				totalcount: 0,
+				currency: "words",
+				pay: 320,
+				visible: false,
+			},
+			treatment: {
+				title: "Treatment",
+				emoji: "🗒️",
+				text: "Earn $1,200",
+				cost: 5000,
+				count: 0,
+				totalcount: 0,
+				currency: "words",
+				pay: 2200,
+				visible: false,
+			},
+			draftScript: {
+				title: "Draft Script",
+				emoji: "📑",
+				text: "Earn $3,000",
+				cost: 30000,
+				count: 0,
+				totalcount: 0,
+				currency: "words",
+				pay: 15000,
+				visible: false,
+			},
+			shootingScript: {
+				title: "Shooting Script",
+				emoji: "📒",
+				text: "Greenlight your project.",
+				cost: 1000000,
+				count: 0,
+				totalcount: 0,
+				currency: "words",
+				pay: 150000,
+				visible: false,
+			},
+		},
+
+		currentScript: {
+			title: "",
+			roles: [],
+			shots: [],
+			sets: [],
+			locations: [],
+			costumes: [],
+			looks: [],
+		},
+
+		// Dialog Box
+		activeDialog: null,
+		showDialog: false,
+
+		// Pitching Values
+
+		searchesNeeded: 30,
+
+		manualSearchAmount: 4,
+
+		searchesPerSecond: 0,
+
+		pitchesNeeded: 20,
+
+		manualPitchAmount: 3,
+
+		pitchesPerSecond: 0,
+
+		currentInvestor: "",
+
+		currentInvestment: 0,
+
+		searcherCount: 0,
+		pitcherCount: 0,
+		searcherSpeed: 3,
+		pitcherSpeed: 3,
+
+		//PrePro Progress Values
+
+		employeeCount: 0,
+
+		unassignedEmployeeCount: 0,
+
+		inspiration: 0,
+
+		// STATIC VARIABLES BELOW
 
 		popups: {
 			tutorialOne: {
@@ -120,28 +539,6 @@ export default createStore({
 			},
 		},
 
-		currentPopup: null,
-		popupVisible: false,
-
-		scriptDescription: "No script.",
-		roleDescription: "No roles.",
-		milestones: {
-			fiveLoglines: false,
-			fiveSynopses: false,
-			fiveOutlines: false,
-			fiveTreatments: false,
-			fiveDraftScripts: false,
-			firstShootingScript: false,
-			fiveInterns: false,
-			fiveJuniors: false,
-			fiveScreenwriters: false,
-			fiveCowriters: false,
-			fiftyWords: false,
-			genreLevelTwo: false,
-			sixtyDollars: false,
-			threeWorkers: false,
-			secondWritersRoomUpgrade: false,
-		},
 		writeTools: {
 			pencil: {
 				name: "Pencil",
@@ -187,8 +584,7 @@ export default createStore({
 			},
 			// Add more tools as needed
 		},
-		currentWriteTool: "pen", // Default write tool available for purchase
-		writingToolCardVisible: false,
+
 		// Pools
 		pools: {
 			shots: [
@@ -617,6 +1013,7 @@ export default createStore({
 				"Ron Minbee",
 			],
 		},
+
 		// RANGES
 		ranges: {
 			roleAmount: [2, 5],
@@ -628,213 +1025,6 @@ export default createStore({
 			smallInvestorPayAmount: [2000, 10000],
 		},
 
-		// Genre Variables
-		currentTitle: "Tomorrow's Tears",
-		currentGenre: "drama", // Default genre (for now)
-		genres: {
-			horror: {
-				name: "Horror",
-				emoji: "😱",
-				level: 1,
-				wordsNeeded: 100,
-				quality: 1,
-				roles: [
-					"Alien",
-					"Babysitter",
-					"Beast",
-					"Clairvoyant",
-					"Copycat Killer",
-					"Cryptid",
-					"Cultist",
-					"Cursed One",
-					"Dark Magic Priest",
-					"Demon",
-					"Detective",
-					"Exorcist",
-					"Final Girl",
-					"Fugitive",
-					"Ghost",
-					"Ghoul",
-					"Gravekeeper",
-					"Healer",
-					"Hermit",
-					"Hunter",
-					"Mad Scientist",
-					"Medium",
-					"Mummy",
-					"Mutant",
-					"Nurse",
-					"Occultist",
-					"Paranormal Investigator",
-					"Phantom",
-					"Poltergeist",
-					"Recluse",
-					"Serial Killer",
-					"Shape-shifter",
-					"Siren",
-					"Skeptic",
-					"Sorcerer",
-					"Survivor",
-					"Vampire",
-					"Victim",
-					"Werewolf",
-					"Witch",
-					"Zombie",
-				],
-			},
-			comedy: {
-				name: "Comedy",
-				emoji: "🤣",
-				level: 1,
-				wordsNeeded: 100,
-				quality: 1,
-				roles: [
-					"Boss",
-					"Busybody",
-					"Cat Lady",
-					"Chef",
-					"Conspiracy Theorist",
-					"Creep",
-					"Diva",
-					"Dreamer",
-					"Ex-boyfriend",
-					"Ex-girlfriend",
-					"Fashionista",
-					"Gamer",
-					"Goofball",
-					"Grump",
-					"Guru",
-					"Hipster",
-					"Imposter",
-					"Intern",
-					"Inventor",
-					"Journalist",
-					"Kid Genius",
-					"Klutz",
-					"Magician",
-					"Matchmaker",
-					"Neighbor",
-					"Nerd",
-					"Overachiever",
-					"Prankster",
-					"Psychic",
-					"Retiree",
-					"Roommate",
-					"Schemer",
-					"Slacker",
-					"Snob",
-					"Socialite",
-					"Stoner",
-					"Tourist",
-					"Town Gossip",
-					"Twin",
-					"Tycoon",
-					"Vlogger",
-				],
-			},
-			drama: {
-				name: "Drama",
-				emoji: "🥲",
-				level: 1,
-				wordsNeeded: 100,
-				quality: 1,
-				roles: [
-					"Activist",
-					"Artist",
-					"Babysitter",
-					"Baron",
-					"Brother",
-					"Caregiver",
-					"Composer",
-					"Con Artist",
-					"Dancer",
-					"Debutante",
-					"Diplomat",
-					"Divorcee",
-					"Envoy",
-					"Executive",
-					"Fugitive",
-					"Godparent",
-					"Heiress",
-					"Homeless Person",
-					"Immigrant",
-					"Journalist",
-					"Lawyer",
-					"Lobbyist",
-					"Mentor",
-					"Musician",
-					"Nomad",
-					"Orphan",
-					"Philanthropist",
-					"Poet",
-					"Priest",
-					"Prodigy",
-					"Rebel",
-					"Refugee",
-					"Reporter",
-					"Sister",
-					"Social Worker",
-					"Step-parent",
-					"Survivor",
-					"Teacher",
-					"Therapist",
-					"Veteran",
-					"Widow",
-				],
-			},
-			action: {
-				name: "Action",
-				emoji: "😎",
-				level: 1,
-				wordsNeeded: 100,
-				quality: 1,
-				roles: [
-					"Accomplice",
-					"Arms Dealer",
-					"Assassin",
-					"Bodyguard",
-					"Bounty Hunter",
-					"Burglar",
-					"CIA Agent",
-					"Commando",
-					"Conspirator",
-					"Cop",
-					"Coroner",
-					"Deserter",
-					"Double Agent",
-					"Escape Artist",
-					"Fighter Pilot",
-					"Gang Leader",
-					"Gladiator",
-					"Guard",
-					"Gun Runner",
-					"Hacker",
-					"Interrogator",
-					"KGB Agent",
-					"Martial Artist",
-					"Mercenary",
-					"MI6 Agent",
-					"Ninja",
-					"Parole Officer",
-					"Pilot",
-					"President",
-					"Private Investigator",
-					"Rebel Leader",
-					"Scientist",
-					"Secret Service Agent",
-					"Security Guard",
-					"Smuggler",
-					"Sniper",
-					"Soldier",
-					"Spy Master",
-					"Terrorist",
-					"Thief",
-					"Undercover Agent",
-					"Warrior",
-				],
-			},
-		},
-		switchGenreVisible: false,
 		levelCaps: [
 			0, 100, 600, 1000, 2200, 4700, 10300, 22400, 48600, 105700, 229900,
 			500000,
@@ -854,177 +1044,6 @@ export default createStore({
 			{ capacity: 80, cost: 196830 },
 			{ capacity: 100, cost: 590490 },
 		],
-		writersRoomVisible: false,
-		currentCapacityIndex: 1, // Keeps track of the current capacity level
-
-		writersRoomUpgradeVisible: false,
-		workers: {
-			scriptDoctor: {
-				name: "Script Doctor",
-				count: 0,
-				totalcount: 0,
-				cost: 24000,
-				wps: 0,
-				duration: 120,
-				emoji: "👩‍⚕️",
-				effect: 1.4,
-				visible: false,
-			},
-			intern: {
-				name: "Intern",
-				count: 0,
-				totalcount: 0,
-				cost: 25,
-				wps: 1,
-				duration: 0.5,
-				emoji: "🙋",
-				visible: false,
-			},
-			junior: {
-				name: "Junior",
-				count: 0,
-				totalcount: 0,
-				cost: 70,
-				wps: 5,
-				duration: 1,
-				emoji: "🧑‍💻",
-				visible: false,
-			},
-			screenwriter: {
-				name: "Screenwriter",
-				count: 0,
-				totalcount: 0,
-				cost: 200,
-				wps: 15,
-				duration: 5,
-				emoji: "🧑‍💼",
-				visible: false,
-			},
-			cowriters: {
-				name: "Cowriters",
-				count: 0,
-				totalcount: 0,
-				cost: 1400,
-				wps: 70,
-				duration: 15,
-				emoji: "👥",
-				visible: false,
-			},
-		},
-		products: {
-			logline: {
-				title: "Logline",
-				emoji: "💡",
-				text: "Earn $6",
-				cost: 20,
-				count: 0,
-				totalcount: 0,
-				currency: "words",
-				pay: 6,
-				visible: true,
-			},
-			synopsis: {
-				title: "Synopsis",
-				emoji: "💭",
-				text: "Earn $40",
-				cost: 120,
-				count: 0,
-				totalcount: 0,
-				currency: "words",
-				pay: 40,
-				visible: false,
-			},
-			outline: {
-				title: "Outline",
-				emoji: "📋",
-				text: "Earn $220",
-				cost: 800,
-				count: 0,
-				totalcount: 0,
-				currency: "words",
-				pay: 320,
-				visible: false,
-			},
-			treatment: {
-				title: "Treatment",
-				emoji: "🗒️",
-				text: "Earn $1,200",
-				cost: 5000,
-				count: 0,
-				totalcount: 0,
-				currency: "words",
-				pay: 2200,
-				visible: false,
-			},
-			draftScript: {
-				title: "Draft Script",
-				emoji: "📑",
-				text: "Earn $3,000",
-				cost: 30000,
-				count: 0,
-				totalcount: 0,
-				currency: "words",
-				pay: 15000,
-				visible: false,
-			},
-			shootingScript: {
-				title: "Shooting Script",
-				emoji: "📒",
-				text: "Greenlight your project.",
-				cost: 1000000,
-				count: 0,
-				totalcount: 0,
-				currency: "words",
-				pay: 150000,
-				visible: false,
-			},
-		},
-		currentWorkers: [],
-
-		currentScript: {
-			title: "",
-			roles: [],
-			shots: [],
-			sets: [],
-			locations: [],
-			costumes: [],
-			looks: [],
-		},
-
-		activeDialog: null,
-
-		showDialog: false,
-
-		// Pitching Values
-
-		searchesNeeded: 30,
-
-		manualSearchAmount: 4,
-
-		searchesPerSecond: 0,
-
-		pitchesNeeded: 20,
-
-		manualPitchAmount: 3,
-
-		pitchesPerSecond: 0,
-
-		currentInvestor: "",
-
-		currentInvestment: 0,
-
-		searcherCount: 0,
-		pitcherCount: 0,
-		searcherSpeed: 3,
-		pitcherSpeed: 3,
-
-		//PrePro Progress Values
-
-		employeeCount: 0,
-
-		unassignedEmployeeCount: 0,
-
-		inspiration: 0,
 	},
 	getters: {
 		wordCount: (state) => {
@@ -1195,6 +1214,40 @@ export default createStore({
 		inspiration: (state) => state.inspiration,
 	},
 	mutations: {
+		// Mutation to save the state to localStorage
+		SAVE_STATE(state) {
+			const serializedState = JSON.stringify(state);
+
+			// Start timing the save
+			const startTime = performance.now();
+
+			// Save to localStorage
+			localStorage.setItem("gameState", serializedState);
+
+			// End timing and calculate the duration
+			const endTime = performance.now();
+			const saveDuration = endTime - startTime;
+
+			// Log the file size and save duration
+			console.log(
+				`Saved state size: ${new Blob([serializedState]).size} bytes`
+			);
+			console.log(`Save took: ${saveDuration.toFixed(2)} milliseconds`);
+		},
+		// Mutation to load the state from localStorage
+		LOAD_STATE(state) {
+			const serializedState = localStorage.getItem("gameState");
+			if (serializedState) {
+				const loadedState = JSON.parse(serializedState);
+				// Assign loaded values to the state variables
+				Object.assign(state, loadedState);
+				// Log the file size of the loaded state
+				console.log(
+					`Loaded state size: ${new Blob([serializedState]).size} bytes`
+				);
+			}
+		},
+
 		UPDATE_STATE_VARIABLE(state, { key, value }) {
 			// Logic here to travel down nested paths as indicated by the key string
 			const keys = key.split("."); // Split the key by periods
