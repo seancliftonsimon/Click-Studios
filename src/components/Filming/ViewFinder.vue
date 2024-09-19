@@ -69,14 +69,23 @@
 				</label>
 			</v-col>
 		</v-row>
-		<v-btn
-			:disabled="!shotReady"
-			@click="wrapCurrentShot"
-			class="mb-3"
-			color="primary"
-		>
-			Action!
-		</v-btn>
+		<v-tooltip top :disabled="shotReady">
+			<template v-slot:activator="{ props }">
+				<div v-bind="props" class="d-inline-block">
+					<v-btn
+						:disabled="!shotReady"
+						@click="wrapCurrentShot"
+						class="mb-3"
+						color="primary"
+					>
+						Action!
+					</v-btn>
+				</div>
+			</template>
+			<span v-for="(error, index) in actionButtonErrors" :key="index">
+				{{ error }}<br />
+			</span>
+		</v-tooltip>
 	</div>
 </template>
 
@@ -157,7 +166,7 @@ export default {
 			// soundBand values
 			soundBand: [-42, -38],
 			soundBandTarget: [-40, -36],
-			calibrationThreshold: 1.25,
+			calibrationThreshold: 0.75,
 
 			// Limits for the soundBandTarget slider
 			soundBandMinLowerLimit: -45, // Lower limit for the minimum value
@@ -193,6 +202,45 @@ export default {
 				this.focusValue >= 99 &&
 				this.lightenValue >= 99
 			);
+		},
+		actionButtonErrors() {
+			let errors = [];
+
+			if (this.focusValue < 99) {
+				errors.push("The image is too blurry");
+			}
+
+			if (this.lightenValue < 99) {
+				errors.push("The image is too dark");
+			}
+
+			// Check sound band calibration
+			if (!this.soundBandCalibrated) {
+				const targetMin = this.soundBandTarget[0];
+				const targetMax = this.soundBandTarget[1];
+				const userMin = this.soundBand[0];
+				const userMax = this.soundBand[1];
+
+				// Determine specific sound range errors
+				if (userMin < targetMin && userMax > targetMax) {
+					errors.push(
+						"The mic range is too large and will pick up extra noise"
+					);
+				}
+				if (userMin > targetMin && userMax < targetMax) {
+					errors.push(
+						"The mic range is too narrow and won't pick up enough sound"
+					);
+				}
+				if (userMin < targetMin && userMax < targetMax) {
+					errors.push("The mic range is too low");
+				}
+				if (userMin > targetMin && userMax > targetMax) {
+					errors.push("The mic range is too high");
+				}
+			}
+
+			return errors;
 		},
 	},
 	methods: {
