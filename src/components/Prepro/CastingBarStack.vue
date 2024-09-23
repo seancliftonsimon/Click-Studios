@@ -6,52 +6,52 @@
 				<span>Hire Casting Director</span>
 				<v-btn :disabled="!canAffordHire" @click="hireDeptHead"> $5K </v-btn>
 			</v-container>
-			<v-container v-show="!deptLocked && hasRolesToCast">
-				<h4 class="py-0">
+			<v-container v-show="!deptLocked && hasRolesToCast" class="py-0">
+				<h4 class="py-0" align="center">
 					{{ currentRole ? currentRole.name : "All roles cast" }}
 				</h4>
 				<v-list class="pl-0">
 					<v-list-item style="color: maroon" class="px-0">
-						<v-col class="pb-1 pt-0">
+						<v-col class="pa-0">
 							<h3>Callbacks</h3>
 							<v-progress-linear
-								style="height: 22px; width: 180px"
+								style="height: 22px; width: 170px"
 								:model-value="progressBarOne"
 								:max="progressbarOneMax"
 							>
 							</v-progress-linear>
 							<v-row class="justify-space-between">
-								<span class="ml-2 mt-2"> {{ progressBarOne }} </span>
+								<span class="ml-3 mt-2"> {{ progressBarOne }} </span>
 								<span class="mr-2 mt-2"> {{ progressbarOneMax }} </span>
 							</v-row>
 						</v-col>
 					</v-list-item>
 					<v-list-item style="color: red" class="px-0">
-						<v-col class="pb-1 pt-0">
+						<v-col class="pa-0">
 							<h3>Auditions</h3>
 							<v-progress-linear
-								style="height: 22px; width: 180px"
+								style="height: 22px; width: 170px"
 								:model-value="progressBarTwo"
 								:max="progressbarTwoMax"
 							>
 							</v-progress-linear>
 							<v-row class="justify-space-between">
-								<span class="ml-2 mt-2"> {{ progressBarTwo }} </span>
+								<span class="ml-3 mt-2"> {{ progressBarTwo }} </span>
 								<span class="mr-2 mt-2"> {{ progressbarTwoMax }} </span>
 							</v-row>
 						</v-col>
 					</v-list-item>
 					<v-list-item style="color: orangered" class="px-0">
-						<v-col class="pb-1 pt-0">
+						<v-col class="pa-0">
 							<h3>Cattle Call</h3>
 							<v-progress-linear
-								style="height: 22px; width: 180px"
+								style="height: 22px; width: 170px"
 								:model-value="progressBarThree"
 								:max="progressbarThreeMax"
 							>
 							</v-progress-linear>
 							<v-row class="justify-space-between">
-								<span class="ml-2 mt-2"> {{ progressBarThree }} </span>
+								<span class="ml-3 mt-2"> {{ progressBarThree }} </span>
 								<span class="mr-2 mt-2"> {{ progressbarThreeMax }}</span>
 							</v-row>
 						</v-col>
@@ -74,7 +74,7 @@
 						class="plus-minus"
 						:disabled="!hasUnassignedEmployees"
 						>+</v-btn
-					>
+					><br />
 					<span class="text-center">{{ ticksPerSecond }}ps</span>
 				</v-row>
 			</v-container>
