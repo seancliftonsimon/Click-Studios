@@ -1,86 +1,98 @@
 <template>
 	<v-container>
 		<v-card class="d-flex flex-column align-center">
-			<h4 class="py-0">
-				📍 Scouting:
-				{{ currentLocation ? currentLocation.name : "All locations scouted" }}
-			</h4>
-			<v-list v-show="hasLocationsToScout" class="pl-0">
-				<v-list-item style="color: maroon" class="px-0">
-					<v-col class="pb-1 pt-0">
-						<h3>Permitting</h3>
-						<v-progress-linear
-							style="height: 22px; width: 180px"
-							:model-value="progressBarOne"
-							:max="progressbarOneMax"
-						>
-						</v-progress-linear>
-						<v-row class="justify-space-between">
-							<span class="ml-2 mt-2"> {{ progressBarOne }} </span>
-							<span class="mr-2 mt-2"> {{ progressbarOneMax }} </span>
-						</v-row>
-					</v-col>
-				</v-list-item>
-				<v-list-item style="color: red" class="px-0">
-					<v-col class="pb-1 pt-0">
-						<h3>Site Visit</h3>
-						<v-progress-linear
-							style="height: 22px; width: 180px"
-							:model-value="progressBarTwo"
-							:max="progressbarTwoMax"
-						>
-						</v-progress-linear>
-						<v-row class="justify-space-between">
-							<span class="ml-2 mt-2"> {{ progressBarTwo }} </span>
-							<span class="mr-2 mt-2"> {{ progressbarTwoMax }} </span>
-						</v-row>
-					</v-col>
-				</v-list-item>
-				<v-list-item style="color: orangered" class="px-0">
-					<v-col class="pb-1 pt-0">
-						<h3>Research</h3>
-						<v-progress-linear
-							style="height: 22px; width: 180px"
-							:model-value="progressBarThree"
-							:max="progressbarThreeMax"
-						>
-						</v-progress-linear>
-						<v-row class="justify-space-between">
-							<span class="ml-2 mt-2"> {{ progressBarThree }} </span>
-							<span class="mr-2 mt-2"> {{ progressbarThreeMax }}</span>
-						</v-row>
-					</v-col>
-				</v-list-item>
-			</v-list>
-			<v-btn @click="updateProgressOnClick">+{{ ticksPerClick }}</v-btn
-			><br />
-			<v-divider class="py-1"></v-divider>
-			<v-row class="py-5">
-				<v-btn
-					@click="unassignEmployee"
-					class="plus-minus"
-					:disabled="localEmployees <= 0"
-					>-</v-btn
-				>
-				<span>👤{{ localEmployees }} </span>
-				<v-btn
-					@click="assignEmployee"
-					class="plus-minus"
-					:disabled="!hasUnassignedEmployees"
-					>+</v-btn
-				>
-				<span class="text-center">{{ ticksPerSecond }}ps</span>
-			</v-row>
+			<h3>📍 Locations</h3>
+			<v-container v-show="deptLocked" align="center">
+				<span>Hire Location Manager</span>
+				<v-btn :disabled="!canAffordHire" @click="hireDeptHead"> $5K </v-btn>
+			</v-container>
+			<v-container v-show="!deptLocked && hasLocationsToScout">
+				<h4 class="py-0">
+					{{ currentLocation ? currentLocation.name : "All locations scouted" }}
+				</h4>
+				<v-list v-show="hasLocationsToScout" class="pl-0">
+					<v-list-item style="color: maroon" class="px-0">
+						<v-col class="pt-0">
+							<h3>Permitting</h3>
+							<v-progress-linear
+								style="height: 22px; width: 100%"
+								:model-value="progressBarOne"
+								:max="progressbarOneMax"
+							>
+							</v-progress-linear>
+							<v-row class="justify-space-between">
+								<span class="ml-2 mt-2"> {{ progressBarOne }} </span>
+								<span class="mr-2 mt-2"> {{ progressbarOneMax }} </span>
+							</v-row>
+						</v-col>
+					</v-list-item>
+					<v-list-item style="color: red" class="px-0">
+						<v-col class="pt-0">
+							<h3>Site Visit</h3>
+							<v-progress-linear
+								style="height: 22px; width: 180px"
+								:model-value="progressBarTwo"
+								:max="progressbarTwoMax"
+							>
+							</v-progress-linear>
+							<v-row class="justify-space-between">
+								<span class="ml-2 mt-2"> {{ progressBarTwo }} </span>
+								<span class="mr-2 mt-2"> {{ progressbarTwoMax }} </span>
+							</v-row>
+						</v-col>
+					</v-list-item>
+					<v-list-item style="color: orangered" class="px-0">
+						<v-col class="pt-0">
+							<h3>Research</h3>
+							<v-progress-linear
+								style="height: 22px; width: 180px"
+								:model-value="progressBarThree"
+								:max="progressbarThreeMax"
+							>
+							</v-progress-linear>
+							<v-row class="justify-space-between">
+								<span class="ml-2 mt-2"> {{ progressBarThree }} </span>
+								<span class="mr-2 mt-2"> {{ progressbarThreeMax }}</span>
+							</v-row>
+						</v-col>
+					</v-list-item>
+				</v-list>
+				<v-btn @click="updateProgressOnClick">+{{ ticksPerClick }}</v-btn
+				><br />
+				<v-divider class="py-1"></v-divider>
+				<v-row class="py-5">
+					<v-btn
+						@click="unassignEmployee"
+						class="plus-minus"
+						:disabled="localEmployees <= 0"
+						>-</v-btn
+					>
+					<span>👤{{ localEmployees }} </span>
+					<v-btn
+						@click="assignEmployee"
+						class="plus-minus"
+						:disabled="!hasUnassignedEmployees"
+						>+</v-btn
+					>
+					<span class="text-center">{{ ticksPerSecond }}ps</span>
+				</v-row>
+			</v-container>
+			<v-container v-show="!deptLocked && !hasLocationsToScout">
+				<span>Complete.</span> <br />
+				<span> Workers have been unassigned.</span>
+			</v-container>
 		</v-card>
 	</v-container>
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters, mapMutations } from "vuex";
 
 export default {
 	data() {
 		return {
+			deptLocked: true,
+
 			progressBarOne: 0,
 			progressBarTwo: 0,
 			progressBarThree: 0,
@@ -102,6 +114,7 @@ export default {
 			"preproDollarCount",
 			"unassignedEmployeeCount",
 			"employeeCount",
+			"preproDollarCount",
 		]),
 		currentLocation() {
 			return this.scriptLocations[this.currentLocationIndex];
@@ -115,9 +128,13 @@ export default {
 		ticksPerSecond() {
 			return this.localEmployees * this.employeeSpeed;
 		},
+		canAffordHire() {
+			return this.preproDollarCount >= 5000;
+		},
 	},
 
 	methods: {
+		...mapMutations(["HIRE_EMPLOYEE"]),
 		updateProgress() {
 			if (!this.hasLocationsToScout) return;
 			this.progressBarThree += this.ticksPerSecond;
@@ -187,10 +204,16 @@ export default {
 				);
 				if (nextLocationIndex !== -1) {
 					this.currentLocationIndex = nextLocationIndex;
+				} else {
+					console.log("All locations have been scouted.");
+					let i = this.localEmployees;
+					while (i > 0) {
+						this.unassignEmployee();
+						i--;
+						console.log("Unassigned one employee!");
+					}
 				}
 				this.$emit("locationScouted", lastLocation);
-			} else {
-				console.log("All locations have been scouted.");
 			}
 		},
 		assignEmployee() {
@@ -200,6 +223,11 @@ export default {
 		unassignEmployee() {
 			this.$store.commit("UNASSIGN_EMPLOYEE", 1);
 			this.localEmployees -= 1;
+		},
+		hireDeptHead() {
+			this.deptLocked = false;
+			this.$store.commit("HIRE_EMPLOYEE", 1);
+			this.assignEmployee();
 		},
 	},
 

@@ -1,98 +1,95 @@
 <template>
-	<v-card class="d-flex fill-height">
-		<v-col
-			class="d-flex flex-column align-center justify-space-around"
-			cols="4"
-		>
-			<v-row class="d-flex neat-row">
-				<span>Auto Search</span>
-				<v-btn
+	<v-card class="py-6">
+		<v-row class="mx-2 mb-1 align-center justify-space-apart">
+			<v-col align="center">
+				<span>+ Searches per click </span
+				><v-btn
+					@click="triggerAction('searchesPerClick')"
+					:disabled="playerInspiration < costs.searchesPerClick"
+					>{{ costs.searchesPerClick }} ✨</v-btn
+				>
+			</v-col>
+			<v-col align="center">
+				<span>+ Pitches per click </span
+				><v-btn
+					@click="triggerAction('pitchesPerClick')"
+					:disabled="playerInspiration < costs.pitchesPerClick"
+					>{{ costs.pitchesPerClick }} ✨</v-btn
+				>
+			</v-col>
+		</v-row>
+		<v-row class="mx-2 my-1 align-center justify-space-apart">
+			<v-col align="center">
+				<span>+ Worker search speed </span
+				><v-btn
+					@click="triggerAction('workerSearchSpeed')"
+					:disabled="playerInspiration < costs.workerSearchSpeed"
+					>{{ costs.workerSearchSpeed }} ✨</v-btn
+				></v-col
+			>
+			<v-col align="center">
+				<span>+ Worker pitch speed </span
+				><v-btn
+					@click="triggerAction('workerPitchSpeed')"
+					:disabled="playerInspiration < costs.workerPitchSpeed"
+					>{{ costs.workerPitchSpeed }} ✨</v-btn
+				>
+			</v-col>
+		</v-row>
+
+		<v-row class="mx-2 my-1 align-center justify-space-apart">
+			<v-col align="center">
+				<span>Shorter Searches </span
+				><v-btn
+					@click="triggerAction('shortenSearches')"
+					:disabled="playerInspiration < costs.shortenSearches"
+					>{{ costs.shortenSearches }} ✨</v-btn
+				></v-col
+			>
+			<v-col align="center">
+				<span>Bigger Investors </span
+				><v-btn
+					@click="triggerAction('biggerInvestors')"
+					:disabled="playerInspiration < costs.biggerInvestors"
+					>{{ costs.biggerInvestors }} ✨</v-btn
+				>
+			</v-col>
+			<v-col align="center">
+				<span>Better Pitches </span
+				><v-btn
+					@click="triggerAction('betterPitches')"
+					:disabled="playerInspiration < costs.betterPitches"
+					>{{ costs.betterPitches }} ✨</v-btn
+				>
+			</v-col>
+		</v-row>
+		<v-row class="mx-2 mt-1 align-center justify-space-apart">
+			<v-col align="center">
+				<span>Auto Search </span
+				><v-btn
 					@click="triggerAction('autoSearch')"
 					:disabled="this.playerInspiration < costs.autoSearch"
-					>{{ costs.autoSearch }} ✨</v-btn
 				>
-			</v-row>
-			<v-row class="d-flex neat-row">
-				<span>Auto Pitch</span>
-				<v-btn
+					{{ costs.autoSearch }} ✨</v-btn
+				></v-col
+			>
+			<v-col align="center">
+				<span>Auto Pitch </span
+				><v-btn
 					@click="triggerAction('autoPitch')"
 					:disabled="playerInspiration < costs.autoPitch"
 					>{{ costs.autoPitch }} ✨</v-btn
-				>
-			</v-row>
-			<v-row class="d-flex neat-row">
-				<span>Auto Collect</span>
-				<v-btn
+				></v-col
+			>
+			<v-col align="center">
+				<span>Auto Collect </span
+				><v-btn
 					@click="triggerAction('autoCollect')"
 					:disabled="playerInspiration < costs.autoCollect"
 					>{{ costs.autoCollect }} ✨</v-btn
-				>
-			</v-row>
-		</v-col>
-		<v-col class="d-flex flex-column" cols="8">
-			<v-row class="d-flex">
-				<v-row class="d-flex neat-row">
-					<span>Searches per click+</span>
-					<v-btn
-						@click="triggerAction('searchesPerClick')"
-						:disabled="playerInspiration < costs.searchesPerClick"
-						>{{ costs.searchesPerClick }} ✨</v-btn
-					>
-				</v-row>
-				<v-row class="d-flex neat-row">
-					<span>Pitches per click+</span>
-					<v-btn
-						@click="triggerAction('pitchesPerClick')"
-						:disabled="playerInspiration < costs.pitchesPerClick"
-						>{{ costs.pitchesPerClick }} ✨</v-btn
-					>
-				</v-row>
-			</v-row>
-			<v-row class="d-flex neat-row">
-				<v-row class="d-flex neat-row">
-					<span>Worker search speed+</span>
-					<v-btn
-						@click="triggerAction('workerSearchSpeed')"
-						:disabled="playerInspiration < costs.workerSearchSpeed"
-						>{{ costs.workerSearchSpeed }} ✨</v-btn
-					>
-				</v-row>
-				<v-row class="d-flex neat-row">
-					<span>Worker pitch speed+</span>
-					<v-btn
-						@click="triggerAction('workerPitchSpeed')"
-						:disabled="playerInspiration < costs.workerPitchSpeed"
-						>{{ costs.workerPitchSpeed }} ✨</v-btn
-					>
-				</v-row>
-			</v-row>
-			<v-row class="d-flex flex-column align-center justify-space-evenly">
-				<v-row class="d-flex neat-row">
-					<span>Shorter Searches+</span>
-					<v-btn
-						@click="triggerAction('shortenSearches')"
-						:disabled="playerInspiration < costs.shortenSearches"
-						>{{ costs.shortenSearches }} ✨</v-btn
-					>
-				</v-row>
-				<v-row class="d-flex neat-row">
-					<span>Bigger Investors+</span>
-					<v-btn
-						@click="triggerAction('biggerInvestors')"
-						:disabled="playerInspiration < costs.biggerInvestors"
-						>{{ costs.biggerInvestors }} ✨</v-btn
-					>
-				</v-row>
-				<v-row class="d-flex neat-row">
-					<span>Better Pitches+</span>
-					<v-btn
-						@click="triggerAction('betterPitches')"
-						:disabled="playerInspiration < costs.betterPitches"
-						>{{ costs.betterPitches }} ✨</v-btn
-					>
-				</v-row>
-			</v-row>
-		</v-col>
+				></v-col
+			>
+		</v-row>
 	</v-card>
 </template>
 
@@ -187,6 +184,14 @@ export default {
 
 .v-btn {
 	width: fit-content;
-	min-width: 20px;
+}
+
+.v-row {
+	gap: 8px;
+}
+
+.v-col {
+	background-color: aquamarine;
+	border-radius: 8px;
 }
 </style>

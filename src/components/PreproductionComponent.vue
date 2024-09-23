@@ -41,11 +41,11 @@
 		<!-- Third row with four components -->
 		<v-row>
 			<v-col cols="3"> <PitchingComponent /> </v-col>
-			<v-col cols="5">
+			<v-col cols="6">
 				<InspirationShop />
 			</v-col>
-			<v-col cols="2">
-				<v-card class="fill-height center-content"
+			<v-col cols="3">
+				<v-card class="center-content"
 					><v-card-text class="text-center">
 						<span class="dollar-counter">
 							💲{{ $formatNumber(preproDollarCount) }} </span
@@ -54,11 +54,7 @@
 						<v-btn @click="testScript"> Create Project </v-btn>
 					</v-card-text></v-card
 				>
-				<!-- Component 3 content goes here -->
-			</v-col>
-			<v-col cols="2">
 				<HireWorkersCard />
-				<!-- Component 4 content goes here -->
 			</v-col>
 		</v-row>
 	</v-container>

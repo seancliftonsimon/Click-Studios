@@ -1,90 +1,105 @@
 <template>
 	<v-container>
 		<v-card class="d-flex flex-column align-center">
-			<h4 class="py-0">🔭 Casting: {{ currentRole ? currentRole.name : "All roles cast" }}</h4>
-			<v-list v-show="hasRolesToCast" class="pl-0">
-				<v-list-item style="color: maroon" class="px-0">
-					<v-col class="pb-1 pt-0">
-						<h3>Callbacks</h3>
-						<v-progress-linear
-							style="height: 22px; width: 180px"
-							:model-value="progressBarOne"
-							:max="progressbarOneMax"
-						>
-						</v-progress-linear>
-						<v-row class="justify-space-between">
-							<span class="ml-2 mt-2"> {{ progressBarOne }} </span>
-							<span class="mr-2 mt-2"> {{ progressbarOneMax }} </span>
-						</v-row>
-					</v-col>
-				</v-list-item>
-				<v-list-item style="color: red" class="px-0">
-					<v-col class="pb-1 pt-0">
-						<h3>Auditions</h3>
-						<v-progress-linear
-							style="height: 22px; width: 180px"
-							:model-value="progressBarTwo"
-							:max="progressbarTwoMax"
-						>
-						</v-progress-linear>
-						<v-row class="justify-space-between">
-							<span class="ml-2 mt-2"> {{ progressBarTwo }} </span>
-							<span class="mr-2 mt-2"> {{ progressbarTwoMax }} </span>
-						</v-row>
-					</v-col>
-				</v-list-item>
-				<v-list-item style="color: orangered" class="px-0">
-					<v-col class="pb-1 pt-0">
-						<h3>Cattle Call</h3>
-						<v-progress-linear
-							style="height: 22px; width: 180px"
-							:model-value="progressBarThree"
-							:max="progressbarThreeMax"
-						>
-						</v-progress-linear>
-						<v-row class="justify-space-between">
-							<span class="ml-2 mt-2"> {{ progressBarThree }} </span>
-							<span class="mr-2 mt-2"> {{ progressbarThreeMax }}</span>
-						</v-row>
-					</v-col>
-				</v-list-item>
-			</v-list>
+			<h3>🔭 Casting</h3>
+			<v-container v-show="deptLocked" align="center">
+				<span>Hire Casting Director</span>
+				<v-btn :disabled="!canAffordHire" @click="hireDeptHead"> $5K </v-btn>
+			</v-container>
+			<v-container v-show="!deptLocked && hasRolesToCast">
+				<h4 class="py-0">
+					{{ currentRole ? currentRole.name : "All roles cast" }}
+				</h4>
+				<v-list class="pl-0">
+					<v-list-item style="color: maroon" class="px-0">
+						<v-col class="pb-1 pt-0">
+							<h3>Callbacks</h3>
+							<v-progress-linear
+								style="height: 22px; width: 180px"
+								:model-value="progressBarOne"
+								:max="progressbarOneMax"
+							>
+							</v-progress-linear>
+							<v-row class="justify-space-between">
+								<span class="ml-2 mt-2"> {{ progressBarOne }} </span>
+								<span class="mr-2 mt-2"> {{ progressbarOneMax }} </span>
+							</v-row>
+						</v-col>
+					</v-list-item>
+					<v-list-item style="color: red" class="px-0">
+						<v-col class="pb-1 pt-0">
+							<h3>Auditions</h3>
+							<v-progress-linear
+								style="height: 22px; width: 180px"
+								:model-value="progressBarTwo"
+								:max="progressbarTwoMax"
+							>
+							</v-progress-linear>
+							<v-row class="justify-space-between">
+								<span class="ml-2 mt-2"> {{ progressBarTwo }} </span>
+								<span class="mr-2 mt-2"> {{ progressbarTwoMax }} </span>
+							</v-row>
+						</v-col>
+					</v-list-item>
+					<v-list-item style="color: orangered" class="px-0">
+						<v-col class="pb-1 pt-0">
+							<h3>Cattle Call</h3>
+							<v-progress-linear
+								style="height: 22px; width: 180px"
+								:model-value="progressBarThree"
+								:max="progressbarThreeMax"
+							>
+							</v-progress-linear>
+							<v-row class="justify-space-between">
+								<span class="ml-2 mt-2"> {{ progressBarThree }} </span>
+								<span class="mr-2 mt-2"> {{ progressbarThreeMax }}</span>
+							</v-row>
+						</v-col>
+					</v-list-item>
+				</v-list>
 
-			<v-btn @click="updateProgressOnClick">+{{ ticksPerClick }}</v-btn
-			><br />
-			<v-divider class="py-1"></v-divider>
-			<v-row class="py-5">
-				<v-btn
-					@click="unassignEmployee"
-					class="plus-minus"
-					:disabled="localEmployees <= 0"
-					>-</v-btn
-				>
-				<span>👤{{ localEmployees }} </span>
-				<v-btn
-					@click="assignEmployee"
-					class="plus-minus"
-					:disabled="!hasUnassignedEmployees"
-					>+</v-btn
-				>
-				<span class="text-center">{{ ticksPerSecond }}ps</span>
-			</v-row>
+				<v-btn @click="updateProgressOnClick">+{{ ticksPerClick }}</v-btn
+				><br />
+				<v-divider class="py-1"></v-divider>
+				<v-row class="py-5">
+					<v-btn
+						@click="unassignEmployee"
+						class="plus-minus"
+						:disabled="localEmployees <= 0"
+						>-</v-btn
+					>
+					<span>👤{{ localEmployees }} </span>
+					<v-btn
+						@click="assignEmployee"
+						class="plus-minus"
+						:disabled="!hasUnassignedEmployees"
+						>+</v-btn
+					>
+					<span class="text-center">{{ ticksPerSecond }}ps</span>
+				</v-row>
+			</v-container>
+			<v-container v-show="!deptLocked && !hasRolesToCast">
+				<span>Complete.</span> <br />
+				<span> Workers have been unassigned.</span>
+			</v-container>
 		</v-card>
 	</v-container>
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters, mapMutations } from "vuex";
 
 export default {
 	data() {
 		return {
+			deptLocked: true,
+
 			progressBarOne: 0,
 			progressBarTwo: 0,
 			progressBarThree: 0,
-			progressbarOneMax: 5,
-			progressbarTwoMax: 10,
-			progressbarThreeMax: 20,
+			progressbarOneMax: 3,
+			progressbarTwoMax: 3,
+			progressbarThreeMax: 3,
 
 			currentRoleIndex: 0,
 
@@ -100,6 +115,7 @@ export default {
 			"preproDollarCount",
 			"unassignedEmployeeCount",
 			"employeeCount",
+			"preproDollarCount",
 		]),
 		currentRole() {
 			return this.scriptRoles[this.currentRoleIndex];
@@ -113,8 +129,12 @@ export default {
 		ticksPerSecond() {
 			return this.localEmployees * this.employeeSpeed;
 		},
+		canAffordHire() {
+			return this.preproDollarCount >= 5000;
+		},
 	},
 	methods: {
+		...mapMutations(["HIRE_EMPLOYEE"]),
 		updateProgress() {
 			if (!this.hasRolesToCast) return;
 			this.progressBarThree += this.ticksPerSecond;
@@ -182,10 +202,16 @@ export default {
 				);
 				if (nextRoleIndex !== -1) {
 					this.currentRoleIndex = nextRoleIndex;
+				} else {
+					console.log("All roles have been cast.");
+					let i = this.localEmployees;
+					while (i > 0) {
+						this.unassignEmployee();
+						i--;
+						console.log("Unassigned one employee!");
+					}
 				}
 				this.$emit("roleCast", lastRole);
-			} else {
-				console.log("All roles have been cast.");
 			}
 		},
 		assignEmployee() {
@@ -195,6 +221,11 @@ export default {
 		unassignEmployee() {
 			this.$store.commit("UNASSIGN_EMPLOYEE", 1);
 			this.localEmployees -= 1;
+		},
+		hireDeptHead() {
+			this.deptLocked = false;
+			this.$store.commit("HIRE_EMPLOYEE", 1);
+			this.assignEmployee();
 		},
 	},
 

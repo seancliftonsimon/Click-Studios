@@ -35,7 +35,7 @@ export default createStore({
 		writingDollarCount: 0,
 		totalWritingDollarCount: 0,
 
-		preproDollarCount: 0,
+		preproDollarCount: 5005,
 		totalPreproDollarCount: 0,
 		// I should put the wpS value above in a compute function later probably XYZ
 
@@ -1212,7 +1212,6 @@ export default createStore({
 		lookGoal: (state) => state.currentScript.looks.length,
 		scriptTitle: (state) => state.currentScript.title,
 		scriptGenre: (state) => state.currentScript.genre,
-		
 
 		// Roles
 		totalRoles(state) {
