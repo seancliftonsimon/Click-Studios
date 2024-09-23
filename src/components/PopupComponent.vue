@@ -43,11 +43,11 @@ export default {
 		};
 	},
 	computed: {
-		...mapGetters(["currentPopupContent", "popupVisible", "currentTitle"]),
+		...mapGetters(["currentPopupContent", "popupVisible", "scriptTitle"]),
 
 		popupTitle() {
 			if (this.currentPopupContent.title == "Script Details") {
-				return this.currentTitle;
+				return this.scriptTitle;
 			} else {
 				return this.currentPopupContent.title;
 			}

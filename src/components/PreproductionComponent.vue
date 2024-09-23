@@ -5,38 +5,13 @@
 		<v-btn flat color="white" @click="snackbarVisible = false">X</v-btn>
 	</v-snackbar>
 	<v-container fluid class="phase-container bg-grey-lighten-2">
-		<!-- First row with four components -->
-		<v-row>
-			<v-col cols="3"> <PitchingComponent /> </v-col>
-			<v-col cols="5">
-				<InspirationShop />
-			</v-col>
-			<v-col cols="2">
-				<v-card class="fill-height center-content"
-					><v-card-text class="text-center">
-						<span class="dollar-counter">
-							💲{{ $formatNumber(preproDollarCount) }} </span
-						><br /><br />
-						<span class="inspiration-counter">✨ {{ inspiration }}</span>
-						<v-btn @click="testScript"> Create Project </v-btn>
-					</v-card-text></v-card
-				>
-				<!-- Component 3 content goes here -->
-			</v-col>
-			<v-col cols="2">
-				<HireWorkersCard />
-				<!-- Component 4 content goes here -->
-			</v-col>
-		</v-row>
-
-		<!-- Second row spanning full width -->
+		<!-- First row spanning full width -->
 		<v-row>
 			<v-col cols="12">
 				<PreproBanner :actorSparkleIsActive="actorSparkleActive" />
 			</v-col>
 		</v-row>
-
-		<!-- Third row with six components each containing three v-cards -->
+		<!-- Second row with six components each containing three v-cards -->
 		<v-row>
 			<v-col cols="2">
 				<CastingBarStack class="pa-0" @roleCast="handleRoleCast" />
@@ -61,6 +36,29 @@
 					class="pa-0"
 					@lookDesigned="handleLookDesigned"
 				/>
+			</v-col>
+		</v-row>
+		<!-- Third row with four components -->
+		<v-row>
+			<v-col cols="3"> <PitchingComponent /> </v-col>
+			<v-col cols="5">
+				<InspirationShop />
+			</v-col>
+			<v-col cols="2">
+				<v-card class="fill-height center-content"
+					><v-card-text class="text-center">
+						<span class="dollar-counter">
+							💲{{ $formatNumber(preproDollarCount) }} </span
+						><br /><br />
+						<span class="inspiration-counter">✨ {{ inspiration }}</span>
+						<v-btn @click="testScript"> Create Project </v-btn>
+					</v-card-text></v-card
+				>
+				<!-- Component 3 content goes here -->
+			</v-col>
+			<v-col cols="2">
+				<HireWorkersCard />
+				<!-- Component 4 content goes here -->
 			</v-col>
 		</v-row>
 	</v-container>
@@ -105,6 +103,8 @@ export default {
 			wordCount: "wordCount",
 			preproDollarCount: "preproDollarCount",
 			inspiration: "inspiration",
+			scriptTitle: "scriptTitle",
+			scriptGenre: "scriptGenre",
 		}),
 	},
 	methods: {

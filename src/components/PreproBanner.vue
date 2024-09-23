@@ -1,6 +1,7 @@
 <template>
 	<v-card>
 		<v-container fluid class="d-flex flex-column px-8">
+			<h3>{{ title }} Preproduction Progress</h3>
 			<v-row class="pt-1 pb-0" justify="space-between" align="center">
 				<v-col>
 					<v-chip color="red-darken-2"
@@ -70,7 +71,7 @@ export default {
 	},
 	computed: {
 		...mapGetters({
-			title: "currentTitle",
+			title: "scriptTitle",
 			actorGoal: "actorGoal",
 			completeRolesCount: "completeRolesCount",
 			shotGoal: "shotGoal",

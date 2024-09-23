@@ -14,7 +14,7 @@ export default createStore({
 		isReleaseUnlocked: false,
 
 		// Word Variables
-		wordCount: 0,
+		wordCount: 2000000,
 		wordsPerSecond: 0,
 		totalWordCount: 0,
 
@@ -402,6 +402,7 @@ export default createStore({
 
 		currentScript: {
 			title: "",
+			genre: "",
 			roles: [],
 			shots: [],
 			sets: [],
@@ -640,65 +641,307 @@ export default createStore({
 				"360",
 				"Point of Interest",
 			],
-			sets = [
-				{ id: 1, name: "Hospital Room", image: "assets/ShotArt/HospitalRoom.png" },
-				{ id: 2, name: "Courtroom", image: "assets/ShotArt/Courtroom.png" },
-				{ id: 3, name: "Apartment Living Room", image: "assets/ShotArt/ApartmentLivingRoom.png" },
-				{ id: 4, name: "Suburban Kitchen", image: "assets/ShotArt/SuburbanKitchen.png" },
-				{ id: 5, name: "Rooftop Lounge", image: "assets/ShotArt/RooftopLounge.png" },
-				{ id: 6, name: "Train Car Compartment", image: "assets/ShotArt/TrainCarCompartment.png" },
-				{ id: 7, name: "Classroom", image: "assets/ShotArt/Classroom.png" },
-				{ id: 8, name: "Living Room", image: "assets/ShotArt/LivingRoom.png" },
-				{ id: 9, name: "Office Break Room", image: "assets/ShotArt/OfficeBreakRoom.png" },
-				{ id: 10, name: "Restaurant Booth", image: "assets/ShotArt/RestaurantBooth.png" },
-				{ id: 11, name: "Church Interior", image: "assets/ShotArt/ChurchInterior.png" },
-				{ id: 12, name: "Police Interrogation Room", image: "assets/ShotArt/PoliceInterrogationRoom.png" },
-				{ id: 13, name: "Psychiatrist’s Office", image: "assets/ShotArt/PsychiatristOffice.png" },
-				{ id: 14, name: "Library Study Room", image: "assets/ShotArt/LibraryStudyRoom.png" },
-				{ id: 15, name: "Motel Room", image: "assets/ShotArt/MotelRoom.png" },
-				{ id: 16, name: "Art Gallery Exhibit", image: "assets/ShotArt/ArtGalleryExhibit.png" },
-				{ id: 17, name: "Hotel Lobby", image: "assets/ShotArt/HotelLobby.png" },
-				{ id: 18, name: "Apartment Hallway", image: "assets/ShotArt/ApartmentHallway.png" },
-				{ id: 19, name: "Cabin", image: "assets/ShotArt/Cabin.png" },
-				{ id: 20, name: "Airplane", image: "assets/ShotArt/Airplane.png" },
-				{ id: 21, name: "Dive Bar", image: "assets/ShotArt/DiveBar.png" },
-				{ id: 22, name: "Hospital Waiting Room", image: "assets/ShotArt/HospitalWaitingRoom.png" },
-				{ id: 23, name: "Diner Counter", image: "assets/ShotArt/DinerCounter.png" },
-				{ id: 24, name: "High School Gym", image: "assets/ShotArt/HighSchoolGym.png" },
-				{ id: 25, name: "Luxury Hotel Room", image: "assets/ShotArt/LuxuryHotelRoom.png" },
-				{ id: 26, name: "Locker Room", image: "assets/ShotArt/LockerRoom.png" },
-				{ id: 27, name: "Mechanic Garage", image: "assets/ShotArt/MechanicGarage.png" },
-				{ id: 28, name: "Treehouse", image: "assets/ShotArt/Treehouse.png" },
-			  ],
-			locations: [
-				"Train Station Platform",
-				"Downtown Café Patio",
-				"Public Park",
-				"City Street Corner",
-				"Cemetery",
-				"Church Courtyard",
-				"Police Station Entrance",
-				"Beachfront",
-				"Suburban Neighborhood Street",
-				"Bus Stop",
-				"College Campus Lawn",
-				"Rooftop",
-				"Rural Field",
-				"Mountain Trail",
-				"Forest Clearing",
-				"Riverbank",
-				"Abandoned Lot",
-				"School Playground",
-				"Boardwalk",
-				"Outdoor Market",
-				"Small Town Main Street",
-				"Bridge Overpass",
-				"Park Bench",
-				"Country Road",
-				"Beach Pier",
-				"Alleyway",
-				"Desert Highway",
-				"Barnyard",
+			settings: [
+				{
+					id: 1,
+					type: "set",
+					name: "Hospital Ward",
+					image: "assets/ShotPhotos/hospitalward.jpg",
+				},
+				{
+					id: 2,
+					type: "set",
+					name: "Courtroom",
+					image: "assets/ShotPhotos/courtroom.jpg",
+				},
+				{
+					id: 3,
+					type: "set",
+					name: "Living Room",
+					image: "assets/ShotPhotos/livingroom.jpg",
+				},
+				{
+					id: 4,
+					type: "set",
+					name: "Suburban Kitchen",
+					image: "assets/ShotPhotos/kitchen.jpg",
+				},
+				{
+					id: 5,
+					type: "set",
+					name: "Lounge",
+					image: "assets/ShotPhotos/lounge.jpg",
+				},
+				{
+					id: 6,
+					type: "set",
+					name: "Subway Train Car",
+					image: "assets/ShotPhotos/subway.jpg",
+				},
+				{
+					id: 7,
+					type: "set",
+					name: "Classroom",
+					image: "assets/ShotPhotos/classroom.jpg",
+				},
+				{
+					id: 8,
+					type: "set",
+					name: "Cellar",
+					image: "assets/ShotPhotos/cellar.jpg",
+				},
+				{
+					id: 9,
+					type: "set",
+					name: "Conference Room",
+					image: "assets/ShotPhotos/conferenceroom.jpg",
+				},
+				{
+					id: 10,
+					type: "set",
+					name: "Restaurant",
+					image: "assets/ShotPhotos/restaurant.jpg",
+				},
+				{
+					id: 11,
+					type: "set",
+					name: "Church Interior",
+					image: "assets/ShotPhotos/church.jpg",
+				},
+				{
+					id: 12,
+					type: "set",
+					name: "Waiting Room",
+					image: "assets/ShotPhotos/waitingroom.jpg",
+				},
+				{
+					id: 13,
+					type: "set",
+					name: "Walk-in Closet",
+					image: "assets/ShotPhotos/closet.jpg",
+				},
+				{
+					id: 14,
+					type: "set",
+					name: "Library Study Room",
+					image: "assets/ShotPhotos/studyroom.jpg",
+				},
+				{
+					id: 15,
+					type: "set",
+					name: "Motel Room",
+					image: "assets/ShotPhotos/motel.jpg",
+				},
+				{
+					id: 16,
+					type: "set",
+					name: "Manor Living Room",
+					image: "assets/ShotPhotos/manorlivingroom.jpg",
+				},
+				{
+					id: 17,
+					type: "set",
+					name: "Hotel Lobby",
+					image: "assets/ShotPhotos/hotellobby.jpg",
+				},
+				{
+					id: 18,
+					type: "set",
+					name: "Empty Hallway",
+					image: "assets/ShotPhotos/hallway.jpg",
+				},
+				{
+					id: 19,
+					type: "set",
+					name: "Rustic Cabin",
+					image: "assets/ShotPhotos/rusticcabin.jpg",
+				},
+				{
+					id: 20,
+					type: "set",
+					name: "Airplane",
+					image: "assets/ShotPhotos/airplane.jpg",
+				},
+				{
+					id: 21,
+					type: "set",
+					name: "Gym",
+					image: "assets/ShotPhotos/gym.jpg",
+				},
+				{
+					id: 22,
+					type: "set",
+					name: "Hotel Room",
+					image: "assets/ShotPhotos/hotelroom.jpg",
+				},
+				{
+					id: 23,
+					type: "set",
+					name: "Clothing Store",
+					image: "assets/ShotPhotos/clothingstore.jpg",
+				},
+				{
+					id: 24,
+					type: "set",
+					name: "Mechanic Garage",
+					image: "assets/ShotPhotos/garage.jpg",
+				},
+				{
+					id: 25,
+					type: "set",
+					name: "Treehouse",
+					image: "assets/ShotPhotos/treehouse.jpg",
+				},
+				{
+					id: 26,
+					type: "location",
+					name: "Train Station Platform",
+					image: "assets/ShotPhotos/trainstation.jpg",
+				},
+				{
+					id: 27,
+					type: "location",
+					name: "Sidewalk Cafe",
+					image: "assets/ShotPhotos/cafe.jpg",
+				},
+				{
+					id: 28,
+					type: "location",
+					name: "Public Park",
+					image: "assets/ShotPhotos/publicpark.jpg",
+				},
+				{
+					id: 29,
+					type: "location",
+					name: "Mall Atrium",
+					image: "assets/ShotPhotos/mallatrium.jpg",
+				},
+				{
+					id: 30,
+					type: "location",
+					name: "Cemetery",
+					image: "assets/ShotPhotos/cemetery.jpg",
+				},
+				{
+					id: 31,
+					type: "location",
+					name: "Sunflower Field",
+					image: "assets/ShotPhotos/sunflowerfield.jpg",
+				},
+				{
+					id: 32,
+					type: "location",
+					name: "Arena",
+					image: "assets/ShotPhotos/arena.jpg",
+				},
+				{
+					id: 33,
+					type: "location",
+					name: "Beachfront",
+					image: "assets/ShotPhotos/beachfront.jpg",
+				},
+				{
+					id: 34,
+					type: "location",
+					name: "Neighborhood Street",
+					image: "assets/ShotPhotos/neighborhoodstreet.jpg",
+				},
+				{
+					id: 35,
+					type: "location",
+					name: "Park Bench",
+					image: "assets/ShotPhotos/parkbench.jpg",
+				},
+				{
+					id: 36,
+					type: "location",
+					name: "College Campus",
+					image: "assets/ShotPhotos/collegecampus.jpg",
+				},
+				{
+					id: 37,
+					type: "location",
+					name: "Rooftop",
+					image: "assets/ShotPhotos/rooftop.jpg",
+				},
+				{
+					id: 38,
+					type: "location",
+					name: "Hiking Trail",
+					image: "assets/ShotPhotos/hikingtrail.jpg",
+				},
+				{
+					id: 39,
+					type: "location",
+					name: "Forest Path",
+					image: "assets/ShotPhotos/forestpath.jpg",
+				},
+				{
+					id: 40,
+					type: "location",
+					name: "Lake Path",
+					image: "assets/ShotPhotos/lakepath.jpg",
+				},
+				{
+					id: 41,
+					type: "location",
+					name: "Amusement Park",
+					image: "assets/ShotPhotos/amusementpark.jpg",
+				},
+				{
+					id: 42,
+					type: "location",
+					name: "Restaurant Patio",
+					image: "assets/ShotPhotos/restaurantpatio.jpg",
+				},
+				{
+					id: 43,
+					type: "location",
+					name: "Boardwalk",
+					image: "assets/ShotPhotos/boardwalk.jpg",
+				},
+				{
+					id: 44,
+					type: "location",
+					name: "Airport Tarmac",
+					image: "assets/ShotPhotos/airporttarmac.jpg",
+				},
+				{
+					id: 45,
+					type: "location",
+					name: "Cobblestone Street",
+					image: "assets/ShotPhotos/cobblestone.jpg",
+				},
+				{
+					id: 46,
+					type: "location",
+					name: "Lakeside",
+					image: "assets/ShotPhotos/lakeside.jpg",
+				},
+				{
+					id: 47,
+					type: "location",
+					name: "Park Bench",
+					image: "assets/ShotPhotos/parkbench.jpg",
+				},
+				{
+					id: 48,
+					type: "location",
+					name: "Abandoned Lot",
+					image: "assets/ShotPhotos/abandonedlot.jpg",
+				},
+				{
+					id: 49,
+					type: "location",
+					name: "Alleyway",
+					image: "assets/ShotPhotos/alleyway.jpg",
+				},
+				{
+					id: 50,
+					type: "location",
+					name: "Desert Highway",
+					image: "assets/ShotPhotos/deserthighway.jpg",
+				},
 			],
 			costumes: [
 				"Gown",
@@ -967,7 +1210,9 @@ export default createStore({
 		costumeGoal: (state) => state.currentScript.costumes.length,
 		scriptLooks: (state) => state.currentScript.looks,
 		lookGoal: (state) => state.currentScript.looks.length,
-		currentTitle: (state) => state.currentScript.title,
+		scriptTitle: (state) => state.currentScript.title,
+		scriptGenre: (state) => state.currentScript.genre,
+		
 
 		// Roles
 		totalRoles(state) {
@@ -1433,10 +1678,14 @@ export default createStore({
 			const locations = [];
 			const costumes = [];
 			const looks = [];
+			const { settings } = state.pools;
 			const possibleRoles = state.genres[genre].roles;
 			const possibleShots = state.pools.shots;
-			const possibleSets = state.pools.sets;
-			const possibleLocations = state.pools.locations;
+			const possibleSets = settings.filter((item) => item.type === "set");
+			console.log(`All Possible Sets are: ${possibleSets}`);
+			const possibleLocations = settings.filter(
+				(item) => item.type === "location"
+			);
 			const possibleCostumes = state.pools.costumes;
 			const possibleLooks = state.pools.looks;
 			const scriptQuality = state.genres[genre].quality;
@@ -1462,8 +1711,10 @@ export default createStore({
 			// Assign sets randomly from the general set pool
 			for (let i = 0; i < numberOfSets; i++) {
 				const randomIndex = Math.floor(Math.random() * possibleSets.length);
+				const selectedSet = possibleSets[randomIndex];
 				sets.push({
-					name: possibleSets[randomIndex],
+					id: selectedSet.id, // Assign the id
+					name: selectedSet.name, // You can assign the name if needed
 					isBuilt: false,
 				});
 			}
@@ -1473,8 +1724,10 @@ export default createStore({
 				const randomIndex = Math.floor(
 					Math.random() * possibleLocations.length
 				);
+				const selectedLocation = possibleLocations[randomIndex];
 				locations.push({
-					name: possibleLocations[randomIndex],
+					id: selectedLocation.id, // Assign the id
+					name: selectedLocation.name, // You can assign the name if needed
 					isScouted: false,
 				});
 			}
