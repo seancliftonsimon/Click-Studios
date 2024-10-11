@@ -2,93 +2,90 @@
 	<v-card class="py-6">
 		<v-row class="mx-2 mb-1 align-center justify-space-apart">
 			<v-col align="center">
-				<span>+ Searches per click </span
-				><v-btn
+				<v-btn
+					class="upgrade-button"
 					@click="triggerAction('searchesPerClick')"
 					:disabled="playerInspiration < costs.searchesPerClick"
-					>{{ costs.searchesPerClick }} ✨</v-btn
 				>
+					<div>{{ "+ Searches per click" }}</div>
+					<div>{{ costs.searchesPerClick }} ✨</div>
+				</v-btn>
 			</v-col>
 			<v-col align="center">
-				<span>+ Pitches per click </span
-				><v-btn
+				<v-btn
+					class="upgrade-button"
 					@click="triggerAction('pitchesPerClick')"
 					:disabled="playerInspiration < costs.pitchesPerClick"
-					>{{ costs.pitchesPerClick }} ✨</v-btn
 				>
+					<div>{{ "+ Pitches per click" }}</div>
+					<br /><br />
+					<div>{{ costs.pitchesPerClick }} ✨</div>
+				</v-btn>
 			</v-col>
 		</v-row>
-		<v-row class="mx-2 my-1 align-center justify-space-apart">
+		<v-row class="mx-2 my-1 align-center">
 			<v-col align="center">
-				<span>+ Worker search speed </span
-				><v-btn
-					@click="triggerAction('workerSearchSpeed')"
-					:disabled="playerInspiration < costs.workerSearchSpeed"
-					>{{ costs.workerSearchSpeed }} ✨</v-btn
-				></v-col
-			>
-			<v-col align="center">
-				<span>+ Worker pitch speed </span
-				><v-btn
-					@click="triggerAction('workerPitchSpeed')"
-					:disabled="playerInspiration < costs.workerPitchSpeed"
-					>{{ costs.workerPitchSpeed }} ✨</v-btn
-				>
-			</v-col>
-		</v-row>
-
-		<v-row class="mx-2 my-1 align-center justify-space-apart">
-			<v-col align="center">
-				<span>Shorter Searches </span
-				><v-btn
+				<v-btn
+					class="upgrade-button"
 					@click="triggerAction('shortenSearches')"
 					:disabled="playerInspiration < costs.shortenSearches"
-					>{{ costs.shortenSearches }} ✨</v-btn
-				></v-col
-			>
-			<v-col align="center">
-				<span>Bigger Investors </span
-				><v-btn
-					@click="triggerAction('biggerInvestors')"
-					:disabled="playerInspiration < costs.biggerInvestors"
-					>{{ costs.biggerInvestors }} ✨</v-btn
 				>
+					<span>{{ "Shorter Searches" }}</span>
+					<span>{{ costs.shortenSearches }} ✨</span>
+				</v-btn>
 			</v-col>
 			<v-col align="center">
-				<span>Better Pitches </span
-				><v-btn
+				<v-btn
+					class="upgrade-button"
+					@click="triggerAction('biggerInvestors')"
+					:disabled="playerInspiration < costs.biggerInvestors"
+				>
+					<div>{{ "Bigger Investors" }}</div>
+					<div>{{ costs.biggerInvestors }} ✨</div>
+				</v-btn>
+			</v-col>
+			<v-col align="center">
+				<v-btn
+					class="upgrade-button"
 					@click="triggerAction('betterPitches')"
 					:disabled="playerInspiration < costs.betterPitches"
-					>{{ costs.betterPitches }} ✨</v-btn
 				>
+					<div>{{ "Better Pitches" }}</div>
+					<div>{{ costs.betterPitches }} ✨</div>
+				</v-btn>
 			</v-col>
 		</v-row>
 		<v-row class="mx-2 mt-1 align-center justify-space-apart">
 			<v-col align="center">
-				<span>Auto Search </span
-				><v-btn
+				<v-btn
+					class="upgrade-button"
 					@click="triggerAction('autoSearch')"
-					:disabled="this.playerInspiration < costs.autoSearch"
+					:disabled="playerInspiration < costs.autoSearch"
 				>
-					{{ costs.autoSearch }} ✨</v-btn
-				></v-col
-			>
+					<div>{{ "Auto Search" }}</div>
+					<div>{{ costs.autoSearch }} ✨</div>
+				</v-btn>
+			</v-col>
 			<v-col align="center">
-				<span>Auto Pitch </span
-				><v-btn
+				<v-btn
+					class="upgrade-button"
 					@click="triggerAction('autoPitch')"
 					:disabled="playerInspiration < costs.autoPitch"
-					>{{ costs.autoPitch }} ✨</v-btn
-				></v-col
-			>
+				>
+					<div>{{ "Auto Pitch" }}</div>
+					<div>{{ costs.autoPitch }} ✨</div>
+				</v-btn>
+			</v-col>
 			<v-col align="center">
-				<span>Auto Collect </span
-				><v-btn
+				<v-btn
+					class="upgrade-button"
 					@click="triggerAction('autoCollect')"
 					:disabled="playerInspiration < costs.autoCollect"
-					>{{ costs.autoCollect }} ✨</v-btn
-				></v-col
-			>
+				>
+					<div>{{ "Auto Collect" }}</div>
+					<div>{{ costs.autoCollect }} ✨</div>
+				</v-btn>
+			</v-col>
 		</v-row>
 	</v-card>
 </template>
@@ -118,7 +115,6 @@ export default {
 			playerInspiration: "inspiration",
 			unassignedEmployeeCount: "unassignedEmployeeCount",
 		}),
-		// Dynamic cost calculations based on the number of times each button has been activated
 		costs() {
 			return {
 				autoSearch: this.buttonActivations.autoSearch * 2 + 10,
@@ -177,21 +173,15 @@ export default {
 </script>
 
 <style scoped>
-.neat-row {
-	display: grid;
+.upgrade-button {
+	width: 100%;
+	height: 40px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
 	align-items: center;
-}
-
-.v-btn {
-	width: fit-content;
-}
-
-.v-row {
-	gap: 8px;
-}
-
-.v-col {
-	background-color: aquamarine;
+	text-align: center;
+	background-color: #fef7e5;
 	border-radius: 8px;
 }
 </style>
