@@ -14,18 +14,18 @@
 
 			<!-- Inspiration count on the right -->
 			<v-col cols="2" class="text-right">
-				<span class="inspiration-count">{{ playerInspiration }} ✨</span>
+				<span class="inspiration-counter">{{ playerInspiration }} ✨</span>
 			</v-col>
 		</v-row>
 		<v-row class="mx-2 mb-1 align-center justify-space-apart">
 			<v-col align="center">
 				<v-btn
 					class="upgrade-button"
-					@click="triggerAction('searchesPerClick')"
+					@click="triggerAction('searchesPerClick', costs.searchesPerClick)"
 					:disabled="playerInspiration < costs.searchesPerClick"
 				>
 					<v-col>
-						<div class="button-text">{{ "+ Searches per click" }}</div>
+						<div class="button-text">{{ "Searches per click 1 → 3" }}</div>
 						<div class="button-cost">{{ costs.searchesPerClick }} ✨</div>
 					</v-col>
 				</v-btn>
@@ -33,11 +33,11 @@
 			<v-col align="center">
 				<v-btn
 					class="upgrade-button"
-					@click="triggerAction('pitchesPerClick')"
+					@click="triggerAction('pitchesPerClick', costs.pitchesPerClick)"
 					:disabled="playerInspiration < costs.pitchesPerClick"
 				>
 					<v-col>
-						<div class="button-text">{{ "+ Pitches per click" }}</div>
+						<div class="button-text">{{ "Pitches per click 1 → 3" }}</div>
 
 						<div class="button-cost">{{ costs.pitchesPerClick }} ✨</div>
 					</v-col>
@@ -48,7 +48,7 @@
 			<v-col align="center">
 				<v-btn
 					class="upgrade-button"
-					@click="triggerAction('shortenSearches')"
+					@click="triggerAction('shortenSearches', costs.shortenSearches)"
 					:disabled="playerInspiration < costs.shortenSearches"
 				>
 					<v-col>
@@ -60,7 +60,7 @@
 			<v-col align="center">
 				<v-btn
 					class="upgrade-button"
-					@click="triggerAction('biggerInvestors')"
+					@click="triggerAction('biggerInvestors', costs.biggerInvestors)"
 					:disabled="playerInspiration < costs.biggerInvestors"
 					><v-col>
 						<div class="button-text">{{ "Bigger Investors" }}</div>
@@ -71,7 +71,7 @@
 			<v-col align="center">
 				<v-btn
 					class="upgrade-button"
-					@click="triggerAction('betterPitches')"
+					@click="triggerAction('betterPitches', costs.betterPitches)"
 					:disabled="playerInspiration < costs.betterPitches"
 				>
 					<v-col>
@@ -85,7 +85,7 @@
 			<v-col align="center">
 				<v-btn
 					class="upgrade-button"
-					@click="triggerAction('autoSearch')"
+					@click="triggerAction('autoSearch', costs.autoSearch)"
 					:disabled="playerInspiration < costs.autoSearch"
 				>
 					<v-col>
@@ -97,7 +97,7 @@
 			<v-col align="center">
 				<v-btn
 					class="upgrade-button"
-					@click="triggerAction('autoPitch')"
+					@click="triggerAction('autoPitch', costs.autoPitch)"
 					:disabled="playerInspiration < costs.autoPitch"
 				>
 					<v-col>
@@ -109,7 +109,7 @@
 			<v-col align="center">
 				<v-btn
 					class="upgrade-button"
-					@click="triggerAction('autoCollect')"
+					@click="triggerAction('autoCollect', costs.autoCollect)"
 					:disabled="playerInspiration < costs.autoCollect"
 					><v-col>
 						<div class="button-text">{{ "Auto Collect" }}</div>
@@ -122,7 +122,7 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters, mapActions } from "vuex";
 
 export default {
 	data() {
@@ -183,6 +183,7 @@ export default {
 		},
 	},
 	methods: {
+		...mapActions(["spendInspiration", "addInspiration"]),
 		calculateCost(count, increments) {
 			let cost = 0;
 			for (let i = 0; i <= count && i < increments.length; i++) {
@@ -190,10 +191,10 @@ export default {
 			}
 			return cost;
 		},
-		triggerAction(actionName) {
-			if (this.playerInspiration >= this.costs[actionName]) {
+		triggerAction(actionName, cost) {
+			if (this.playerInspiration >= cost) {
 				this.buttonActivations[actionName]++;
-				this.playerInspiration -= this.costs[actionName];
+				this.spendInspiration(cost);
 				console.log(`${actionName} has been triggered.`);
 			} else {
 				console.log(`Not enough inspiration to trigger ${actionName}.`);
@@ -224,5 +225,12 @@ export default {
 .button-text {
 	padding-top: 2px;
 	margin-bottom: 4px; /* Add a bit of space between text and cost if needed */
+}
+
+.inspiration-counter {
+	font-family: "Roboto", sans-serif;
+	font-size: 22px;
+	color: #dfc506;
+	font-weight: 600;
 }
 </style>

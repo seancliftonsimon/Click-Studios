@@ -50,7 +50,6 @@
 						<span class="dollar-counter">
 							💲{{ $formatNumber(preproDollarCount) }} </span
 						><br /><br />
-						<span class="inspiration-counter">✨ {{ inspiration }}</span>
 						<v-btn @click="testScript"> Create Project </v-btn>
 					</v-card-text></v-card
 				>
@@ -162,12 +161,5 @@ export default {
 	justify-content: center; /* Vertically center the content */
 	align-items: center; /* Horizontally center the content */
 	width: 100%; /* Ensure it spans the width of its container */
-}
-.inspiration-counter {
-	font-family: "Roboto", sans-serif;
-	font-size: 22px;
-	color: #dfc506;
-	font-weight: 600;
-	text-align: center;
 }
 </style>
