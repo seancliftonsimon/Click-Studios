@@ -1,4 +1,11 @@
-TO DOs NOW:
+TO DOs NEXT:
+
+Here's what to work on next -
+
+FIRST -adjust pitching so it's faster while I'm testing, maybe 1 per click, 20 clicks, something that small.
+I can fine tune the amoutns and teh payemnts alater
+
+make the money come out of preprodollars and the payrate active.
 
 Fix the set buildling, scouting, and look department sso they are consistent
 

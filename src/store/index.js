@@ -35,7 +35,7 @@ export default createStore({
 		writingDollarCount: 0,
 		totalWritingDollarCount: 0,
 
-		preproDollarCount: 5005,
+		preproDollarCount: 0,
 		totalPreproDollarCount: 0,
 		// I should put the wpS value above in a compute function later probably XYZ
 
@@ -417,15 +417,15 @@ export default createStore({
 
 		// Pitching Values
 
-		searchesNeeded: 30,
+		searchesNeeded: 20,
 
-		manualSearchAmount: 4,
+		manualSearchAmount: 1,
 
 		searchesPerSecond: 0,
 
 		pitchesNeeded: 20,
 
-		manualPitchAmount: 3,
+		manualPitchAmount: 1,
 
 		pitchesPerSecond: 0,
 
@@ -1135,8 +1135,8 @@ export default createStore({
 			shotAmount: [5, 15],
 			locationAmount: [3, 11],
 			setAmount: [2, 8],
-			investorSearchAmount: [100, 500],
-			investorPitchAmount: [100, 500],
+			investorSearchAmount: [20, 30],
+			investorPitchAmount: [20, 30],
 			smallInvestorPayAmount: [2000, 10000],
 		},
 
