@@ -1,5 +1,22 @@
 <template>
 	<v-card class="py-6">
+		<!-- Title row -->
+		<v-row class="mx-1 align-center justify-space-between">
+			<!-- Invisible spacer on the left -->
+			<v-col cols="2">
+				<!-- Empty div as spacer -->
+			</v-col>
+
+			<!-- Title in the center -->
+			<v-col cols="6" class="text-center">
+				<h3>{{ "Spend Inspiration" }}</h3>
+			</v-col>
+
+			<!-- Inspiration count on the right -->
+			<v-col cols="2" class="text-right">
+				<span class="inspiration-count">{{ playerInspiration }} ✨</span>
+			</v-col>
+		</v-row>
 		<v-row class="mx-2 mb-1 align-center justify-space-apart">
 			<v-col align="center">
 				<v-btn
@@ -7,8 +24,10 @@
 					@click="triggerAction('searchesPerClick')"
 					:disabled="playerInspiration < costs.searchesPerClick"
 				>
-					<div>{{ "+ Searches per click" }}</div>
-					<div>{{ costs.searchesPerClick }} ✨</div>
+					<v-col>
+						<div class="button-text">{{ "+ Searches per click" }}</div>
+						<div class="button-cost">{{ costs.searchesPerClick }} ✨</div>
+					</v-col>
 				</v-btn>
 			</v-col>
 			<v-col align="center">
@@ -17,21 +36,25 @@
 					@click="triggerAction('pitchesPerClick')"
 					:disabled="playerInspiration < costs.pitchesPerClick"
 				>
-					<div>{{ "+ Pitches per click" }}</div>
-					<br /><br />
-					<div>{{ costs.pitchesPerClick }} ✨</div>
+					<v-col>
+						<div class="button-text">{{ "+ Pitches per click" }}</div>
+
+						<div class="button-cost">{{ costs.pitchesPerClick }} ✨</div>
+					</v-col>
 				</v-btn>
 			</v-col>
 		</v-row>
-		<v-row class="mx-2 my-1 align-center">
+		<v-row class="mx-2 my-1 align-center justify-space-apart">
 			<v-col align="center">
 				<v-btn
 					class="upgrade-button"
 					@click="triggerAction('shortenSearches')"
 					:disabled="playerInspiration < costs.shortenSearches"
 				>
-					<span>{{ "Shorter Searches" }}</span>
-					<span>{{ costs.shortenSearches }} ✨</span>
+					<v-col>
+						<div class="button-text">{{ "Shorter Searches" }}</div>
+						<div class="button-cost">{{ costs.shortenSearches }} ✨</div>
+					</v-col>
 				</v-btn>
 			</v-col>
 			<v-col align="center">
@@ -39,10 +62,11 @@
 					class="upgrade-button"
 					@click="triggerAction('biggerInvestors')"
 					:disabled="playerInspiration < costs.biggerInvestors"
+					><v-col>
+						<div class="button-text">{{ "Bigger Investors" }}</div>
+						<div class="button-cost">{{ costs.biggerInvestors }} ✨</div>
+					</v-col></v-btn
 				>
-					<div>{{ "Bigger Investors" }}</div>
-					<div>{{ costs.biggerInvestors }} ✨</div>
-				</v-btn>
 			</v-col>
 			<v-col align="center">
 				<v-btn
@@ -50,8 +74,10 @@
 					@click="triggerAction('betterPitches')"
 					:disabled="playerInspiration < costs.betterPitches"
 				>
-					<div>{{ "Better Pitches" }}</div>
-					<div>{{ costs.betterPitches }} ✨</div>
+					<v-col>
+						<div class="button-text">{{ "Better Pitches" }}</div>
+						<div class="button-cost">{{ costs.betterPitches }} ✨</div>
+					</v-col>
 				</v-btn>
 			</v-col>
 		</v-row>
@@ -62,8 +88,10 @@
 					@click="triggerAction('autoSearch')"
 					:disabled="playerInspiration < costs.autoSearch"
 				>
-					<div>{{ "Auto Search" }}</div>
-					<div>{{ costs.autoSearch }} ✨</div>
+					<v-col>
+						<div class="button-text">{{ "Auto Search" }}</div>
+						<div class="button-cost">{{ costs.autoSearch }} ✨</div>
+					</v-col>
 				</v-btn>
 			</v-col>
 			<v-col align="center">
@@ -72,8 +100,10 @@
 					@click="triggerAction('autoPitch')"
 					:disabled="playerInspiration < costs.autoPitch"
 				>
-					<div>{{ "Auto Pitch" }}</div>
-					<div>{{ costs.autoPitch }} ✨</div>
+					<v-col>
+						<div class="button-text">{{ "Auto Pitch" }}</div>
+						<div class="button-cost">{{ costs.autoPitch }} ✨</div>
+					</v-col>
 				</v-btn>
 			</v-col>
 			<v-col align="center">
@@ -81,9 +111,10 @@
 					class="upgrade-button"
 					@click="triggerAction('autoCollect')"
 					:disabled="playerInspiration < costs.autoCollect"
-				>
-					<div>{{ "Auto Collect" }}</div>
-					<div>{{ costs.autoCollect }} ✨</div>
+					><v-col>
+						<div class="button-text">{{ "Auto Collect" }}</div>
+						<div class="button-cost">{{ costs.autoCollect }} ✨</div>
+					</v-col>
 				</v-btn>
 			</v-col>
 		</v-row>
@@ -175,7 +206,7 @@ export default {
 <style scoped>
 .upgrade-button {
 	width: 100%;
-	height: 40px;
+	height: 50px;
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
@@ -183,5 +214,15 @@ export default {
 	text-align: center;
 	background-color: #fef7e5;
 	border-radius: 8px;
+}
+
+.button-text,
+.button-cost {
+	width: 100%;
+}
+
+.button-text {
+	padding-top: 2px;
+	margin-bottom: 4px; /* Add a bit of space between text and cost if needed */
 }
 </style>
