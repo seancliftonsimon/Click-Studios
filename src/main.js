@@ -4,6 +4,7 @@ import router from "./router";
 import store from "./store";
 import vuetify from "./plugins/vuetify";
 import { loadFonts } from "./plugins/webfontloader";
+import "./styles/variables.scss";
 
 loadFonts();
 
@@ -34,6 +35,12 @@ app.config.globalProperties.$formatNumberShort = (value) => {
 		return (value / 1000000000).toFixed(0) + "B";
 	}
 };
+
+app.config.performance = true;
+app.config.warnHandler = function (msg, vm, trace) {
+	console.warn("[Vue warn]: " + msg + trace);
+};
+
 app.use(router).use(store).use(vuetify).mount("#app");
 
 document.addEventListener("keydown", function (event) {

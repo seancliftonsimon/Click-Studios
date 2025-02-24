@@ -98,6 +98,12 @@ export default {
 			employeeSpeed: 1,
 			intervalId: null,
 			ticksPerClick: 1,
+			currentSetIndex: 0,
+			localProgress: {
+				barOne: 0,
+				barTwo: 0,
+				barThree: 0,
+			},
 		};
 	},
 	computed: {
@@ -137,13 +143,13 @@ export default {
 			return this.getProgress(this.componentId);
 		},
 		progressBarOne() {
-			return this.currentProgress.barOne;
+			return this.localProgress.barOne;
 		},
 		progressBarTwo() {
-			return this.currentProgress.barTwo;
+			return this.localProgress.barTwo;
 		},
 		progressBarThree() {
-			return this.currentProgress.barThree;
+			return this.localProgress.barThree;
 		},
 		currentSet() {
 			return this.scriptSets[this.currentSetIndex];
@@ -166,15 +172,22 @@ export default {
 		...mapActions("progressManager", ["calculateProgress"]),
 		updateProgress() {
 			if (!this.hasSetsToBuild) return;
-			this.calculateProgress({
+
+			this.localProgress.barThree += this.ticksPerSecond;
+
+			while (this.localProgress.barThree >= 100) {
+				this.localProgress.barThree -= 100;
+				this.localProgress.barTwo += 1;
+			}
+
+			while (this.localProgress.barTwo >= 50) {
+				this.localProgress.barTwo -= 50;
+				this.localProgress.barOne += 1;
+			}
+
+			this.$store.commit("progressManager/UPDATE_PROGRESS", {
 				componentId: this.componentId,
-				ticksPerSecond: this.ticksPerSecond,
-				maxValues: {
-					one: this.progressbarOneMax,
-					two: this.progressbarTwoMax,
-					three: this.progressbarThreeMax,
-				},
-				onComplete: () => this.buildSet(),
+				progress: { ...this.localProgress },
 			});
 		},
 		updateProgressOnClick() {
@@ -226,11 +239,27 @@ export default {
 			this.assignEmployee();
 		},
 	},
+	created() {
+		const storedProgress = this.$store.getters["progressManager/getProgress"](
+			this.componentId
+		);
+		if (storedProgress) {
+			this.localProgress = { ...storedProgress };
+		}
+	},
 	mounted() {
 		this.intervalId = setInterval(this.updateProgress, 1000);
+		window.intervals = window.intervals || [];
+		window.intervals.push(this.intervalId);
 	},
 	beforeUnmount() {
-		clearInterval(this.intervalId);
+		if (this.intervalId) {
+			clearInterval(this.intervalId);
+			const index = window.intervals.indexOf(this.intervalId);
+			if (index > -1) {
+				window.intervals.splice(index, 1);
+			}
+		}
 	},
 };
 </script>

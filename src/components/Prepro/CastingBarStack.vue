@@ -99,6 +99,12 @@ export default {
 			employeeSpeed: 1,
 			intervalId: null,
 			ticksPerClick: 1,
+			currentRoleIndex: 0,
+			localProgress: {
+				barOne: 0,
+				barTwo: 0,
+				barThree: 0
+			}
 		};
 	},
 	computed: {
@@ -148,38 +154,40 @@ export default {
 		canAffordHire() {
 			return this.preproDollarCount >= 5000;
 		},
+		progressBarOne() {
+			return this.localProgress.barOne;
+		},
+		progressBarTwo() {
+			return this.localProgress.barTwo;
+		},
+		progressBarThree() {
+			return this.localProgress.barThree;
+		},
 	},
 	methods: {
 		...mapMutations(["HIRE_EMPLOYEE"]),
 		updateProgress() {
 			if (!this.hasRolesToCast) return;
-			this.progressBarThree += this.ticksPerSecond;
-			// Calculate the initial overflow for progressBarThree
-			let overflowThree = this.progressBarThree - this.progressbarThreeMax;
+			
+			// Update local progress first
+			this.localProgress.barThree += this.ticksPerSecond;
 
-			while (this.progressBarThree >= this.progressbarThreeMax) {
-				// Deduct the max value from progressBarThree to handle the overflow
-				this.progressBarThree -= this.progressbarThreeMax;
-				// Increment progressBarTwo each time the max is deducted from progressBarThree
-				this.progressBarTwo += 1;
-				// Recalculate overflowThree for the next iteration of the loop
-				overflowThree = this.progressBarThree - this.progressbarThreeMax;
+			// Handle overflow calculations locally
+			while (this.localProgress.barThree >= 100) {
+				this.localProgress.barThree -= 100;
+				this.localProgress.barTwo += 1;
 			}
 
-			// After handling the loop, if there's still any overflow, set progressBarThree to that overflow
-			if (overflowThree > 0) {
-				this.progressBarThree = overflowThree;
+			while (this.localProgress.barTwo >= 50) {
+				this.localProgress.barTwo -= 50;
+				this.localProgress.barOne += 1;
 			}
 
-			if (this.progressBarTwo >= this.progressbarTwoMax) {
-				this.progressBarTwo = 0;
-				this.progressBarOne += 1;
-			}
-
-			if (this.progressBarOne >= this.progressbarOneMax) {
-				this.progressBarOne = 0;
-				this.castRole();
-			}
+			// Only commit to store periodically to avoid recursive updates
+			this.$store.commit("progressManager/UPDATE_PROGRESS", {
+				componentId: this.componentId,
+				progress: { ...this.localProgress }
+			});
 		},
 		updateProgressOnClick() {
 			this.progressBarThree += this.ticksPerClick;
@@ -244,15 +252,28 @@ export default {
 			this.assignEmployee();
 		},
 	},
-
+	created() {
+		// Initialize from store if exists
+		const storedProgress = this.$store.getters["progressManager/getProgress"](this.componentId);
+		if (storedProgress) {
+			this.localProgress = { ...storedProgress };
+		}
+	},
 	mounted() {
-		// Call updateProgress every second (1000 milliseconds)
 		this.intervalId = setInterval(this.updateProgress, 1000);
+		// Add to global intervals array
+		window.intervals = window.intervals || [];
+		window.intervals.push(this.intervalId);
 	},
 	beforeUnmount() {
-		// Clear the interval when the component is about to unmount
-		clearInterval(this.intervalId);
-	},
+		if (this.intervalId) {
+			clearInterval(this.intervalId);
+			const index = window.intervals.indexOf(this.intervalId);
+			if (index > -1) {
+				window.intervals.splice(index, 1);
+			}
+		}
+	}
 };
 </script>
 

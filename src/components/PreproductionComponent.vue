@@ -109,7 +109,12 @@ export default {
 			this.snackbarMessage = `Inspiring! You've cast the role of ${role}.`;
 			this.snackbarVisible = true;
 			this.addInspiration(1);
+
+			// Add timeout to reset the sparkle effect
 			this.actorSparkleActive = true;
+			setTimeout(() => {
+				this.actorSparkleActive = false;
+			}, 2000); // Reset after 2 seconds
 		},
 		handleCostumeMade(costume) {
 			this.snackbarMessage = `Inspiring! You've made ${costume}.`;
@@ -136,6 +141,23 @@ export default {
 			this.snackbarVisible = true;
 			this.addInspiration(1);
 		},
+	},
+	// Add created hook to ensure initial state
+	created() {
+		this.actorSparkleActive = false;
+	},
+	mounted() {
+		console.log("PreproductionComponent mounted");
+		// Store intervals globally so they can be cleaned up
+		window.intervals = window.intervals || [];
+	},
+	beforeUnmount() {
+		console.log("PreproductionComponent beforeUnmount");
+		// Clean up any remaining intervals
+		if (window.intervals) {
+			window.intervals.forEach(clearInterval);
+			window.intervals = [];
+		}
 	},
 };
 </script>

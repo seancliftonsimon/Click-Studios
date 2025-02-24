@@ -243,7 +243,6 @@ export default {
 	align-items: center;
 	text-align: center;
 	background-color: #fef7e5;
-	border-radius: 8px;
 }
 
 .button-text,

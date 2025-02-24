@@ -65,9 +65,14 @@ export default {
 		};
 	},
 	watch: {
-		actorSparkleIsActive(newVal) {
-			this.showActorSparkle = newVal;
-		},
+		actorSparkleIsActive: {
+			handler(newVal) {
+				this.$nextTick(() => {
+					this.showActorSparkle = newVal;
+				});
+			},
+			immediate: true
+		}
 	},
 	computed: {
 		...mapGetters({
@@ -105,8 +110,10 @@ export default {
 	},
 	methods: {
 		handleAnimationEnd() {
-			this.showActorSparkle = false;
-			this.$emit("animation-complete");
+			this.$nextTick(() => {
+				this.showActorSparkle = false;
+				this.$emit("animation-complete");
+			});
 		},
 	},
 };

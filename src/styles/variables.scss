@@ -1,0 +1,12 @@
+$border-radius-card: 8px; // For cards
+$border-radius-button: 4px; // For buttons
+$border-radius-progress: 4px; // For progress bars
+
+.v-application {
+	user-select: none;
+}
+
+/* Add this class to any elements you want to be selectable */
+.selectable {
+	user-select: text !important;
+}

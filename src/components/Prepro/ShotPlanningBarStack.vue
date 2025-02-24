@@ -98,6 +98,7 @@ export default {
 			employeeSpeed: 1,
 			intervalId: null,
 			ticksPerClick: 1,
+			currentShotIndex: 0,
 		};
 	},
 	computed: {
@@ -134,16 +135,22 @@ export default {
 		},
 		...mapGetters("progressManager", ["getProgress"]),
 		currentProgress() {
-			return this.getProgress(this.componentId);
+			return (
+				this.getProgress(this.componentId) || {
+					barOne: 0,
+					barTwo: 0,
+					barThree: 0,
+				}
+			);
 		},
 		progressBarOne() {
-			return this.currentProgress.barOne;
+			return this.currentProgress?.barOne || 0;
 		},
 		progressBarTwo() {
-			return this.currentProgress.barTwo;
+			return this.currentProgress?.barTwo || 0;
 		},
 		progressBarThree() {
-			return this.currentProgress.barThree;
+			return this.currentProgress?.barThree || 0;
 		},
 		currentShot() {
 			return this.scriptShots[this.currentShotIndex];
@@ -167,15 +174,11 @@ export default {
 		updateProgress() {
 			if (!this.hasShotsToPlan) return;
 
-			this.calculateProgress({
-				componentId: this.componentId,
-				ticksPerSecond: this.ticksPerSecond,
-				maxValues: {
-					one: this.progressbarOneMax,
-					two: this.progressbarTwoMax,
-					three: this.progressbarThreeMax,
-				},
-				onComplete: () => this.planShot(),
+			this.$nextTick(() => {
+				this.calculateProgress({
+					componentId: this.componentId,
+					amount: this.ticksPerSecond,
+				});
 			});
 		},
 		updateProgressOnClick() {
@@ -246,7 +249,9 @@ export default {
 		this.intervalId = setInterval(this.updateProgress, 1000);
 	},
 	beforeUnmount() {
-		clearInterval(this.intervalId);
+		if (this.intervalId) {
+			clearInterval(this.intervalId);
+		}
 	},
 };
 </script>
