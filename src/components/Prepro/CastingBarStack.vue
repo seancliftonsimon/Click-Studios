@@ -87,25 +87,17 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations } from "vuex";
+import { mapGetters, mapMutations, mapState } from "vuex";
 
 export default {
 	data() {
 		return {
-			deptLocked: true,
-
-			progressBarOne: 0,
-			progressBarTwo: 0,
-			progressBarThree: 0,
-			progressbarOneMax: 3,
-			progressbarTwoMax: 3,
-			progressbarThreeMax: 3,
-
-			currentRoleIndex: 0,
-
-			localEmployees: 0,
+			componentId: "casting",
+			progressbarOneMax: 20,
+			progressbarTwoMax: 50,
+			progressbarThreeMax: 100,
 			employeeSpeed: 1,
-
+			intervalId: null,
 			ticksPerClick: 1,
 		};
 	},
@@ -115,8 +107,32 @@ export default {
 			"preproDollarCount",
 			"unassignedEmployeeCount",
 			"employeeCount",
-			"preproDollarCount",
 		]),
+		...mapState({
+			departmentState: state => state.departments.casting
+		}),
+		deptLocked: {
+			get() {
+				return this.departmentState.isLocked;
+			},
+			set(value) {
+				this.$store.commit('SET_DEPARTMENT_LOCK', {
+					department: this.componentId,
+					isLocked: value
+				});
+			}
+		},
+		localEmployees: {
+			get() {
+				return this.departmentState.employees;
+			},
+			set(value) {
+				this.$store.commit('SET_DEPARTMENT_EMPLOYEES', {
+					department: this.componentId,
+					count: value
+				});
+			}
+		},
 		currentRole() {
 			return this.scriptRoles[this.currentRoleIndex];
 		},

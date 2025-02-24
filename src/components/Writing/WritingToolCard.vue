@@ -49,6 +49,7 @@ export default {
 		...mapGetters({
 			currentToolDetails: "currentToolDetails", // Adjust according to the correct namespace if needed
 		}),
+		...mapGetters(["canAffordTool", "isToolVisible"]),
 		title() {
 			return this.currentToolDetails?.name || "No Tool Available";
 		},
@@ -63,10 +64,10 @@ export default {
 		},
 
 		canAfford() {
-			return this.$store.state.writingDollarCount >= this.cost;
+			return this.canAffordTool(this.cost);
 		},
 		isVisible() {
-			return this.cost !== 0 && this.$store.state.writingToolCardVisible;
+			return this.isToolVisible(this.cost);
 		},
 	},
 	methods: {

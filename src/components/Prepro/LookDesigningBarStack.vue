@@ -87,25 +87,18 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations } from "vuex";
+import { mapGetters, mapMutations, mapActions, mapState } from "vuex";
 
 export default {
 	data() {
 		return {
-			deptLocked: true,
-
-			progressBarOne: 0,
-			progressBarTwo: 0,
-			progressBarThree: 0,
-			progressbarOneMax: 8,
-			progressbarTwoMax: 7,
-			progressbarThreeMax: 12,
-
-			currentLookIndex: 0,
-
+			componentId: "lookDesigning",
+			progressbarOneMax: 20,
+			progressbarTwoMax: 50,
+			progressbarThreeMax: 100,
 			localEmployees: 0,
 			employeeSpeed: 1,
-
+			intervalId: null,
 			ticksPerClick: 1,
 		};
 	},
@@ -115,8 +108,45 @@ export default {
 			"preproDollarCount",
 			"unassignedEmployeeCount",
 			"employeeCount",
-			"preproDollarCount",
 		]),
+		...mapState({
+			departmentState: (state) => state.departments.lookDesigning,
+		}),
+		deptLocked: {
+			get() {
+				return this.departmentState.isLocked;
+			},
+			set(value) {
+				this.$store.commit("SET_DEPARTMENT_LOCK", {
+					department: this.componentId,
+					isLocked: value,
+				});
+			},
+		},
+		localEmployees: {
+			get() {
+				return this.departmentState.employees;
+			},
+			set(value) {
+				this.$store.commit("SET_DEPARTMENT_EMPLOYEES", {
+					department: this.componentId,
+					count: value,
+				});
+			},
+		},
+		...mapGetters("progressManager", ["getProgress"]),
+		currentProgress() {
+			return this.getProgress(this.componentId);
+		},
+		progressBarOne() {
+			return this.currentProgress.barOne;
+		},
+		progressBarTwo() {
+			return this.currentProgress.barTwo;
+		},
+		progressBarThree() {
+			return this.currentProgress.barThree;
+		},
 		currentLook() {
 			return this.scriptLooks[this.currentLookIndex];
 		},
@@ -135,35 +165,20 @@ export default {
 	},
 	methods: {
 		...mapMutations(["HIRE_EMPLOYEE"]),
+		...mapActions("progressManager", ["calculateProgress"]),
 		updateProgress() {
 			if (!this.hasLooksToDesign) return;
-			this.progressBarThree += this.ticksPerSecond;
-			// Calculate the initial overflow for progressBarThree
-			let overflowThree = this.progressBarThree - this.progressbarThreeMax;
 
-			while (this.progressBarThree >= this.progressbarThreeMax) {
-				// Deduct the max value from progressBarThree to handle the overflow
-				this.progressBarThree -= this.progressbarThreeMax;
-				// Increment progressBarTwo each time the max is deducted from progressBarThree
-				this.progressBarTwo += 1;
-				// Recalculate overflowThree for the next iteration of the loop
-				overflowThree = this.progressBarThree - this.progressbarThreeMax;
-			}
-
-			// After handling the loop, if there's still any overflow, set progressBarThree to that overflow
-			if (overflowThree > 0) {
-				this.progressBarThree = overflowThree;
-			}
-
-			if (this.progressBarTwo >= this.progressbarTwoMax) {
-				this.progressBarTwo = 0;
-				this.progressBarOne += 1;
-			}
-
-			if (this.progressBarOne >= this.progressbarOneMax) {
-				this.progressBarOne = 0;
-				this.designLook();
-			}
+			this.calculateProgress({
+				componentId: this.componentId,
+				ticksPerSecond: this.ticksPerSecond,
+				maxValues: {
+					one: this.progressbarOneMax,
+					two: this.progressbarTwoMax,
+					three: this.progressbarThreeMax,
+				},
+				onComplete: () => this.designLook(),
+			});
 		},
 		updateProgressOnClick() {
 			this.progressBarThree += this.ticksPerClick;
@@ -230,11 +245,9 @@ export default {
 	},
 
 	mounted() {
-		// Call updateProgress every second (1000 milliseconds)
 		this.intervalId = setInterval(this.updateProgress, 1000);
 	},
 	beforeUnmount() {
-		// Clear the interval when the component is about to unmount
 		clearInterval(this.intervalId);
 	},
 };
