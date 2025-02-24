@@ -23,7 +23,7 @@
 			<v-range-slider
 				class="soundBandTarget no-pointer-events"
 				v-model="soundBandTarget"
-				readonly="true"
+				:readonly="true"
 				thumb-size="0"
 				direction="vertical"
 				:min="audioRangeMin"
@@ -32,7 +32,7 @@
 				track-size="12"
 				track-fill-color="green"
 			></v-range-slider>
-			<!-- User Adjusted Slider -->
+			<!-- User Adjusv-range-sliderted Slider -->
 			<v-range-slider
 				class="soundBandSlider"
 				v-model="soundBand"
@@ -47,12 +47,6 @@
 	<v-row class="sliders">
 		<v-col>
 			<label>
-				Focus:
-				<input type="range" v-model="focusValue" min="0" max="100" steps="1" />
-			</label>
-		</v-col>
-		<v-col>
-			<label>
 				Lighten:
 				<input
 					type="range"
@@ -63,19 +57,31 @@
 				/>
 			</label>
 		</v-col>
+		<v-col>
+			<label>
+				Focus:
+				<input type="range" v-model="focusValue" min="0" max="100" steps="1" />
+			</label>
+		</v-col>
 	</v-row>
-	<v-tooltip top :disabled="shotReady">
-		<template v-slot:activator="{ props }">
-			<div v-bind="props" class="d-inline-block">
-				<v-btn :disabled="!shotReady" @click="wrapCurrentShot" color="primary">
-					<span style="font-size: 2em">📣</span> <span>Action!</span>
-				</v-btn>
+	<div class="text-center">
+		<v-btn @click="evaluateAndWrapShot" color="primary">
+			<span style="font-size: 2em">📣</span> <span>Action!</span>
+		</v-btn>
+
+		<div v-if="lastShotFeedback.length > 0" class="mt-4 feedback-box">
+			<div class="shot-score" :class="lastShotScoreClass">
+				Shot Score: {{ lastShotScore }}%
 			</div>
-		</template>
-		<span v-for="(error, index) in actionButtonErrors" :key="index">
-			{{ error }}<br />
-		</span>
-	</v-tooltip>
+			<div
+				v-for="(feedback, index) in lastShotFeedback"
+				:key="index"
+				class="feedback-item"
+			>
+				{{ feedback }}
+			</div>
+		</div>
+	</div>
 </template>
 
 <script>
@@ -149,6 +155,10 @@ export default {
 			// Viewfinder Values
 			focusValue: 0,
 			lightenValue: 0,
+			focusTarget: 0,
+			lightenTarget: 0,
+			focusThreshold: 4,
+			lightenThreshold: 4,
 			audioRangeMin: -45,
 			audioRangeMax: -35,
 
@@ -162,17 +172,59 @@ export default {
 			soundBandMinUpperLimit: -39, // Upper limit for the minimum value
 			soundBandMaxLowerBuffer: 2, // Minimum gap between min and max values
 			soundBandMaxUpperLimit: -35, // Upper limit for the maximum value
+			lastShotFeedback: [],
+			lastShotScore: 0,
 		};
 	},
 	computed: {
 		computedFilter() {
-			// Maximum blur amount (in px)
+			// Calculate how far we are from targets
+			const focusDelta = this.focusValue - this.focusTarget;
+			const lightenDelta = this.lightenValue - this.lightenTarget;
+
+			// Focus effects
+			let focusEffect = "";
 			const maxBlur = 25;
-			const blurAmount = maxBlur * (1 - this.focusValue / 100);
+			const minBlur = 0.15; // Always maintain a tiny bit of blur
+
+			if (focusDelta < 0) {
+				// Under-focused: apply blur
+				const blurAmount = maxBlur * (1 - this.focusValue / this.focusTarget);
+				focusEffect = `blur(${Math.max(minBlur, blurAmount)}px)`;
+			} else if (focusDelta > 0) {
+				// Over-focused: apply blur that increases with distance from target
+				const overFocusRatio = focusDelta / (100 - this.focusTarget);
+				const blurAmount = maxBlur * overFocusRatio;
+				focusEffect = `blur(${Math.max(minBlur, blurAmount)}px)`;
+			} else {
+				// At target: apply minimal blur
+				focusEffect = `blur(${minBlur}px)`;
+			}
+
+			// Brightness effects
+			let brightnessEffect = "";
 			const minBrightness = 0.2;
-			const brightnessAmount =
-				minBrightness + (1 - minBrightness) * (this.lightenValue / 100);
-			return `blur(${blurAmount}px) brightness(${brightnessAmount})`;
+			const baseContrast = 98; // Slightly reduce contrast always
+
+			if (lightenDelta < 0) {
+				// Under-exposed
+				const brightnessAmount =
+					minBrightness +
+					(1 - minBrightness) * (this.lightenValue / this.lightenTarget);
+				brightnessEffect = `brightness(${brightnessAmount}) contrast(${baseContrast}%)`;
+			} else if (lightenDelta > 0) {
+				// Over-exposed: increase brightness and reduce contrast to create wash-out effect
+				const overExposeAmount = lightenDelta / (100 - this.lightenTarget);
+				const brightnessAmount = 1 + overExposeAmount * 1.5;
+				const contrastReduction = Math.max(0, 100 - overExposeAmount * 70);
+				brightnessEffect = `brightness(${brightnessAmount}) contrast(${contrastReduction}%)`;
+			} else {
+				// At target: apply very subtle brightness/contrast adjustment
+				brightnessEffect = `brightness(0.99) contrast(${baseContrast}%)`;
+			}
+
+			// Combine effects
+			return `${focusEffect} ${brightnessEffect}`.trim();
 		},
 		soundBandCalibrated() {
 			const targetMin = this.soundBandTarget[0];
@@ -188,19 +240,30 @@ export default {
 		shotReady() {
 			return (
 				this.soundBandCalibrated &&
-				this.focusValue >= 99 &&
-				this.lightenValue >= 99
+				Math.abs(this.focusValue - this.focusTarget) <= this.focusThreshold &&
+				Math.abs(this.lightenValue - this.lightenTarget) <=
+					this.lightenThreshold
 			);
 		},
 		actionButtonErrors() {
 			let errors = [];
 
-			if (this.focusValue < 99) {
-				errors.push("The image is too blurry");
+			if (Math.abs(this.focusValue - this.focusTarget) > this.focusThreshold) {
+				if (this.focusValue < this.focusTarget) {
+					errors.push("The image is too blurry");
+				} else {
+					errors.push("The image is too sharp");
+				}
 			}
 
-			if (this.lightenValue < 99) {
-				errors.push("The image is too dark");
+			if (
+				Math.abs(this.lightenValue - this.lightenTarget) > this.lightenThreshold
+			) {
+				if (this.lightenValue < this.lightenTarget) {
+					errors.push("The image is too dark");
+				} else {
+					errors.push("The image is too bright");
+				}
 			}
 
 			// Check sound band calibration
@@ -231,15 +294,109 @@ export default {
 
 			return errors;
 		},
+		lastShotScoreClass() {
+			if (this.lastShotScore >= 90) return "score-excellent";
+			if (this.lastShotScore >= 75) return "score-good";
+			if (this.lastShotScore >= 50) return "score-fair";
+			return "score-poor";
+		},
+		currentShotQuality() {
+			let feedback = [];
+			let totalScore = 0;
+
+			// Evaluate focus (worth 35% of total score)
+			const focusDelta = Math.abs(this.focusValue - this.focusTarget);
+			const focusScore = Math.max(0, 100 - focusDelta * 2);
+			totalScore += focusScore * 0.35;
+
+			if (focusDelta > this.focusThreshold) {
+				if (this.focusValue < this.focusTarget) {
+					feedback.push("The image is too blurry");
+				} else {
+					feedback.push("The image is too sharp");
+				}
+			}
+
+			// Evaluate brightness (worth 35% of total score)
+			const lightenDelta = Math.abs(this.lightenValue - this.lightenTarget);
+			const lightenScore = Math.max(0, 100 - lightenDelta * 2);
+			totalScore += lightenScore * 0.35;
+
+			if (lightenDelta > this.lightenThreshold) {
+				if (this.lightenValue < this.lightenTarget) {
+					feedback.push("The image is too dark");
+				} else {
+					feedback.push("The image is too bright");
+				}
+			}
+
+			// Evaluate sound calibration (worth 30% of total score)
+			const targetMin = this.soundBandTarget[0];
+			const targetMax = this.soundBandTarget[1];
+			const userMin = this.soundBand[0];
+			const userMax = this.soundBand[1];
+
+			const minDelta = Math.abs(userMin - targetMin);
+			const maxDelta = Math.abs(userMax - targetMax);
+			const soundScore = Math.max(0, 100 - (minDelta + maxDelta) * 20);
+			totalScore += soundScore * 0.3;
+
+			if (!this.soundBandCalibrated) {
+				if (userMin < targetMin && userMax > targetMax) {
+					feedback.push(
+						"The mic range is too large and will pick up extra noise"
+					);
+				} else if (userMin > targetMin && userMax < targetMax) {
+					feedback.push(
+						"The mic range is too narrow and won't pick up enough sound"
+					);
+				} else if (userMin < targetMin && userMax < targetMax) {
+					feedback.push("The mic range is too low");
+				} else if (userMin > targetMin && userMax > targetMax) {
+					feedback.push("The mic range is too high");
+				}
+			}
+
+			// If everything is within thresholds, give a perfect 100%
+			if (
+				feedback.length === 0 &&
+				focusDelta <= this.focusThreshold &&
+				lightenDelta <= this.lightenThreshold &&
+				this.soundBandCalibrated
+			) {
+				return {
+					score: 100,
+					feedback: ["Perfect shot! Everything is just right!"],
+				};
+			}
+
+			return {
+				score: Math.round(totalScore),
+				feedback: feedback,
+			};
+		},
 	},
 	methods: {
-		wrapCurrentShot() {
+		evaluateAndWrapShot() {
+			const quality = this.currentShotQuality;
+			this.lastShotScore = quality.score;
+			this.lastShotFeedback = quality.feedback;
+
+			// If the shot was perfect, add a special message
+			if (quality.feedback.length === 0) {
+				this.lastShotFeedback = ["Perfect shot! Everything is just right!"];
+			}
+
+			// Move to next shot
 			this.showRandomImage();
 			this.generateRandomSoundBandTarget();
 		},
 		showRandomImage() {
 			const randomIndex = Math.floor(Math.random() * this.images.length);
 			this.selectedImage = this.images[randomIndex];
+			// Generate random target values between 20 and 80
+			this.focusTarget = Math.floor(Math.random() * 61) + 20; // 20-80 range
+			this.lightenTarget = Math.floor(Math.random() * 61) + 20; // 20-80 range
 			// Reset focusValue and lightenValue to 0
 			this.focusValue = 0;
 			this.lightenValue = 0;
@@ -264,7 +421,7 @@ export default {
 		},
 	},
 	mounted() {
-		this.wrapCurrentShot();
+		this.evaluateAndWrapShot();
 	},
 };
 </script>
@@ -327,5 +484,49 @@ export default {
 .sliders input {
 	width: 100%;
 	max-width: 300px;
+}
+
+.feedback-box {
+	border: 1px solid #ccc;
+	border-radius: 8px;
+	padding: 16px;
+	margin-top: 16px;
+	background-color: #f5f5f5;
+	max-width: 600px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.feedback-item {
+	margin: 8px 0;
+	color: #666;
+}
+
+.shot-score {
+	font-size: 1.2em;
+	font-weight: bold;
+	margin-bottom: 12px;
+	padding: 8px;
+	border-radius: 4px;
+}
+
+.score-excellent {
+	color: #2e7d32;
+	background-color: #e8f5e9;
+}
+
+.score-good {
+	color: #1976d2;
+	background-color: #e3f2fd;
+}
+
+.score-fair {
+	color: #f57c00;
+	background-color: #fff3e0;
+}
+
+.score-poor {
+	color: #c62828;
+	background-color: #ffebee;
 }
 </style>

@@ -18,6 +18,13 @@ export default {
 			};
 		},
 	},
+
+	actions: {
+		calculateProgress({ commit }, { componentId, progress }) {
+			commit("UPDATE_PROGRESS", { componentId, progress });
+		},
+	},
+
 	getters: {
 		getProgress: (state) => (componentId) => {
 			return (

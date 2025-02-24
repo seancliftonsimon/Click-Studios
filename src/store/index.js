@@ -1641,6 +1641,13 @@ export default createStore({
 		SET_DEPARTMENT_LOCK(state, { department, isLocked }) {
 			state.departments[department].isLocked = isLocked;
 		},
+		HIRE_DEPARTMENT_HEAD(state, { department, cost }) {
+			state.preproDollarCount -= cost;
+			state.departments[department].isLocked = false;
+		},
+		DEDUCT_WORKER_WAGES(state, amount) {
+			state.preproDollarCount = Math.max(0, state.preproDollarCount - amount);
+		},
 	},
 	actions: {
 		increaseWordCount({ state, commit, dispatch, getters }) {
@@ -2047,6 +2054,18 @@ export default createStore({
 		},
 		spendInspiration({ commit }, cost) {
 			commit("DECREASE_INSPIRATION", cost);
+		},
+		deductWorkerWages({ state, commit }) {
+			const totalWages = Object.values(state.departments).reduce(
+				(total, dept) => {
+					return total + dept.employees * 3; // 3 is the wage per worker
+				},
+				0
+			);
+
+			if (state.preproDollarCount > 0) {
+				commit("DEDUCT_WORKER_WAGES", totalWages);
+			}
 		},
 	},
 	modules: {

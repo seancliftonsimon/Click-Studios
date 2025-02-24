@@ -168,10 +168,12 @@ export default {
 		},
 	},
 	methods: {
-		...mapMutations(["HIRE_EMPLOYEE"]),
-		...mapActions("progressManager", ["calculateProgress"]),
+		...mapMutations(["HIRE_EMPLOYEE", "HIRE_DEPARTMENT_HEAD"]),
+		...mapActions({
+			calculateProgress: "progressManager/calculateProgress",
+		}),
 		updateProgress() {
-			if (!this.hasSetsToBuild) return;
+			if (!this.hasSetsToBuild || this.preproDollarCount <= 0) return;
 
 			this.localProgress.barThree += this.ticksPerSecond;
 
@@ -234,7 +236,10 @@ export default {
 			this.localEmployees -= 1;
 		},
 		hireDeptHead() {
-			this.deptLocked = false;
+			this.$store.commit("HIRE_DEPARTMENT_HEAD", {
+				department: this.componentId,
+				cost: 5000,
+			});
 			this.$store.commit("HIRE_EMPLOYEE", 1);
 			this.assignEmployee();
 		},

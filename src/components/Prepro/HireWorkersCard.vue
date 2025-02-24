@@ -40,7 +40,10 @@ export default {
 	methods: {
 		...mapMutations(["HIRE_EMPLOYEE"]),
 		employeeHireClick() {
-			this.$store.commit("HIRE_EMPLOYEE", 1);
+			if (this.preproDollarCount >= this.workerCost) {
+				this.$store.commit("DECREASE_PREPRO_DOLLAR_AMOUNT", this.workerCost);
+				this.$store.commit("HIRE_EMPLOYEE", 1);
+			}
 		},
 	},
 	computed: {

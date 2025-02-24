@@ -150,6 +150,12 @@ export default {
 		console.log("PreproductionComponent mounted");
 		// Store intervals globally so they can be cleaned up
 		window.intervals = window.intervals || [];
+
+		// Add wage deduction interval
+		const wageInterval = setInterval(() => {
+			this.$store.dispatch("deductWorkerWages");
+		}, 1000);
+		window.intervals.push(wageInterval);
 	},
 	beforeUnmount() {
 		console.log("PreproductionComponent beforeUnmount");

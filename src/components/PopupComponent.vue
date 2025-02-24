@@ -1,6 +1,7 @@
 <template>
 	<v-dialog
-		v-model="popupVisible"
+		:model-value="popupVisible"
+		@update:model-value="SET_POPUP_VISIBLE"
 		tabindex="0"
 		@keyup.enter="handleButtonClick"
 	>

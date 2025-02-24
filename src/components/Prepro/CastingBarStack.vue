@@ -87,7 +87,7 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations, mapState } from "vuex";
+import { mapGetters, mapMutations, mapState, mapActions } from "vuex";
 
 export default {
 	data() {
@@ -103,8 +103,8 @@ export default {
 			localProgress: {
 				barOne: 0,
 				barTwo: 0,
-				barThree: 0
-			}
+				barThree: 0,
+			},
 		};
 	},
 	computed: {
@@ -115,29 +115,29 @@ export default {
 			"employeeCount",
 		]),
 		...mapState({
-			departmentState: state => state.departments.casting
+			departmentState: (state) => state.departments.casting,
 		}),
 		deptLocked: {
 			get() {
 				return this.departmentState.isLocked;
 			},
 			set(value) {
-				this.$store.commit('SET_DEPARTMENT_LOCK', {
+				this.$store.commit("SET_DEPARTMENT_LOCK", {
 					department: this.componentId,
-					isLocked: value
+					isLocked: value,
 				});
-			}
+			},
 		},
 		localEmployees: {
 			get() {
 				return this.departmentState.employees;
 			},
 			set(value) {
-				this.$store.commit('SET_DEPARTMENT_EMPLOYEES', {
+				this.$store.commit("SET_DEPARTMENT_EMPLOYEES", {
 					department: this.componentId,
-					count: value
+					count: value,
 				});
-			}
+			},
 		},
 		currentRole() {
 			return this.scriptRoles[this.currentRoleIndex];
@@ -165,10 +165,13 @@ export default {
 		},
 	},
 	methods: {
-		...mapMutations(["HIRE_EMPLOYEE"]),
+		...mapMutations(["HIRE_EMPLOYEE", "HIRE_DEPARTMENT_HEAD"]),
+		...mapActions({
+			calculateProgress: "progressManager/calculateProgress",
+		}),
 		updateProgress() {
-			if (!this.hasRolesToCast) return;
-			
+			if (!this.hasRolesToCast || this.preproDollarCount <= 0) return;
+
 			// Update local progress first
 			this.localProgress.barThree += this.ticksPerSecond;
 
@@ -186,7 +189,7 @@ export default {
 			// Only commit to store periodically to avoid recursive updates
 			this.$store.commit("progressManager/UPDATE_PROGRESS", {
 				componentId: this.componentId,
-				progress: { ...this.localProgress }
+				progress: { ...this.localProgress },
 			});
 		},
 		updateProgressOnClick() {
@@ -247,14 +250,19 @@ export default {
 			this.localEmployees -= 1;
 		},
 		hireDeptHead() {
-			this.deptLocked = false;
+			this.$store.commit("HIRE_DEPARTMENT_HEAD", {
+				department: this.componentId,
+				cost: 5000,
+			});
 			this.$store.commit("HIRE_EMPLOYEE", 1);
 			this.assignEmployee();
 		},
 	},
 	created() {
 		// Initialize from store if exists
-		const storedProgress = this.$store.getters["progressManager/getProgress"](this.componentId);
+		const storedProgress = this.$store.getters["progressManager/getProgress"](
+			this.componentId
+		);
 		if (storedProgress) {
 			this.localProgress = { ...storedProgress };
 		}
@@ -273,7 +281,7 @@ export default {
 				window.intervals.splice(index, 1);
 			}
 		}
-	}
+	},
 };
 </script>
 
