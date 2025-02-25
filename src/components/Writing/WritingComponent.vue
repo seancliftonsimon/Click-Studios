@@ -84,6 +84,21 @@ export default {
 			}));
 		},
 	},
+	mounted() {
+		console.log("WritingComponent mounted");
+
+		// Create a global array to store worker timeouts that can be cleared when the component unmounts
+		window.workerTimeouts = window.workerTimeouts || [];
+	},
+	beforeUnmount() {
+		console.log("WritingComponent beforeUnmount");
+
+		// Clean up any remaining worker timeouts
+		if (window.workerTimeouts) {
+			window.workerTimeouts.forEach(clearTimeout);
+			window.workerTimeouts = [];
+		}
+	},
 };
 </script>
 

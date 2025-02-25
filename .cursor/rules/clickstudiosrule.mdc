@@ -1,15 +1,7 @@
 ---
 description: Rules and guidance for developing click studios and implementing gameplay features
 globs: 
----
-
-# Your rule content
-
-- You can @ files here
-- You can use markdown but dont have to
-
-Sean, here’s a combined set of **System Prompt** instructions in **Markdown**—including both the development framework guidance and the detailed game design information. You can use these as your “system” or “baseline” instructions for your LLM assistant when coding Click Studios.
-
+alwaysApply: false
 ---
 
 # **System Prompt: Click Studios Development Instructions**
@@ -40,6 +32,20 @@ Sean, here’s a combined set of **System Prompt** instructions in **Markdown**�
 ## 6. Interaction & Tone
 - Maintain a **straightforward, concise, and helpful** tone.  
 - Provide solution-oriented guidance; avoid unnecessary commentary.
+
+
+Component Responsibility: Ensure that each component is responsible for managing its own lifecycle and state changes. Avoid relying on external systems or periodic checks to manage component state.
+Event-Driven Architecture: Utilize Vue's event system to handle state changes. Components should emit events to notify parent components of significant lifecycle events (e.g., expiration, completion).
+Reactivity and Precision: Implement solutions that leverage Vue's reactivity system to ensure precise and timely updates. Use direct mechanisms like timeouts or event listeners to handle state changes at the exact moment they occur.
+Clean and Maintainable Code: Strive for a clean architecture where components are decoupled and communicate through well-defined interfaces (events and props). This enhances maintainability and readability.
+Avoid Polling: Minimize the use of polling or periodic checks for state changes. Instead, rely on reactive data and event-driven updates to ensure efficient and responsive UI behavior.
+
+Fix at the source: Address problems where they originate rather than adding workarounds in receiving code.
+Maintain clean interfaces: Components should communicate through well-defined interfaces using consistent data formats.
+Avoid data transformation complexity: Minimize string manipulation and type conversion in core functions that could introduce bugs or maintenance challenges.
+Follow consistent naming conventions: Use the same naming pattern (e.g., camelCase) throughout the codebase for identifiers.
+Component responsibility: Each component should be responsible for providing correctly formatted data to other parts of the system.
+This approach results in more maintainable, robust code with clearer responsibilities and fewer potential points of failure.
 
 ---
 

@@ -75,7 +75,7 @@ export const achievementPopups = {
 	draftScript: {
 		id: "achievement_draftScript",
 		type: "info",
-		title: "�� Draft Scripts",
+		title: "🔓 Draft Scripts",
 		emoji: "📑",
 		text: "Every great screenplay starts with a first draft. \n\n These are quite valuable, but not enough on their own to greenlight a movie.",
 		buttonText: "Great!",

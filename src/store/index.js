@@ -3,6 +3,7 @@ import { createStore } from "vuex";
 
 // Import modules
 import popupManager from "./modules/popupManager";
+import progressManager from "./modules/progressManager";
 
 // Import popup configurations
 import {
@@ -21,6 +22,7 @@ import {
 const store = createStore({
 	modules: {
 		popupManager,
+		progressManager,
 	},
 	state: {
 		// DYNAMIC VARIABLES BELOW
@@ -1667,6 +1669,22 @@ const store = createStore({
 		DEDUCT_WORKER_WAGES(state, amount) {
 			state.preproDollarCount = Math.max(0, state.preproDollarCount - amount);
 		},
+		UPDATE_WORKER_TIMES(
+			state,
+			{ id, workerType, hireTime, expectedRemovalTime, animationStartTime }
+		) {
+			// Initialize times object if it doesn't exist for this worker type
+			if (!state.workers[workerType].times) {
+				state.workers[workerType].times = {};
+			}
+
+			// Only update the specific worker type
+			state.workers[workerType].times[id] = {
+				hireTime,
+				expectedRemovalTime,
+				animationStartTime,
+			};
+		},
 	},
 	actions: {
 		increaseWordCount({ state, commit, dispatch, getters }) {
@@ -1721,6 +1739,12 @@ const store = createStore({
 		sellProduct({ commit, state, dispatch }, { cardType, cost, pay }) {
 			// Decrease word count by cost
 			commit("DECREASE_WORD_COUNT", cost);
+
+			// Update genre progress with the words spent
+			commit("UPDATE_GENRE_PROGRESS", {
+				genre: state.currentGenre,
+				words: cost,
+			});
 
 			// Increase writing dollar amount by pay
 			commit("INCREASE_WRITING_DOLLAR_AMOUNT", pay);
@@ -1905,25 +1929,108 @@ const store = createStore({
 			}
 		},
 
-		hireWorker({ commit, state, dispatch }, { cost, name }) {
-			// Determine worker type from name
-			const workerType = Object.keys(state.workers).find(
-				(type) => state.workers[type].name === name
-			);
-
-			if (!workerType) {
-				console.error(`Worker type not found for name: ${name}`);
+		hireWorker({ commit, state, dispatch, getters }, { cost, name }) {
+			// Don't do anything if the user doesn't have enough writing dollars
+			if (state.writingDollarCount < cost) {
+				console.log(
+					`Not enough writing dollars to hire worker. Need ${cost}, have ${state.writingDollarCount}.`
+				);
 				return;
 			}
 
-			// Generate a unique ID for the worker
-			const id = Date.now();
+			// Deduct cost from writing dollars
+			commit("DECREASE_WRITING_DOLLAR_AMOUNT", cost);
 
-			// Add the worker
+			// Get the worker type's details
+			const workerType = name;
+			const worker = state.workers[workerType];
+
+			if (!worker) {
+				console.error(`Worker type "${workerType}" not found in state.workers`);
+				return;
+			}
+
+			// Calculate worker duration
+			const duration = worker.duration; // Duration in minutes
+			const durationMs = duration * 60 * 1000; // Convert to milliseconds
+
+			// Check if we've already got max capacity
+			if (state.currentWorkers.length >= getters.currentWritersRoomCapacity) {
+				console.log("Can't hire worker. Writers room at capacity.");
+				return;
+			}
+
+			// Initialize the worker times array if it doesn't exist
+			if (!worker.times) {
+				worker.times = {};
+			}
+
+			// Generate a unique ID for this worker
+			if (!window.nextWorkerId) {
+				window.nextWorkerId = 1;
+			}
+			const id = window.nextWorkerId++;
+
+			// Add worker to state
 			commit("ADD_WORKER", { workerType, id });
 
-			// Deduct the cost
-			commit("DECREASE_WRITING_DOLLAR_AMOUNT", cost);
+			// Initialize worker timeout tracking if not done already
+			if (!window.workerTimeouts) {
+				window.workerTimeouts = [];
+			}
+
+			// Set the exact time this worker was hired
+			const exactHireTime = Date.now();
+
+			// Calculate animation buffer - animation will start 5 seconds before removal
+			const animationBufferMs = 5000; // 5 seconds for animation
+
+			console.log(
+				`Worker ${name} (ID: ${id}) hired at ${new Date(
+					exactHireTime
+				).toLocaleTimeString()} with duration ${duration} minutes. Animation will start ${
+					(durationMs - animationBufferMs) / 1000
+				}s before removal at exactly ${duration} minutes.`
+			);
+
+			// Set timeout to remove worker at exactly the duration (not duration + buffer)
+			const timeoutId = setTimeout(() => {
+				// Check if worker still exists before removing
+				const workerExists = state.currentWorkers.some(
+					(worker) => worker.id === id
+				);
+				if (workerExists) {
+					const removeTime = Date.now();
+					console.log(
+						`Worker ${name} (ID: ${id}) removed at ${new Date(
+							removeTime
+						).toLocaleTimeString()}, total duration: ${
+							(removeTime - exactHireTime) / 1000
+						} seconds`
+					);
+					commit("REMOVE_WORKER", { workerType, id });
+				}
+
+				// Remove this timeout from the global array
+				const timeoutIndex = window.workerTimeouts.indexOf(timeoutId);
+				if (timeoutIndex > -1) {
+					window.workerTimeouts.splice(timeoutIndex, 1);
+				}
+			}, durationMs); // Remove exactly at duration end (not + buffer)
+
+			// Add the timeout ID to the global array
+			window.workerTimeouts.push(timeoutId);
+
+			// Store timing information for animation
+			commit("UPDATE_WORKER_TIMES", {
+				id,
+				workerType,
+				hireTime: exactHireTime,
+				// Start animation 5 seconds before worker removal
+				animationStartTime: exactHireTime + durationMs - animationBufferMs,
+				// Worker will be removed exactly at duration end
+				expectedRemovalTime: exactHireTime + durationMs,
+			});
 
 			// Check for worker-based milestones
 			if (
@@ -1970,6 +2077,56 @@ const store = createStore({
 
 				// Show the upgrade popup
 				dispatch("popupManager/showPopup", { id: "writersRoom_upgrade" });
+			}
+		},
+
+		upgradeWritersRoom({ commit, state, dispatch }) {
+			// Get next capacity upgrade
+			const nextIndex = state.currentCapacityIndex + 1;
+			if (nextIndex < state.writersRoomCapacities.length) {
+				const upgrade = state.writersRoomCapacities[nextIndex];
+
+				// Deduct the cost
+				commit("DECREASE_WRITING_DOLLAR_AMOUNT", upgrade.cost);
+
+				// Upgrade capacity
+				commit("UPGRADE_WRITERS_ROOM_CAPACITY");
+
+				// Check for the second writers room upgrade milestone
+				if (nextIndex === 2 && !state.milestones.secondWritersRoomUpgrade) {
+					commit("SET_MILESTONE_ACHIEVED", "secondWritersRoomUpgrade");
+				}
+
+				// Show confirmation popup if needed
+				dispatch("popupManager/showPopup", {
+					id: "writersRoom_capacityUpgrade",
+				});
+			}
+		},
+
+		generateScript({ commit, state, dispatch }, options = {}) {
+			// Placeholder for script generation logic
+			// This would typically generate script details, roles, etc.
+			console.log("Generating new script with options:", options);
+
+			// Example implementation (expand based on your actual requirements)
+			commit("ADD_SCRIPT", {
+				title: options.title || "New Script",
+				genre: options.genre || state.currentGenre,
+				// Add other script properties as needed
+			});
+		},
+
+		deductWorkerWages({ commit, state }) {
+			// Calculate total wages based on active workers
+			const totalWages = state.currentWorkers.reduce((total, worker) => {
+				const workerDetails = state.workers[worker.workerType];
+				return total + (workerDetails ? workerDetails.cost / 10 : 0); // Example calculation
+			}, 0);
+
+			// Deduct wages if there are any workers
+			if (totalWages > 0) {
+				commit("DEDUCT_WORKER_WAGES", totalWages);
 			}
 		},
 

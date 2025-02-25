@@ -20,7 +20,7 @@
 						class="spend-money-btn"
 						:class="{ inactive: !(canAfford && isUnderCapacity) }"
 						:disabled="!(canAfford && isUnderCapacity)"
-						@click="makeHire(cost, name)"
+						@click="makeHire(cost)"
 					>
 						<!-- Use cost prop here -->
 						<span>Hire for ${{ $formatNumber(cost) }}</span>
@@ -44,6 +44,16 @@ import { mapGetters } from "vuex";
 
 export default {
 	name: "ScriptDoctorCard",
+	props: {
+		workerType: {
+			type: String,
+			default: "scriptDoctor",
+		},
+		showBody: {
+			type: Boolean,
+			default: true,
+		},
+	},
 	computed: {
 		...mapGetters({
 			getWorkerDetails: "getWorkerDetails",
@@ -89,9 +99,12 @@ export default {
 		},
 	},
 	methods: {
-		makeHire(cost, name) {
+		makeHire(cost) {
 			if (this.canAfford) {
-				this.$store.dispatch("hireWorker", { cost, name });
+				this.$store.dispatch("hireWorker", {
+					cost,
+					name: this.workerType, // Pass the workerType directly instead of the display name
+				});
 			}
 		},
 	},
