@@ -1,0 +1,313 @@
+# Click Studios Development Instructions
+
+## 1. Context & Frameworks
+
+- You are assisting with the development of **Click Studios**, an incremental (idle) game built with **Vue 3** and **Vuetify 3**.
+- Reference existing math and incremental game design documents as needed (e.g., for progression curves, prestige systems).
+
+## 2. Coding Style & Structure
+
+- Emphasize **modularity**: break large components into smaller, self-contained modules when appropriate.
+- Adhere to **DRY** principles, reusing common code and shared logic.
+- In troubleshooting/code suggestions, include **only relevant snippets** or minimal changes.
+- Keep **comments** minimal and in third-person or neutral tone (avoid "you").
+
+## 3. Vue & Vuetify Conventions
+
+- Suggest alternative Vue or Vuetify features if they better address a problem.
+- Favor **Vuetify layout classes** (e.g., `pa-`, `ma-`, `d-flex`) directly in HTML for styling.
+- Highlight best practices around **computed properties**, watchers, or state management solutions (Vuex/Pinia) as needed.
+
+## 4. Game Mechanics
+
+- Offer succinct explanations on **idle/incremental mechanics**: exponential growth, upgrade formulas, time-based multipliers, prestige loops, etc.
+- Utilize known math and balancing approaches from incremental game documents.
+
+## 5. Task Responses
+
+- When given a list of tasks, respond with **concise, minimal to-do lists**.
+- Confirm any ambiguous variable or function naming as needed.
+
+## 6. Interaction & Tone
+
+- Maintain a **straightforward, concise, and helpful** tone.
+- Provide solution-oriented guidance; avoid unnecessary commentary.
+
+## 7. Game Design Goals
+
+### 7.1 Design Tenets
+
+- A simulation-style idle game where the player acts as a **studio executive**, overseeing the process of making a movie from writing to release.
+- Emphasis on **customization** and **storytelling**, with resource management and timed progression.
+
+### 7.2 Gameplay Loop
+
+- Players start with **manual interactions** to generate resources and gradually automate tasks with purchased helpers.
+- Ultimately, the player's goal is to **produce and release** a successful movie, moving through distinct production phases.
+
+### 7.3 Objectives
+
+- Navigate through each phase of movie production, from writing to release, while managing resources and making creative decisions.
+- Each completed film serves as a major milestone and raises the player's overall score.
+
+### 7.4 Progression & Metrics
+
+- Progress is defined by the ability to **advance production phases** (writing, pre-production, filming, post, marketing, release).
+- **Score** increases with each completed film, offering tangible evidence of progression and success.
+
+### 7.5 Visual Style
+
+- Minimalistic graphics, leveraging **emojis** to keep the interface accessible and visually distinct.
+- Keep UI uncluttered and straightforward.
+
+### 7.6 Narrative & Dynamics
+
+- Players shape their own narratives (choosing genres, budgets, marketing strategies) while reacting to **events and trends** that may affect success.
+- **Award shows** and **seasonal trends** can influence production and final reception, weaving a dynamic storyline.
+
+### 7.7 Prestige System
+
+- Once a movie is released, players can "prestige" if certain conditions (like high critical score) are met, gaining **permanent advantages**.
+- Prestige loops should keep subsequent playthroughs fresh, faster, and more engaging without overly complicating the core mechanics.
+
+### 7.8 Scope Management
+
+- **Feature Limitation**: Only introduce features that **enhance the core loop** (production and release).
+- **Content Boundaries**: Adhere to established production phases; avoid adding unrelated steps or subplots.
+- **Graphics and UI Simplicity**: Keep the UI clean, focusing on emoji usage that aids communication, not decoration.
+- **Narrative Constraints**: Any events or trends should emphasize the player's role as a studio executive.
+- **Prestige System Clarity**: Clearly communicate how prestige benefits the player without fragmenting the core game loop.
+- **Time Management**: Define development milestones and avoid overextending features beyond the core experience.
+
+### 7.9 Phase Features
+
+Below are the primary gameplay features for each stage—these define the **Minimum Viable Product** of Click Studios:
+
+1. **Writing**
+
+   - Manual writing interactions; sell projects to fund further development.
+   - Hire writers and other professionals to speed up writing.
+   - Complete a script (choose genre/pre-production details).
+
+2. **Pre-production**
+
+   - Pitch investors for resources.
+   - Hire department heads to automate progress in categories (e.g., **Cast**, **Camera**, **Locations**, **Hair**, **Costume**, **Makeup**, **Set**).
+   - Potential mechanic: progress in one category can help or hinder another.
+
+3. **Filming**
+
+   - Create a shooting schedule (manual or automated).
+   - Film scene by scene, unlock **second-unit shooting** for faster progress.
+   - Make on-the-fly decisions or fix issues to impact production quality.
+
+4. **Post**
+
+   - Edit the film: arrange scenes, handle **music** and **foley**.
+   - Finalize the **cut** of the movie.
+
+5. **Marketing**
+
+   - Research audience demographics.
+   - Allocate a marketing budget, choose marketing channels (OOH, TV, social media).
+   - Possibly pursue awards promotion.
+
+6. **Release**
+
+   - Host a **Premiere**; track **Opening Weekend** numbers.
+   - Garner **Critics Score** and **Audience Score**, with potential analysis upgrades.
+   - Ongoing streaming/rental income that diminishes over time.
+
+7. **Prestige**
+   - If critical score is high enough, enter **award season** and vie for accolades.
+   - Winning Best Picture is considered a "win" condition, but the game can continue via the **prestige loop**.
+
+## 8. Popup System Architecture
+
+### 8.1 Overview
+
+The popup system in Click Studios is a centralized, flexible system for displaying various types of modal dialogs to the player. It supports different popup types, themes, and can manage multiple popups with a queue system.
+
+### 8.2 Key Files and Their Functions
+
+#### 8.2.1 `src/store/modules/popupManager.js`
+
+- **Purpose**: Vuex module that manages the state and logic for all popups.
+- **Key Features**:
+  - Maintains a registry of all available popups
+  - Tracks active popups in a stack
+  - Manages a queue for sequential popup display
+  - Keeps a history of displayed popups
+  - Provides global settings for all popups
+
+#### 8.2.2 `src/data/popups.js`
+
+- **Purpose**: Central repository for popup definitions organized by category.
+- **Key Features**:
+  - Contains predefined popup configurations grouped by purpose (tutorial, achievement, etc.)
+  - Provides a mapping from legacy popup keys to new popup IDs for backward compatibility
+  - Exports a `registerAllPopups` function to register all popups with the store
+
+#### 8.2.3 `src/services/popupService.js`
+
+- **Purpose**: Service layer that provides helper functions for working with popups.
+- **Key Features**:
+  - Utility functions for showing, hiding, and managing popups
+  - May contain specialized popup registration functions
+  - Abstracts popup interactions for components
+
+#### 8.2.4 Popup Components
+
+- Located in `src/components/Popups/` directory
+- Each component represents a specific popup type (info, confirm, input, etc.)
+- Components are dynamically loaded based on the popup type
+
+### 8.3 Popup Types
+
+#### 8.3.1 Info Popup (`type: "info"`)
+
+- **Purpose**: Display information to the player
+- **Required Properties**:
+  - `title`: Popup title
+  - `text`: Main content text
+  - `buttonText`: Text for the close button
+- **Optional Properties**:
+  - `emoji`: Icon to display
+  - `theme`: Visual styling theme
+
+#### 8.3.2 Confirm Popup (`type: "confirm"`)
+
+- **Purpose**: Ask the player to confirm an action
+- **Required Properties**:
+  - `title`: Popup title
+  - `text`: Question or confirmation text
+  - `confirmText`: Text for the confirm button
+  - `cancelText`: Text for the cancel button
+- **Optional Properties**:
+  - `confirmColor`: Color for the confirm button (e.g., "error" for destructive actions)
+  - `theme`: Visual styling theme
+
+#### 8.3.3 Input Popup (`type: "input"`)
+
+- **Purpose**: Collect text input from the player
+- **Required Properties**:
+  - `title`: Popup title
+  - `text`: Prompt text
+  - `buttonText`: Text for the submit button
+  - `inputTarget`: State variable to update with the input value
+- **Optional Properties**:
+  - `nextPopup`: ID of popup to show after input is submitted
+  - `theme`: Visual styling theme
+
+#### 8.3.4 List Popup (`type: "list"`)
+
+- **Purpose**: Display a list of options for the player to choose from
+- **Required Properties**:
+  - `title`: Popup title
+  - `text`: Description text
+  - `options`: Array of options to display
+  - `buttonText`: Text for the close button
+- **Optional Properties**:
+  - `theme`: Visual styling theme
+
+#### 8.3.5 Custom Popup (`type: "custom"`)
+
+- **Purpose**: For specialized popups with unique layouts or functionality
+- **Required Properties**:
+  - `title`: Popup title
+  - `component`: Name of the Vue component to render
+- **Optional Properties**:
+  - `props`: Properties to pass to the custom component
+  - `theme`: Visual styling theme
+
+### 8.4 Adding New Popups
+
+To add a new popup to the system:
+
+1. **Define the popup configuration** in `src/data/popups.js`:
+
+   ```javascript
+   export const myPopupCategory = {
+   	newPopup: {
+   		id: "category_newPopup",
+   		type: "info",
+   		title: "New Feature",
+   		emoji: "🎉",
+   		text: "You've unlocked a new feature!",
+   		buttonText: "Great!",
+   		theme: "achievement",
+   	},
+   };
+   ```
+
+2. **Add the popup category to the registration function** in `src/data/popups.js`:
+
+   ```javascript
+   export function registerAllPopups(store) {
+   	const popupGroups = {
+   		// Existing groups...
+   		myCategory: myPopupCategory,
+   	};
+
+   	Object.entries(popupGroups).forEach(([, popupGroup]) => {
+   		store.dispatch("popupManager/registerPopupGroup", popupGroup);
+   	});
+   }
+   ```
+
+3. **Add a mapping for backward compatibility** if needed:
+   ```javascript
+   export const popupKeyMapping = {
+   	// Existing mappings...
+   	newPopup: "category_newPopup",
+   };
+   ```
+
+### 8.5 Showing Popups
+
+To display a popup in the game:
+
+```javascript
+// In a component or Vuex action
+this.$store.dispatch("popupManager/showPopup", {
+	id: "category_newPopup",
+	props: {
+		// Optional additional properties or overrides
+	},
+});
+
+// Or to queue a popup to show after current popups close
+this.$store.dispatch("popupManager/queuePopup", {
+	id: "category_newPopup",
+	props: {},
+});
+```
+
+### 8.6 Popup Themes
+
+The system supports different visual themes for popups:
+
+- `default`: Standard popup styling
+- `tutorial`: Styling for tutorial popups
+- `achievement`: Styling for achievement notifications
+- `error`: Styling for error messages
+
+To add a new theme, define the CSS classes in your styles and reference the theme name in the popup configuration.
+
+### 8.7 Best Practices
+
+1. **Use consistent IDs**: Follow the naming pattern `category_name` for popup IDs
+2. **Group related popups**: Keep popups organized by category in `popups.js`
+3. **Keep text concise**: Popup text should be brief and to the point
+4. **Use emojis effectively**: Emojis can quickly communicate the popup's purpose
+5. **Consider sequencing**: For tutorials or guided experiences, use the queue system to show popups in sequence
+6. **Test thoroughly**: Ensure popups display correctly on all screen sizes
+
+### 8.8 Troubleshooting
+
+Common issues and solutions:
+
+1. **"Popup X is not registered"**: Ensure the popup is properly registered in `popups.js` and the ID matches exactly
+2. **Popup not showing**: Check if another popup is currently active (popups stack)
+3. **Styling issues**: Verify the theme is correctly defined and applied
+4. **Content overflow**: Keep text concise or implement scrolling for longer content

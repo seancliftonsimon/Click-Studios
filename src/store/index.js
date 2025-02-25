@@ -1684,7 +1684,7 @@ const store = createStore({
 					value: true,
 				});
 				commit("SET_MILESTONE_ACHIEVED", "fiftyWords");
-				dispatch("showPopup", "writingTool");
+				dispatch("popupManager/showPopup", { id: "achievement_writingTool" });
 			}
 		},
 		updateWordCount({ state, getters, commit }) {
@@ -1718,26 +1718,6 @@ const store = createStore({
 			commit("SET_CURRENT_GENRE", genre);
 		},
 
-		showPopup({ commit, dispatch }, popupKeyOrConfig) {
-			if (typeof popupKeyOrConfig === "string") {
-				// Handle legacy usage (just a string key)
-				const legacyPopupKey = popupKeyOrConfig;
-				const newPopupId = popupKeyMapping[legacyPopupKey] || legacyPopupKey;
-
-				// For backward compatibility, also set the old state variables
-				commit("SET_CURRENT_POPUP", legacyPopupKey);
-				commit("SET_POPUP_VISIBLE", true);
-
-				// Use the new system
-				dispatch("popupManager/showPopup", { id: newPopupId });
-			} else {
-				// Handle new usage (object with id and props)
-				const { id, props } = popupKeyOrConfig;
-				const newPopupId = popupKeyMapping[id] || id;
-				dispatch("popupManager/showPopup", { id: newPopupId, props });
-			}
-		},
-
 		sellProduct({ commit, state, dispatch }, { cardType, cost, pay }) {
 			// Decrease word count by cost
 			commit("DECREASE_WORD_COUNT", cost);
@@ -1769,7 +1749,7 @@ const store = createStore({
 				});
 
 				// Show the unlock popup
-				dispatch("showPopup", "achievement_synopsis");
+				dispatch("popupManager/showPopup", { id: "achievement_synopsis" });
 			}
 
 			if (
@@ -1782,7 +1762,7 @@ const store = createStore({
 					key: "products.outline.visible",
 					value: true,
 				});
-				dispatch("showPopup", "achievement_outline");
+				dispatch("popupManager/showPopup", { id: "achievement_outline" });
 			}
 
 			if (
@@ -1795,7 +1775,7 @@ const store = createStore({
 					key: "products.treatment.visible",
 					value: true,
 				});
-				dispatch("showPopup", "achievement_treatment");
+				dispatch("popupManager/showPopup", { id: "achievement_treatment" });
 			}
 
 			if (
@@ -1808,7 +1788,7 @@ const store = createStore({
 					key: "products.draftScript.visible",
 					value: true,
 				});
-				dispatch("showPopup", "achievement_draftScript");
+				dispatch("popupManager/showPopup", { id: "achievement_draftScript" });
 			}
 
 			if (
@@ -1821,7 +1801,9 @@ const store = createStore({
 					key: "products.shootingScript.visible",
 					value: true,
 				});
-				dispatch("showPopup", "achievement_shootingScript");
+				dispatch("popupManager/showPopup", {
+					id: "achievement_shootingScript",
+				});
 			}
 
 			if (
@@ -1837,7 +1819,9 @@ const store = createStore({
 						value: true,
 					});
 				}
-				dispatch("showPopup", "achievement_shootingScript");
+				dispatch("popupManager/showPopup", {
+					id: "achievement_shootingScript",
+				});
 			}
 
 			// Check for dollar-based milestones
@@ -1864,7 +1848,7 @@ const store = createStore({
 					});
 
 					// Show the unlock popup
-					dispatch("showPopup", "writersRoom_unlock");
+					dispatch("popupManager/showPopup", { id: "writersRoom_unlock" });
 				}
 			}
 
@@ -1878,7 +1862,7 @@ const store = createStore({
 					value: true,
 				});
 
-				dispatch("showPopup", "writersRoom_juniorWriters");
+				dispatch("popupManager/showPopup", { id: "writersRoom_juniorWriters" });
 			}
 
 			// Check for screenwriters unlock
@@ -1891,7 +1875,7 @@ const store = createStore({
 					value: true,
 				});
 
-				dispatch("showPopup", "writersRoom_screenwriters");
+				dispatch("popupManager/showPopup", { id: "writersRoom_screenwriters" });
 			}
 
 			// Check for cowriters unlock
@@ -1904,7 +1888,7 @@ const store = createStore({
 					value: true,
 				});
 
-				dispatch("showPopup", "writersRoom_cowriters");
+				dispatch("popupManager/showPopup", { id: "writersRoom_cowriters" });
 			}
 
 			// Check for script doctors unlock
@@ -1917,7 +1901,7 @@ const store = createStore({
 					value: true,
 				});
 
-				dispatch("showPopup", "writersRoom_scriptDoctors");
+				dispatch("popupManager/showPopup", { id: "writersRoom_scriptDoctors" });
 			}
 		},
 
@@ -1985,7 +1969,7 @@ const store = createStore({
 				});
 
 				// Show the upgrade popup
-				dispatch("showPopup", "writersRoom_upgrade");
+				dispatch("popupManager/showPopup", { id: "writersRoom_upgrade" });
 			}
 		},
 
@@ -2009,7 +1993,9 @@ const store = createStore({
 
 					// Show a popup for the first tool upgrade
 					if (currentToolIndex === 0) {
-						dispatch("showPopup", "writingTool");
+						dispatch("popupManager/showPopup", {
+							id: "achievement_writingTool",
+						});
 					}
 				}
 
@@ -2024,7 +2010,7 @@ const store = createStore({
 					});
 
 					// Show the genre unlock popup
-					dispatch("showPopup", "genre_unlock");
+					dispatch("popupManager/showPopup", { id: "genre_unlock" });
 				}
 			}
 		},

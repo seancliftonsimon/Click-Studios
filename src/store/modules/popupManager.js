@@ -139,7 +139,7 @@ export default {
 			commit("SHOW_POPUP", { id, props });
 		},
 
-		queuePopup({ commit, state, dispatch }, { id, props = {} }) {
+		queuePopup({ commit, state }, { id, props = {} }) {
 			// Check if popup exists in registry
 			if (!state.popupRegistry[id]) {
 				console.error(`Popup ${id} is not registered`);
@@ -148,7 +148,8 @@ export default {
 
 			// If no active popups, show immediately, otherwise queue
 			if (state.activePopups.length === 0) {
-				dispatch("showPopup", { id, props });
+				// Use the namespaced action to maintain consistency
+				commit("SHOW_POPUP", { id, props });
 			} else {
 				commit("QUEUE_POPUP", { id, props });
 			}

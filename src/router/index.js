@@ -7,6 +7,7 @@ import FilmingComponent from "@/components/FilmingComponent.vue";
 import PostproductionComponent from "@/components/PostproductionComponent.vue";
 import MarketingComponent from "@/components/MarketingComponent.vue";
 import ReleaseComponent from "@/components/ReleaseComponent.vue";
+import PopupTester from "@/components/PopupTester.vue";
 
 const routes = [
 	{
@@ -38,6 +39,11 @@ const routes = [
 		path: "/release",
 		name: "release",
 		component: ReleaseComponent,
+	},
+	{
+		path: "/popup-tester",
+		name: "popupTester",
+		component: PopupTester,
 	},
 ];
 

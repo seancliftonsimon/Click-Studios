@@ -148,6 +148,15 @@ export const writersRoomPopups = {
 		buttonText: "Great!",
 		theme: "achievement",
 	},
+	upgrade: {
+		id: "writersRoom_upgrade",
+		type: "info",
+		title: "🔓 Writers Room Upgrade",
+		emoji: "🏢",
+		text: "You've hired enough writers to justify a bigger space! \n\n You can now upgrade your Writers Room to accommodate more writers at once.",
+		buttonText: "Great!",
+		theme: "achievement",
+	},
 	capacityUpgrade: {
 		id: "writersRoom_capacityUpgrade",
 		type: "info",
@@ -197,7 +206,15 @@ export const confirmationPopups = {
 
 // Feature Unlock Popups
 export const featureUnlockPopups = {
-	// Add feature unlock popups here
+	genreUnlock: {
+		id: "genre_unlock",
+		type: "info",
+		title: "🔓 Genre Selection",
+		emoji: "🎭",
+		text: "You've unlocked the ability to switch between different genres! \n\n Each genre has its own progression and quality levels. \n\n Experiment with different genres to find your studio's specialty.",
+		buttonText: "Great!",
+		theme: "achievement",
+	},
 };
 
 // Game Phase Popups
@@ -237,6 +254,8 @@ export const popupKeyMapping = {
 	writersRoomCapacityUpgrade: "writersRoom_capacityUpgrade",
 	newScript: "script_new",
 	scriptDetails: "script_details",
+	writersRoom_upgrade: "writersRoom_upgrade",
+	genre_unlock: "genre_unlock",
 };
 
 // Registration function to load all popup definitions
