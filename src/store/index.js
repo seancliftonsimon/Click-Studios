@@ -30,13 +30,14 @@ const store = createStore({
 		studioName: "Click Studios",
 
 		// Phase Unlocks
-		isPreproductionUnlocked: true,
-		isFilmingUnlocked: true,
+		isPreproductionUnlocked: false,
+		isFilmingUnlocked: false,
 		isPostproductionUnlocked: false,
 		isMarketingUnlocked: false,
 		isReleaseUnlocked: false,
 
 		// Word Variables
+
 		wordCount: 100,
 		wordsPerSecond: 0,
 		totalWordCount: 0,

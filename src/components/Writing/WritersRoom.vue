@@ -14,6 +14,7 @@
 					:hire-time="getWorkerTimes(worker).hireTime"
 					:expected-removal-time="getWorkerTimes(worker).expectedRemovalTime"
 					:animation-start-time="getWorkerTimes(worker).animationStartTime"
+					:words-per-second="getWorkerWps(worker)"
 					@worker-expired="handleWorkerExpired(worker)"
 				/>
 			</div>
@@ -122,6 +123,10 @@ export default {
 				workerType: worker.workerType,
 				id: worker.id,
 			});
+		},
+		getWorkerWps(worker) {
+			const workerDetails = this.$store.state.workers[worker.workerType];
+			return workerDetails ? workerDetails.wps : 0;
 		},
 	},
 };

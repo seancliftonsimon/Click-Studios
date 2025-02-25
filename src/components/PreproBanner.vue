@@ -71,8 +71,24 @@ export default {
 					this.showActorSparkle = newVal;
 				});
 			},
-			immediate: true
-		}
+			immediate: true,
+		},
+		totalProgress: {
+			handler(newVal) {
+				if (newVal === 100) {
+					// All preproduction tasks are complete, unlock filming phase
+					this.$store.commit("UPDATE_STATE_VARIABLE", {
+						key: "isFilmingUnlocked",
+						value: true,
+					});
+					// Show a popup to notify the player
+					this.$store.dispatch("popupManager/showPopup", {
+						id: "achievement_filmingUnlocked",
+					});
+				}
+			},
+			immediate: true,
+		},
 	},
 	computed: {
 		...mapGetters({

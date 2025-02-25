@@ -1,5 +1,9 @@
 <template>
-	<div class="worker-container" :class="{ expiring: isExpiring }">
+	<div
+		class="worker-container"
+		:class="{ expiring: isExpiring }"
+		:title="tooltipText"
+	>
 		<div
 			class="progress-background"
 			:style="{
@@ -38,6 +42,11 @@ export default {
 			type: Number,
 			required: true,
 		},
+		wordsPerSecond: {
+			type: Number,
+			required: true,
+			default: 0,
+		},
 	},
 	data() {
 		return {
@@ -65,6 +74,20 @@ export default {
 				this.currentTime >= this.animationStartTime &&
 				this.currentTime < this.expectedRemovalTime
 			);
+		},
+		tooltipText() {
+			// Format remaining time in minutes and seconds
+			const totalSeconds = Math.floor(this.timeRemaining / 1000);
+			const minutes = Math.floor(totalSeconds / 60);
+			const seconds = totalSeconds % 60;
+
+			const timeDisplay =
+				minutes > 0
+					? `${minutes}m ${seconds}s remaining`
+					: `${seconds}s remaining`;
+
+			// Display the words per second value as an integer
+			return `${timeDisplay}\n${this.wordsPerSecond} words per second`;
 		},
 	},
 	methods: {

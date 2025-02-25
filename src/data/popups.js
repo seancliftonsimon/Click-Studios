@@ -99,6 +99,15 @@ export const achievementPopups = {
 		buttonText: "Great!",
 		theme: "achievement",
 	},
+	filmingUnlocked: {
+		id: "achievement_filmingUnlocked",
+		type: "info",
+		title: "🔓 Filming Phase",
+		emoji: "🎬",
+		text: "Congratulations! You've completed all preproduction tasks and can now move into filming. \n\n It's time to bring your script to life on set!",
+		buttonText: "Action!",
+		theme: "achievement",
+	},
 };
 
 // Writers Room Popups
@@ -256,6 +265,7 @@ export const popupKeyMapping = {
 	scriptDetails: "script_details",
 	writersRoom_upgrade: "writersRoom_upgrade",
 	genre_unlock: "genre_unlock",
+	filmingUnlocked: "achievement_filmingUnlocked",
 };
 
 // Registration function to load all popup definitions
