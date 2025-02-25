@@ -1,9 +1,27 @@
+/* eslint-disable */
 import { createStore } from "vuex";
 
-// Import progressManager module
-import progressManager from "./modules/progressManager";
+// Import modules
+import popupManager from "./modules/popupManager";
 
-export default createStore({
+// Import popup configurations
+import {
+	tutorialPopups,
+	achievementPopups,
+	writersRoomPopups,
+	scriptPopups,
+	confirmationPopups,
+	featureUnlockPopups,
+	gamePhasePopups,
+	errorPopups,
+	popupKeyMapping,
+	registerAllPopups,
+} from "../data/popups";
+
+const store = createStore({
+	modules: {
+		popupManager,
+	},
 	state: {
 		// DYNAMIC VARIABLES BELOW
 
@@ -17,7 +35,7 @@ export default createStore({
 		isReleaseUnlocked: false,
 
 		// Word Variables
-		wordCount: 2000000,
+		wordCount: 100,
 		wordsPerSecond: 0,
 		totalWordCount: 0,
 
@@ -1474,6 +1492,7 @@ export default createStore({
 		},
 		INCREASE_WRITING_DOLLAR_AMOUNT(state, pay) {
 			state.writingDollarCount += pay;
+			state.totalWritingDollarCount += pay;
 		},
 		DECREASE_WRITING_DOLLAR_AMOUNT(state, cost) {
 			state.writingDollarCount -= cost;
@@ -1699,377 +1718,317 @@ export default createStore({
 			commit("SET_CURRENT_GENRE", genre);
 		},
 
-		showPopup({ commit }, popupKey) {
-			commit("SET_CURRENT_POPUP", popupKey);
+		showPopup({ commit, dispatch }, popupKeyOrConfig) {
+			if (typeof popupKeyOrConfig === "string") {
+				// Handle legacy usage (just a string key)
+				const legacyPopupKey = popupKeyOrConfig;
+				const newPopupId = popupKeyMapping[legacyPopupKey] || legacyPopupKey;
 
-			commit("SET_POPUP_VISIBLE", true);
+				// For backward compatibility, also set the old state variables
+				commit("SET_CURRENT_POPUP", legacyPopupKey);
+				commit("SET_POPUP_VISIBLE", true);
+
+				// Use the new system
+				dispatch("popupManager/showPopup", { id: newPopupId });
+			} else {
+				// Handle new usage (object with id and props)
+				const { id, props } = popupKeyOrConfig;
+				const newPopupId = popupKeyMapping[id] || id;
+				dispatch("popupManager/showPopup", { id: newPopupId, props });
+			}
 		},
 
-		generateScript({ commit, state, dispatch }) {
-			const genre = state.currentGenre;
-			const title = "";
-			const roleRange = state.ranges.roleAmount;
-			const shotRange = state.ranges.shotAmount;
-			const setRange = state.ranges.setAmount;
-			const locationRange = state.ranges.locationAmount;
-			const numberOfRoles =
-				Math.floor(Math.random() * (roleRange[1] - roleRange[0] + 1)) +
-				roleRange[0];
-			const numberOfShots =
-				Math.floor(Math.random() * (shotRange[1] - shotRange[0] + 1)) +
-				shotRange[0];
-			const numberOfSets =
-				Math.floor(Math.random() * (setRange[1] - setRange[0] + 1)) +
-				setRange[0];
-			const numberOfLocations =
-				Math.floor(Math.random() * (locationRange[1] - locationRange[0] + 1)) +
-				locationRange[0];
-
-			const roles = [];
-			const shots = [];
-			const sets = [];
-			const locations = [];
-			const costumes = [];
-			const looks = [];
-			const { settings } = state.pools;
-			const possibleRoles = state.genres[genre].roles;
-			const possibleShots = state.pools.shots;
-			const possibleSets = settings.filter((item) => item.type === "set");
-			console.log(`All Possible Sets are: ${possibleSets}`);
-			const possibleLocations = settings.filter(
-				(item) => item.type === "location"
-			);
-			const possibleCostumes = state.pools.costumes;
-			const possibleLooks = state.pools.looks;
-			const scriptQuality = state.genres[genre].quality;
-
-			// Assign roles randomly from the genre's roles pool
-			for (let i = 0; i < numberOfRoles; i++) {
-				const randomIndex = Math.floor(Math.random() * possibleRoles.length);
-				roles.push({
-					name: possibleRoles[randomIndex],
-					isCast: false,
-				});
-			}
-
-			// Assign shots randomly from the genre's shots pool
-			for (let i = 0; i < numberOfShots; i++) {
-				const randomIndex = Math.floor(Math.random() * possibleShots.length);
-				shots.push({
-					name: possibleShots[randomIndex],
-					isPlanned: false,
-				});
-			}
-
-			// Assign sets randomly from the general set pool
-			for (let i = 0; i < numberOfSets; i++) {
-				const randomIndex = Math.floor(Math.random() * possibleSets.length);
-				const selectedSet = possibleSets[randomIndex];
-				sets.push({
-					id: selectedSet.id, // Assign the id
-					name: selectedSet.name, // You can assign the name if needed
-					isBuilt: false,
-				});
-			}
-
-			// Assign locations randomly from the general location pool
-			for (let i = 0; i < numberOfLocations; i++) {
-				const randomIndex = Math.floor(
-					Math.random() * possibleLocations.length
-				);
-				const selectedLocation = possibleLocations[randomIndex];
-				locations.push({
-					id: selectedLocation.id, // Assign the id
-					name: selectedLocation.name, // You can assign the name if needed
-					isScouted: false,
-				});
-			}
-
-			for (let i = 0; i < numberOfRoles; i++) {
-				const costumeIndex = Math.floor(
-					Math.random() * possibleCostumes.length
-				);
-				const costumeName = state.pools.costumes[costumeIndex];
-
-				costumes.push({
-					name: costumeName,
-					role: roles[i].name,
-					isMade: false,
-				});
-				if (Math.random() >= 0.2) {
-					const secondCostumeIndex = Math.floor(
-						Math.random() * possibleCostumes.length
-					);
-					const secondCostumeName = state.pools.costumes[secondCostumeIndex];
-					costumes.push({
-						name: secondCostumeName,
-						role: roles[i].name,
-						isMade: false,
-					});
-				}
-			}
-
-			for (let i = 0; i < numberOfRoles; i++) {
-				const lookIndex = Math.floor(Math.random() * possibleLooks.length);
-				const lookName = state.pools.looks[lookIndex];
-
-				looks.push({
-					name: lookName,
-					role: roles[i].name,
-					isDesigned: false,
-				});
-				if (Math.random() >= 0.2) {
-					const secondLookIndex = Math.floor(
-						Math.random() * possibleLooks.length
-					);
-					const secondLookName = state.pools.looks[secondLookIndex];
-					looks.push({
-						name: secondLookName,
-						role: roles[i].name,
-						isDesigned: false,
-					});
-				}
-			}
-
-			// Constructing the strings for the description
-			const rolesList = roles.map((role) => `${role.name}`).join(", ");
-			const shotsList = shots.map((shot) => `${shot.name}`).join(", ");
-			const setsList = sets.map((set) => `${set.name}`).join(", ");
-			const costumesList = costumes
-				.map((costume) => `${costume.name} for ${costume.role}`)
-				.join(", ");
-			const locationsList = locations
-				.map((location) => `${location.name}`)
-				.join(", ");
-			const looksList = looks
-				.map((look) => `${look.name} for ${look.role}`)
-				.join(", ");
-			const roleDescription = `Roles: ${rolesList}`;
-			const scriptDescription = `A ${scriptQuality.toFixed(
-				1
-			)} quality ${genre} script with ${roles.length} roles:
-			${rolesList} \n 
-			${shots.length} shots: \n ${shotsList}
-			\n
-			${sets.length} sets: \n ${setsList} \n
-			${locations.length} locations: \n ${locationsList} \n
-			${costumes.length} costumes: \n ${costumesList} \n
-			${looks.length} looks: \n ${looksList}`;
-
-			// Construct the script object including the description
-			const script = {
-				title,
-				genre,
-				roles,
-				shots,
-				looks,
-				sets,
-				locations,
-				costumes,
-				quality: scriptQuality,
-				roleDescription: roleDescription,
-				description: scriptDescription, // Include description directly in the script object
-			};
-
-			commit("ADD_SCRIPT", script);
-			dispatch("showPopup", "newScript");
-		},
-
-		sellProduct({ state, getters, commit, dispatch }, { cardType, cost, pay }) {
+		sellProduct({ commit, state, dispatch }, { cardType, cost, pay }) {
+			// Decrease word count by cost
 			commit("DECREASE_WORD_COUNT", cost);
-			commit("INCREASE_WRITING_DOLLAR_AMOUNT", pay);
-			state.products[cardType].count++;
-			console.log(`${cardType} count now ${state.products[cardType].count}`);
 
-			commit("UPDATE_GENRE_PROGRESS", {
-				genre: state.currentGenre,
-				words: cost,
+			// Increase writing dollar amount by pay
+			commit("INCREASE_WRITING_DOLLAR_AMOUNT", pay);
+
+			// Increment the product count
+			commit("UPDATE_STATE_VARIABLE", {
+				key: `products.${cardType}.count`,
+				value: state.products[cardType].count + 1,
 			});
 
+			console.log(`Sold ${cardType} for ${pay} dollars (cost: ${cost} words)`);
+
+			// Check for product-based milestones
 			if (
-				getters.currentGenreDetails.level >= 3 &&
-				!state.milestones.genreLevelTwo
+				cardType === "logline" &&
+				state.products.logline.count >= 5 &&
+				!state.milestones.fiveLoglines
 			) {
+				// Mark the milestone as achieved
+				commit("SET_MILESTONE_ACHIEVED", "fiveLoglines");
+
+				// Make the synopsis product visible
 				commit("UPDATE_STATE_VARIABLE", {
-					key: "switchGenreVisible",
+					key: "products.synopsis.visible",
 					value: true,
 				});
-				commit("SET_MILESTONE_ACHIEVED", "genreLevelTwo");
-				dispatch("showPopup", "changeGenre");
+
+				// Show the unlock popup
+				dispatch("showPopup", "achievement_synopsis");
 			}
 
-			if (cardType === "shootingScript") {
-				dispatch("generateScript");
-			}
-			if (state.products.logline.count >= 5 && !state.milestones.fiveLoglines) {
-				commit("TOGGLE_COMPONENT_VISIBILITY", "synopsis");
-				commit("SET_MILESTONE_ACHIEVED", "fiveLoglines");
-				dispatch("showPopup", "synopsis");
-			}
-			if (state.writingDollarCount >= 60 && !state.milestones.sixtyDollars) {
-				commit("UPDATE_STATE_VARIABLE", {
-					key: "writersRoomVisible",
-					value: true,
-				});
-				commit("TOGGLE_COMPONENT_VISIBILITY", "intern");
-				commit("SET_MILESTONE_ACHIEVED", "sixtyDollars");
-				dispatch("showPopup", "writersRoom");
-			}
 			if (
+				cardType === "synopsis" &&
 				state.products.synopsis.count >= 5 &&
 				!state.milestones.fiveSynopses
 			) {
-				commit("TOGGLE_COMPONENT_VISIBILITY", "outline");
 				commit("SET_MILESTONE_ACHIEVED", "fiveSynopses");
-				dispatch("showPopup", "outline");
+				commit("UPDATE_STATE_VARIABLE", {
+					key: "products.outline.visible",
+					value: true,
+				});
+				dispatch("showPopup", "achievement_outline");
 			}
-			if (state.products.outline.count >= 5 && !state.milestones.fiveOutlines) {
-				commit("TOGGLE_COMPONENT_VISIBILITY", "treatment");
-				commit("SET_MILESTONE_ACHIEVED", "fiveOutlines");
-				dispatch("showPopup", "treatment");
-			}
+
 			if (
+				cardType === "outline" &&
+				state.products.outline.count >= 5 &&
+				!state.milestones.fiveOutlines
+			) {
+				commit("SET_MILESTONE_ACHIEVED", "fiveOutlines");
+				commit("UPDATE_STATE_VARIABLE", {
+					key: "products.treatment.visible",
+					value: true,
+				});
+				dispatch("showPopup", "achievement_treatment");
+			}
+
+			if (
+				cardType === "treatment" &&
 				state.products.treatment.count >= 5 &&
 				!state.milestones.fiveTreatments
 			) {
-				commit("TOGGLE_COMPONENT_VISIBILITY", "draftScript");
 				commit("SET_MILESTONE_ACHIEVED", "fiveTreatments");
-				dispatch("showPopup", "draftScript");
+				commit("UPDATE_STATE_VARIABLE", {
+					key: "products.draftScript.visible",
+					value: true,
+				});
+				dispatch("showPopup", "achievement_draftScript");
 			}
 
 			if (
+				cardType === "draftScript" &&
 				state.products.draftScript.count >= 5 &&
 				!state.milestones.fiveDraftScripts
 			) {
-				commit("TOGGLE_COMPONENT_VISIBILITY", "shootingScript");
 				commit("SET_MILESTONE_ACHIEVED", "fiveDraftScripts");
-				dispatch("showPopup", "shootingScript");
-			}
-			if (
-				state.products.shootingScript.count >= 1 &&
-				!state.milestones.firstScript
-			) {
-				commit("SET_MILESTONE_ACHIEVED", "firstShootingScript");
-				dispatch("showPopup", "newScript");
 				commit("UPDATE_STATE_VARIABLE", {
-					key: "isPreproductionUnlocked",
+					key: "products.shootingScript.visible",
 					value: true,
 				});
+				dispatch("showPopup", "achievement_shootingScript");
+			}
+
+			if (
+				cardType === "shootingScript" &&
+				state.products.shootingScript.count >= 1 &&
+				!state.milestones.firstShootingScript
+			) {
+				commit("SET_MILESTONE_ACHIEVED", "firstShootingScript");
+				// Unlock preproduction phase if not already unlocked
+				if (!state.isPreproductionUnlocked) {
+					commit("UPDATE_STATE_VARIABLE", {
+						key: "isPreproductionUnlocked",
+						value: true,
+					});
+				}
+				dispatch("showPopup", "achievement_shootingScript");
+			}
+
+			// Check for dollar-based milestones
+			dispatch("checkDollarMilestones");
+		},
+
+		// ... existing code ...
+
+		// Add a new action to check for dollar-based unlocks
+		checkDollarMilestones({ state, commit, dispatch }) {
+			// Check for Writers Room unlock
+			if (state.writingDollarCount >= 60 && !state.milestones.sixtyDollars) {
+				commit("SET_MILESTONE_ACHIEVED", "sixtyDollars");
+
+				// Unlock Writers Room
+				if (!state.writersRoomVisible) {
+					commit("UPDATE_STATE_VARIABLE", {
+						key: "writersRoomVisible",
+						value: true,
+					});
+					commit("UPDATE_STATE_VARIABLE", {
+						key: "workers.intern.visible",
+						value: true,
+					});
+
+					// Show the unlock popup
+					dispatch("showPopup", "writersRoom_unlock");
+				}
+			}
+
+			// Check for junior writers unlock (after earning more money)
+			if (
+				state.totalWritingDollarCount >= 200 &&
+				!state.workers.junior.visible
+			) {
+				commit("UPDATE_STATE_VARIABLE", {
+					key: "workers.junior.visible",
+					value: true,
+				});
+
+				dispatch("showPopup", "writersRoom_juniorWriters");
+			}
+
+			// Check for screenwriters unlock
+			if (
+				state.totalWritingDollarCount >= 800 &&
+				!state.workers.screenwriter.visible
+			) {
+				commit("UPDATE_STATE_VARIABLE", {
+					key: "workers.screenwriter.visible",
+					value: true,
+				});
+
+				dispatch("showPopup", "writersRoom_screenwriters");
+			}
+
+			// Check for cowriters unlock
+			if (
+				state.totalWritingDollarCount >= 3000 &&
+				!state.workers.cowriters.visible
+			) {
+				commit("UPDATE_STATE_VARIABLE", {
+					key: "workers.cowriters.visible",
+					value: true,
+				});
+
+				dispatch("showPopup", "writersRoom_cowriters");
+			}
+
+			// Check for script doctors unlock
+			if (
+				state.totalWritingDollarCount >= 10000 &&
+				!state.workers.scriptDoctor.visible
+			) {
+				commit("UPDATE_STATE_VARIABLE", {
+					key: "workers.scriptDoctor.visible",
+					value: true,
+				});
+
+				dispatch("showPopup", "writersRoom_scriptDoctors");
 			}
 		},
-		purchaseTool({ commit, state }, { cost, wordsPerClick }) {
-			commit("DECREASE_WRITING_DOLLAR_AMOUNT", cost);
-			commit("SET_WORDS_PER_CLICK", wordsPerClick);
 
-			// Logic to set the next write tool
-			const toolKeys = Object.keys(state.writeTools);
-			const currentToolIndex = toolKeys.indexOf(state.currentWriteTool);
-			const nextToolIndex = currentToolIndex + 1;
-			commit("SET_NEXT_WRITE_TOOL", toolKeys[nextToolIndex]);
-		},
 		hireWorker({ commit, state, dispatch }, { cost, name }) {
-			// First, find the workerType key that matches the provided name
-			const workerTypeKey = Object.keys(state.workers).find(
-				(key) => state.workers[key].name === name
+			// Determine worker type from name
+			const workerType = Object.keys(state.workers).find(
+				(type) => state.workers[type].name === name
 			);
 
-			if (!workerTypeKey) {
-				console.error(`Worker with name ${name} not found.`);
+			if (!workerType) {
+				console.error(`Worker type not found for name: ${name}`);
 				return;
 			}
 
-			// Now that you have the workerTypeKey, you can access the worker object
-			const worker = state.workers[workerTypeKey];
+			// Generate a unique ID for the worker
+			const id = Date.now();
 
+			// Add the worker
+			commit("ADD_WORKER", { workerType, id });
+
+			// Deduct the cost
 			commit("DECREASE_WRITING_DOLLAR_AMOUNT", cost);
 
-			const id = Date.now(); // Simple unique identifier
-			commit("ADD_WORKER", { workerType: workerTypeKey, id }); // Use the key to identify the worker type
-
+			// Check for worker-based milestones
 			if (
-				state.workers.intern.totalcount >= 5 &&
+				workerType === "intern" &&
+				state.workers.intern.count >= 5 &&
 				!state.milestones.fiveInterns
 			) {
-				commit("TOGGLE_COMPONENT_VISIBILITY", "junior");
 				commit("SET_MILESTONE_ACHIEVED", "fiveInterns");
-				dispatch("showPopup", "juniorWriters");
 			}
 
 			if (
-				state.workers.junior.totalcount >= 5 &&
+				workerType === "junior" &&
+				state.workers.junior.count >= 5 &&
 				!state.milestones.fiveJuniors
 			) {
-				commit("TOGGLE_COMPONENT_VISIBILITY", "screenwriter");
 				commit("SET_MILESTONE_ACHIEVED", "fiveJuniors");
-				dispatch("showPopup", "screenwriters");
 			}
 
 			if (
-				state.workers.screenwriter.totalcount >= 5 &&
+				workerType === "screenwriter" &&
+				state.workers.screenwriter.count >= 5 &&
 				!state.milestones.fiveScreenwriters
 			) {
-				commit("TOGGLE_COMPONENT_VISIBILITY", "cowriters");
 				commit("SET_MILESTONE_ACHIEVED", "fiveScreenwriters");
-				dispatch("showPopup", "cowriters");
 			}
+
 			if (
-				state.workers.intern.totalcount >= 3 &&
-				!state.milestones.threeWorkers
+				workerType === "cowriters" &&
+				state.workers.cowriters.count >= 5 &&
+				!state.milestones.fiveCowriters
 			) {
+				commit("SET_MILESTONE_ACHIEVED", "fiveCowriters");
+			}
+
+			// Check if we've reached the three workers milestone
+			if (state.currentWorkers.length >= 3 && !state.milestones.threeWorkers) {
+				commit("SET_MILESTONE_ACHIEVED", "threeWorkers");
+
+				// Make the writers room upgrade visible
 				commit("UPDATE_STATE_VARIABLE", {
 					key: "writersRoomUpgradeVisible",
 					value: true,
 				});
-				commit("SET_MILESTONE_ACHIEVED", "threeWorkers");
-				dispatch("showPopup", "writersRoomCapacityUpgrade");
-			}
 
-			// Use the duration from the found worker object
-			const durationMs = worker.duration * 60000; // Convert minutes to milliseconds
-			console.log(`${workerTypeKey} with duration of ${durationMs} ms added`);
-			setTimeout(() => {
-				commit("REMOVE_WORKER", { workerType: workerTypeKey, id });
-			}, durationMs);
+				// Show the upgrade popup
+				dispatch("showPopup", "writersRoom_upgrade");
+			}
 		},
-		upgradeWritersRoom({ commit, getters, state, dispatch }) {
-			const upgrade = getters.nextWritersRoomUpgrade;
-			if (upgrade) {
-				commit("DECREASE_WRITING_DOLLAR_AMOUNT", upgrade.cost);
-				commit("UPGRADE_WRITERS_ROOM_CAPACITY");
-				if (
-					state.currentCapacityIndex >= 3 &&
-					!state.milestones.secondWritersRoomUpgrade
-				) {
-					commit("TOGGLE_COMPONENT_VISIBILITY", "scriptDoctor");
-					commit("SET_MILESTONE_ACHIEVED", "secondWritersRoomUpgrade");
-					dispatch("showPopup", "scriptDoctors");
+
+		purchaseTool({ commit, state, dispatch }, { cost, wordsPerClick }) {
+			// Check if the player can afford the tool
+			if (state.writingDollarCount >= cost) {
+				// Deduct the cost
+				commit("DECREASE_WRITING_DOLLAR_AMOUNT", cost);
+
+				// Update the words per click
+				commit("SET_WORDS_PER_CLICK", wordsPerClick);
+
+				// Find the next tool in the sequence
+				const toolKeys = Object.keys(state.writeTools);
+				const currentToolIndex = toolKeys.indexOf(state.currentWriteTool);
+
+				if (currentToolIndex < toolKeys.length - 1) {
+					// Set the next tool as current
+					const nextToolKey = toolKeys[currentToolIndex + 1];
+					commit("SET_NEXT_WRITE_TOOL", nextToolKey);
+
+					// Show a popup for the first tool upgrade
+					if (currentToolIndex === 0) {
+						dispatch("showPopup", "writingTool");
+					}
 				}
-			} else {
-				// Log or handle the error as needed; this serves as a fail-safe.
-				console.error("Upgrade action called inappropriately.");
-			}
-		},
-		addInspiration({ commit }, amt) {
-			commit("INCREASE_INSPIRATION", amt);
-		},
-		spendInspiration({ commit }, cost) {
-			commit("DECREASE_INSPIRATION", cost);
-		},
-		deductWorkerWages({ state, commit }) {
-			const totalWages = Object.values(state.departments).reduce(
-				(total, dept) => {
-					return total + dept.employees * 3; // 3 is the wage per worker
-				},
-				0
-			);
 
-			if (state.preproDollarCount > 0) {
-				commit("DEDUCT_WORKER_WAGES", totalWages);
+				// Check for word-based milestones
+				if (wordsPerClick >= 5 && !state.milestones.genreLevelTwo) {
+					commit("SET_MILESTONE_ACHIEVED", "genreLevelTwo");
+
+					// Make the genre switch visible
+					commit("UPDATE_STATE_VARIABLE", {
+						key: "switchGenreVisible",
+						value: true,
+					});
+
+					// Show the genre unlock popup
+					dispatch("showPopup", "genre_unlock");
+				}
 			}
 		},
-	},
-	modules: {
-		progressManager,
-		// ... other modules
 	},
 });
+
+export default store;

@@ -14,19 +14,20 @@
 					class="d-flex flex-column justify-space-between my-1"
 					style="max-width: 170px"
 				>
-				<v-card-actions>
-					<v-btn
-						class="spend-words-btn"
-						:class="{ inactive: !canSell }"
-						:disabled="!canSell"
-						@click="makeSale(cost, pay)"
-					>
-						<!-- Use cost prop here -->
-						<span style="color: black; font-weight: medium"
-							>Use {{ $formatNumberShort(cost) }} words</span
+					<v-card-actions>
+						<v-btn
+							class="spend-words-btn"
+							:class="{ inactive: !canSell }"
+							:disabled="!canSell"
+							:ripple="false"
+							@click="makeSale(cost, pay)"
 						>
-					</v-btn>
-				</v-card-actions>
+							<!-- Use cost prop here -->
+							<span style="color: black; font-weight: medium"
+								>Use {{ $formatNumberShort(cost) }} words</span
+							>
+						</v-btn>
+					</v-card-actions>
 					<span class="product-pay mt-2"> PAYS ${{ $formatNumber(pay) }} </span>
 				</v-col>
 			</div>
@@ -106,7 +107,7 @@ export default {
 	font-family: Roboto;
 	font-size: 1em;
 	font-weight: 500;
-	color: rgb(39, 193, 39)
+	color: rgb(39, 193, 39);
 }
 /* Add transition styles for the slide effect */
 .slide-enter-active,

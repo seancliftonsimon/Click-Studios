@@ -5,6 +5,7 @@ import store from "./store";
 import vuetify from "./plugins/vuetify";
 import { loadFonts } from "./plugins/webfontloader";
 import "./styles/variables.scss";
+import { registerAllPopups } from "./data/popups";
 
 loadFonts();
 
@@ -40,6 +41,9 @@ app.config.performance = true;
 app.config.warnHandler = function (msg, vm, trace) {
 	console.warn("[Vue warn]: " + msg + trace);
 };
+
+// Register all popups
+registerAllPopups(store);
 
 app.use(router).use(store).use(vuetify).mount("#app");
 

@@ -1,7 +1,7 @@
 <template>
 	<div style="width: 100%" align="center">
 		<v-btn
-			
+			:ripple="false"
 			@mouseup="increaseWordCount"
 			class="write-tool-button d-flex flex-column mx-auto"
 		>
@@ -43,6 +43,10 @@ export default {
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	background-color: 	hsl(34, 100%, 89%);
+	background-color: hsl(34, 100%, 89%);
+}
+
+.write-tool-button:active {
+	background-color: hsl(34, 100%, 69%); /* Darken the color more */
 }
 </style>

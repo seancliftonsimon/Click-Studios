@@ -4,6 +4,7 @@
 		@update:model-value="SET_POPUP_VISIBLE"
 		tabindex="0"
 		@keyup.enter="handleButtonClick"
+		persistent
 	>
 		<v-card class="popup-card" style="border-radius: 12px">
 			<v-card-title class="text-h4 my-4 text-center">{{
@@ -12,7 +13,9 @@
 			<div class="text-center px-16">
 				<span class="emoji" v-html="currentPopupContent.emoji"></span>
 
-				<v-card-text>{{ currentPopupContent.text }}</v-card-text>
+				<v-card-text class="text-center">{{
+					currentPopupContent.text
+				}}</v-card-text>
 			</div>
 			<v-spacer></v-spacer>
 			<v-text-field
@@ -99,6 +102,7 @@ export default {
 .emoji {
 	font-size: 5em;
 	display: block;
+	text-align: center;
 }
 .popup-card {
 	margin: auto;
@@ -115,10 +119,13 @@ export default {
 	white-space: pre-line; /* Preserves new lines as they are in the text */
 	font-size: 1.2em;
 	font-family: "Roboto";
+	text-align: center;
 }
 
 .v-card-title {
 	font-family: "Roboto";
 	font-weight: 600;
+	text-align: center;
+	width: 100%;
 }
 </style>

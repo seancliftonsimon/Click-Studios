@@ -62,7 +62,7 @@
 
 			<!-- Main Area -->
 			<v-main>
-				<PopupComponent />
+				<PopupManager />
 				<router-view />
 			</v-main>
 		</v-row>
@@ -70,12 +70,14 @@
 </template>
 
 <script>
-import PopupComponent from "./components/PopupComponent.vue";
+import PopupManager from "./components/ui/PopupManager.vue";
 import { mapGetters } from "vuex";
+import { popupService } from "./services";
+
 export default {
 	name: "App",
 	components: {
-		PopupComponent,
+		PopupManager,
 	},
 	data() {
 		return {
@@ -131,7 +133,7 @@ export default {
 	mounted() {
 		// Dispatch the action when the component mounts
 		this.$store.dispatch("updateWordCount");
-		this.$store.dispatch("showPopup", "tutorialOne");
+		popupService.showPopup("tutorial_welcome");
 		// XYZ this is where the beginner pop ups need to be reactivated
 	},
 };

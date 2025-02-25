@@ -10,3 +10,10 @@ $border-radius-progress: 4px; // For progress bars
 .selectable {
 	user-select: text !important;
 }
+
+// Global button styles
+.v-btn {
+	&:active {
+		background-color: hsl(34, 100%, 69%); /* Darken the color more */
+	}
+}

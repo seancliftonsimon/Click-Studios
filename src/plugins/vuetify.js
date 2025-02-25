@@ -17,4 +17,11 @@ export default createVuetify({
 			},
 		},
 	},
+	components: {
+		VBtn: {
+			defaultProps: {
+				ripple: false,
+			},
+		},
+	},
 });
