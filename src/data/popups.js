@@ -194,8 +194,19 @@ export const scriptPopups = {
 		title: "Script Details",
 		emoji: "📒",
 		text: "",
-		buttonText: "Close",
-		theme: "default",
+		buttonText: "Let's Get Started!",
+		theme: "achievement",
+	},
+	firstShootingScript: {
+		id: "script_firstShootingScript",
+		type: "input",
+		title: "Your First Shooting Script!",
+		emoji: "🎬",
+		text: "Congratulations! You've completed your first shooting script and can now move into preproduction. What would you like to name your {genre} script?",
+		buttonText: "Let's Make a Movie!",
+		inputTarget: "currentScript.title",
+		nextPopup: "script_details",
+		theme: "achievement",
 	},
 };
 
@@ -266,6 +277,7 @@ export const popupKeyMapping = {
 	writersRoom_upgrade: "writersRoom_upgrade",
 	genre_unlock: "genre_unlock",
 	filmingUnlocked: "achievement_filmingUnlocked",
+	firstShootingScript: "script_firstShootingScript",
 };
 
 // Registration function to load all popup definitions

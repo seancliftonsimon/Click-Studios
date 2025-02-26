@@ -99,11 +99,6 @@ export default {
 			intervalId: null,
 			ticksPerClick: 1,
 			currentCostumeIndex: 0,
-			localProgress: {
-				barOne: 0,
-				barTwo: 0,
-				barThree: 0,
-			},
 		};
 	},
 	computed: {
@@ -153,14 +148,24 @@ export default {
 		canAffordHire() {
 			return this.preproDollarCount >= 5000;
 		},
+		...mapGetters("progressManager", ["getProgress"]),
+		currentProgress() {
+			return (
+				this.getProgress(this.componentId) || {
+					barOne: 0,
+					barTwo: 0,
+					barThree: 0,
+				}
+			);
+		},
 		progressBarOne() {
-			return this.localProgress.barOne;
+			return this.currentProgress?.barOne || 0;
 		},
 		progressBarTwo() {
-			return this.localProgress.barTwo;
+			return this.currentProgress?.barTwo || 0;
 		},
 		progressBarThree() {
-			return this.localProgress.barThree;
+			return this.currentProgress?.barThree || 0;
 		},
 	},
 	methods: {
@@ -171,48 +176,26 @@ export default {
 		updateProgress() {
 			if (!this.hasCostumesToMake || this.preproDollarCount <= 0) return;
 
-			this.localProgress.barThree += this.ticksPerSecond;
-
-			while (this.localProgress.barThree >= 100) {
-				this.localProgress.barThree -= 100;
-				this.localProgress.barTwo += 1;
-			}
-
-			while (this.localProgress.barTwo >= 50) {
-				this.localProgress.barTwo -= 50;
-				this.localProgress.barOne += 1;
-			}
-
-			this.$store.commit("progressManager/UPDATE_PROGRESS", {
-				componentId: this.componentId,
-				progress: { ...this.localProgress },
+			this.$nextTick(() => {
+				this.calculateProgress({
+					componentId: this.componentId,
+					amount: this.ticksPerSecond,
+				});
 			});
 		},
 		updateProgressOnClick() {
-			this.progressBarThree += this.ticksPerClick;
-			// Calculate the initial overflow for progressBarThree
-			let overflowThree = this.progressBarThree - this.progressbarThreeMax;
+			// Instead of directly modifying computed properties, use the store action
+			this.calculateProgress({
+				componentId: this.componentId,
+				amount: this.ticksPerClick,
+			});
 
-			while (this.progressBarThree >= this.progressbarThreeMax) {
-				this.progressBarThree -= this.progressbarThreeMax;
-				this.progressBarTwo += 1;
-				overflowThree = this.progressBarThree - this.progressbarThreeMax;
-			}
-
-			// After handling the loop, if there's still any overflow, set progressBarThree to that overflow
-			if (overflowThree > 0) {
-				this.progressBarThree = overflowThree;
-			}
-
-			if (this.progressBarTwo >= this.progressbarTwoMax) {
-				this.progressBarTwo = 0;
-				this.progressBarOne += 1;
-			}
-
-			if (this.progressBarOne >= this.progressbarOneMax) {
-				this.progressBarOne = 0;
-				this.makeCostume();
-			}
+			// Check if we've completed a costume after the progress update
+			this.$nextTick(() => {
+				if (this.progressBarOne >= this.progressbarOneMax) {
+					this.makeCostume();
+				}
+			});
 		},
 		makeCostume() {
 			if (this.currentCostume) {
@@ -256,12 +239,7 @@ export default {
 		},
 	},
 	created() {
-		const storedProgress = this.$store.getters["progressManager/getProgress"](
-			this.componentId
-		);
-		if (storedProgress) {
-			this.localProgress = { ...storedProgress };
-		}
+		// No longer needed as we're using the store directly
 	},
 	mounted() {
 		this.intervalId = setInterval(this.updateProgress, 1000);

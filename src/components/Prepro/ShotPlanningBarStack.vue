@@ -184,30 +184,16 @@ export default {
 			});
 		},
 		updateProgressOnClick() {
-			this.progressBarThree += this.ticksPerClick;
-			// Calculate the initial overflow for progressBarThree
-			let overflowThree = this.progressBarThree - this.progressbarThreeMax;
+			this.calculateProgress({
+				componentId: this.componentId,
+				amount: this.ticksPerClick,
+			});
 
-			while (this.progressBarThree >= this.progressbarThreeMax) {
-				this.progressBarThree -= this.progressbarThreeMax;
-				this.progressBarTwo += 1;
-				overflowThree = this.progressBarThree - this.progressbarThreeMax;
-			}
-
-			// After handling the loop, if there's still any overflow, set progressBarThree to that overflow
-			if (overflowThree > 0) {
-				this.progressBarThree = overflowThree;
-			}
-
-			if (this.progressBarTwo >= this.progressbarTwoMax) {
-				this.progressBarTwo = 0;
-				this.progressBarOne += 1;
-			}
-
-			if (this.progressBarOne >= this.progressbarOneMax) {
-				this.progressBarOne = 0;
-				this.planShot();
-			}
+			this.$nextTick(() => {
+				if (this.progressBarOne >= this.progressbarOneMax) {
+					this.planShot();
+				}
+			});
 		},
 		planShot() {
 			if (this.currentShot) {
@@ -216,7 +202,7 @@ export default {
 					shotIndex: this.currentShotIndex,
 				});
 				const nextShotIndex = this.scriptShots.findIndex(
-					(shot, index) => !shot.isCast && index > this.currentShotIndex
+					(shot, index) => !shot.isPlanned && index > this.currentShotIndex
 				);
 				if (nextShotIndex !== -1) {
 					this.currentShotIndex = nextShotIndex;

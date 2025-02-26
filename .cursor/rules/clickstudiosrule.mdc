@@ -3,124 +3,40 @@ description: Rules and guidance for developing click studios and implementing ga
 globs: 
 alwaysApply: false
 ---
-
-# **System Prompt: Click Studios Development Instructions**
-
-## 1. Context & Frameworks
-- You are assisting with the development of **Click Studios**, an incremental (idle) game built with **Vue 3** and **Vuetify 3**.  
-- Reference existing math and incremental game design documents as needed (e.g., for progression curves, prestige systems).
-
-## 2. Coding Style & Structure
-- Emphasize **modularity**: break large components into smaller, self-contained modules when appropriate.  
-- Adhere to **DRY** principles, reusing common code and shared logic.  
-- In troubleshooting/code suggestions, include **only relevant snippets** or minimal changes.  
-- Keep **comments** minimal and in third-person or neutral tone (avoid “you”).
-
-## 3. Vue & Vuetify Conventions
-- Suggest alternative Vue or Vuetify features if they better address a problem.  
-- Favor **Vuetify layout classes** (e.g., `pa-`, `ma-`, `d-flex`) directly in HTML for styling.  
-- Highlight best practices around **computed properties**, watchers, or state management solutions (Vuex/Pinia) as needed.
-
-## 4. Game Mechanics
-- Offer succinct explanations on **idle/incremental mechanics**: exponential growth, upgrade formulas, time-based multipliers, prestige loops, etc.  
-- Utilize known math and balancing approaches from incremental game documents.
-
-## 5. Task Responses
-- When given a list of tasks, respond with **concise, minimal to-do lists**.  
-- Confirm any ambiguous variable or function naming as needed.
-
-## 6. Interaction & Tone
-- Maintain a **straightforward, concise, and helpful** tone.  
-- Provide solution-oriented guidance; avoid unnecessary commentary.
-
-
-Component Responsibility: Ensure that each component is responsible for managing its own lifecycle and state changes. Avoid relying on external systems or periodic checks to manage component state.
-Event-Driven Architecture: Utilize Vue's event system to handle state changes. Components should emit events to notify parent components of significant lifecycle events (e.g., expiration, completion).
-Reactivity and Precision: Implement solutions that leverage Vue's reactivity system to ensure precise and timely updates. Use direct mechanisms like timeouts or event listeners to handle state changes at the exact moment they occur.
-Clean and Maintainable Code: Strive for a clean architecture where components are decoupled and communicate through well-defined interfaces (events and props). This enhances maintainability and readability.
-Avoid Polling: Minimize the use of polling or periodic checks for state changes. Instead, rely on reactive data and event-driven updates to ensure efficient and responsive UI behavior.
-
-Fix at the source: Address problems where they originate rather than adding workarounds in receiving code.
-Maintain clean interfaces: Components should communicate through well-defined interfaces using consistent data formats.
-Avoid data transformation complexity: Minimize string manipulation and type conversion in core functions that could introduce bugs or maintenance challenges.
-Follow consistent naming conventions: Use the same naming pattern (e.g., camelCase) throughout the codebase for identifiers.
-Component responsibility: Each component should be responsible for providing correctly formatted data to other parts of the system.
-This approach results in more maintainable, robust code with clearer responsibilities and fewer potential points of failure.
-
----
-
-## 7. Game Design Goals
-
-### 7.1 Design Tenets  
-- A simulation-style idle game where the player acts as a **studio executive**, overseeing the process of making a movie from writing to release.  
-- Emphasis on **customization** and **storytelling**, with resource management and timed progression.
-
-### 7.2 Gameplay Loop  
-- Players start with **manual interactions** to generate resources and gradually automate tasks with purchased helpers.  
-- Ultimately, the player’s goal is to **produce and release** a successful movie, moving through distinct production phases.
-
-### 7.3 Objectives  
-- Navigate through each phase of movie production, from writing to release, while managing resources and making creative decisions.  
-- Each completed film serves as a major milestone and raises the player’s overall score.
-
-### 7.4 Progression & Metrics  
-- Progress is defined by the ability to **advance production phases** (writing, pre-production, filming, post, marketing, release).  
-- **Score** increases with each completed film, offering tangible evidence of progression and success.
-
-### 7.5 Visual Style  
-- Minimalistic graphics, leveraging **emojis** to keep the interface accessible and visually distinct.  
-- Keep UI uncluttered and straightforward.
-
-### 7.6 Narrative & Dynamics  
-- Players shape their own narratives (choosing genres, budgets, marketing strategies) while reacting to **events and trends** that may affect success.  
-- **Award shows** and **seasonal trends** can influence production and final reception, weaving a dynamic storyline.
-
-### 7.7 Prestige System  
-- Once a movie is released, players can “prestige” if certain conditions (like high critical score) are met, gaining **permanent advantages**.  
-- Prestige loops should keep subsequent playthroughs fresh, faster, and more engaging without overly complicating the core mechanics.
-
-### 7.8 Scope Management  
-- **Feature Limitation**: Only introduce features that **enhance the core loop** (production and release).  
-- **Content Boundaries**: Adhere to established production phases; avoid adding unrelated steps or subplots.  
-- **Graphics and UI Simplicity**: Keep the UI clean, focusing on emoji usage that aids communication, not decoration.  
-- **Narrative Constraints**: Any events or trends should emphasize the player’s role as a studio executive.  
-- **Prestige System Clarity**: Clearly communicate how prestige benefits the player without fragmenting the core game loop.  
-- **Time Management**: Define development milestones and avoid overextending features beyond the core experience.
-
-### 7.9 Phase Features
-Below are the primary gameplay features for each stage—these define the **Minimum Viable Product** of Click Studios:
-
-1. **Writing**  
-   - Manual writing interactions; sell projects to fund further development.  
-   - Hire writers and other professionals to speed up writing.  
-   - Complete a script (choose genre/pre-production details).
-
-2. **Pre-production**  
-   - Pitch investors for resources.  
-   - Hire department heads to automate progress in categories (e.g., **Cast**, **Camera**, **Locations**, **Hair**, **Costume**, **Makeup**, **Set**).  
-   - Potential mechanic: progress in one category can help or hinder another.
-
-3. **Filming**  
-   - Create a shooting schedule (manual or automated).  
-   - Film scene by scene, unlock **second-unit shooting** for faster progress.  
-   - Make on-the-fly decisions or fix issues to impact production quality.
-
-4. **Post**  
-   - Edit the film: arrange scenes, handle **music** and **foley**.  
-   - Finalize the **cut** of the movie.
-
-5. **Marketing**  
-   - Research audience demographics.  
-   - Allocate a marketing budget, choose marketing channels (OOH, TV, social media).  
-   - Possibly pursue awards promotion.
-
-6. **Release**  
-   - Host a **Premiere**; track **Opening Weekend** numbers.  
-   - Garner **Critics Score** and **Audience Score**, with potential analysis upgrades.  
-   - Ongoing streaming/rental income that diminishes over time.
-
-7. **Prestige**  
-   - If critical score is high enough, enter **award season** and vie for accolades.  
-   - Winning Best Picture is considered a “win” condition, but the game can continue via the **prestige loop**.
-
----
+1. Core Priorities
+Reuse > Rewrite: Extend existing code through parameters/props before creating alternatives
+Minimal Impact: Implement targeted changes, preserve legacy APIs during transitions
+Documented Evolution: Mark deprecated code with @tags, track technical debt with TODOs
+2. Component Architecture
+Self-Contained Units: Manage own lifecycle/state, communicate via typed props/events
+Centralized Logic: Shared helpers for cross-component functions, stores for global state
+Reactive Patterns: Prefer computed properties/watch effects over manual DOM updates
+3. Development Practices
+Implementation Sequence:
+Existing utilities
+Parameterized extensions
+New shared modules
+Component-specific solutions
+Quality Checks:
+No state duplication
+Type-safe boundaries
+Direct event-driven updates
+Legacy compatibility paths
+4. Code Health
+Documentation:
+Self-documenting names first
+Comments for non-obvious patterns
+Version annotations for deprecated features
+Framework Conventions:
+Vuetify layout utilities > custom CSS
+Emit events over callbacks
+Avoid inline styling exceptions
+5. Prohibited Patterns
+Component Anti-Patterns:
+External state dependencies
+Parent-managed child lifecycles
+String type checking
+System Risks:
+Core logic in templates
+Frequent manual DOM manipulation
+Unversioned API breaks

@@ -99,11 +99,6 @@ export default {
 			intervalId: null,
 			ticksPerClick: 1,
 			currentSetIndex: 0,
-			localProgress: {
-				barOne: 0,
-				barTwo: 0,
-				barThree: 0,
-			},
 		};
 	},
 	computed: {
@@ -140,16 +135,22 @@ export default {
 		},
 		...mapGetters("progressManager", ["getProgress"]),
 		currentProgress() {
-			return this.getProgress(this.componentId);
+			return (
+				this.getProgress(this.componentId) || {
+					barOne: 0,
+					barTwo: 0,
+					barThree: 0,
+				}
+			);
 		},
 		progressBarOne() {
-			return this.localProgress.barOne;
+			return this.currentProgress?.barOne || 0;
 		},
 		progressBarTwo() {
-			return this.localProgress.barTwo;
+			return this.currentProgress?.barTwo || 0;
 		},
 		progressBarThree() {
-			return this.localProgress.barThree;
+			return this.currentProgress?.barThree || 0;
 		},
 		currentSet() {
 			return this.scriptSets[this.currentSetIndex];
@@ -175,33 +176,23 @@ export default {
 		updateProgress() {
 			if (!this.hasSetsToBuild || this.preproDollarCount <= 0) return;
 
-			this.localProgress.barThree += this.ticksPerSecond;
-
-			while (this.localProgress.barThree >= 100) {
-				this.localProgress.barThree -= 100;
-				this.localProgress.barTwo += 1;
-			}
-
-			while (this.localProgress.barTwo >= 50) {
-				this.localProgress.barTwo -= 50;
-				this.localProgress.barOne += 1;
-			}
-
-			this.$store.commit("progressManager/UPDATE_PROGRESS", {
-				componentId: this.componentId,
-				progress: { ...this.localProgress },
+			this.$nextTick(() => {
+				this.calculateProgress({
+					componentId: this.componentId,
+					amount: this.ticksPerSecond,
+				});
 			});
 		},
 		updateProgressOnClick() {
 			this.calculateProgress({
 				componentId: this.componentId,
-				ticksPerSecond: this.ticksPerSecond,
-				maxValues: {
-					one: this.progressbarOneMax,
-					two: this.progressbarTwoMax,
-					three: this.progressbarThreeMax,
-				},
-				onComplete: () => this.buildSet(),
+				amount: this.ticksPerClick,
+			});
+
+			this.$nextTick(() => {
+				if (this.progressBarOne >= this.progressbarOneMax) {
+					this.buildSet();
+				}
 			});
 		},
 		buildSet() {
@@ -245,12 +236,7 @@ export default {
 		},
 	},
 	created() {
-		const storedProgress = this.$store.getters["progressManager/getProgress"](
-			this.componentId
-		);
-		if (storedProgress) {
-			this.localProgress = { ...storedProgress };
-		}
+		// No longer needed as we're using the store directly
 	},
 	mounted() {
 		this.intervalId = setInterval(this.updateProgress, 1000);

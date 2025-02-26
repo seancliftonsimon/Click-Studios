@@ -38,7 +38,7 @@ const store = createStore({
 
 		// Word Variables
 
-		wordCount: 100,
+		wordCount: 10000000,
 		wordsPerSecond: 0,
 		totalWordCount: 0,
 
@@ -967,6 +967,216 @@ const store = createStore({
 					image: "assets/ShotPhotos/deserthighway.jpg",
 				},
 			],
+			smallInvestors: [
+				"Penny Spendwell",
+				"Elvis Quarterman",
+				"Sean Simoleon",
+				"Nick L. Endime",
+				"Eleanor Plentycents",
+				"Macon Green",
+				"Bette Sheesflusch",
+				"Francis Dollarhyde",
+				"Quincy Quarterman",
+				"Patsy Pence",
+				"Cora Minte",
+				"Chuck Change",
+				"Owen Priceman",
+				"Frankie Fiverly",
+				"Tina Tennerson",
+				"Sally Centavo",
+				"Imelda Glamheel",
+				"Petra Pesobeso",
+				"Zainab Deenar",
+				"Ron Minbee",
+			],
+			sets: [
+				"Airport",
+				"Art Gallery",
+				"Backstage",
+				"Bedroom",
+				"Bridge",
+				"Castle",
+				"Cemetery",
+				"Coffee Shop",
+				"Courtroom",
+				"Downtown Street",
+				"Factory",
+				"Farm",
+				"Greenhouse",
+				"Gym",
+				"Harbor",
+				"Hospital",
+				"Hotel Lobby",
+				"Ice Rink",
+				"Jazz Club",
+				"Library",
+				"Mall",
+				"Mountain Cabin",
+				"Museum",
+				"Nightclub",
+				"Office",
+				"Old Mansion",
+				"Planetarium",
+				"Restaurant",
+				"Rooftop",
+				"School",
+				"Ski Resort",
+				"Subway Station",
+				"Traincar",
+				"Vineyard",
+				"Aquarium",
+				"Attic",
+				"Boardroom",
+				"Bookstore",
+				"Botanical Garden",
+				"Brewery",
+				"Church",
+				"Circus",
+				"Rooftop",
+				"Construction Site",
+				"Diner",
+				"Dive Bar",
+				"Dorm Room",
+				"Elevator",
+				"Ferry Boat",
+				"Fire Station",
+				"Garage",
+				"Haunted House",
+				"Lighthouse",
+				"Locker Room",
+				"Monastery",
+				"Opera House",
+				"Palace",
+				"Penthouse",
+				"Prison Cell",
+				"Recording Studio",
+				"Saloon",
+				"Space Station",
+				"Stadium",
+				"Temple",
+				"Theater",
+				"Bunker",
+				"Warehouse",
+				"Winery",
+				"Art Studio",
+				"Bakery",
+				"Ballroom",
+				"Bank",
+				"Barn",
+				"Basement",
+				"Bathroom",
+				"Bistro",
+				"Boathouse",
+				"Boxing Ring",
+				"Bridge Underpass",
+				"Broadcast Studio",
+				"Bungalow",
+				"Bus Station",
+				"Cafeteria",
+				"Candy Store",
+				"Car Dealership",
+				"Car Wash",
+				"Castle Tower",
+				"Catacombs",
+				"Cattle Farm",
+				"Cave Entrance",
+				"Cemetery Crypt",
+				"Chalet",
+				"Chapel",
+				"Chess Club",
+				"Chicken Coop",
+				"Children's Hospital",
+				"Cinema",
+				"Closet",
+			],
+			locations: [
+				"Beach",
+				"Bridge",
+				"Campground",
+				"Desert",
+				"Forest",
+				"Highway",
+				"Lake",
+				"Mountain Cabin",
+				"Park",
+				"Vineyard",
+				"Cave",
+				"Country Road",
+				"Island",
+				"Jungle",
+				"Ranch",
+				"Ruins",
+				"Beach House",
+				"Bluff",
+				"Boardwalk",
+				"Canal",
+				"Canyon",
+				"Cliffside",
+				"College Campus",
+				"Bayou",
+				"Botanic Garden",
+				"Cabin",
+				"Riverbank",
+				"Meadow",
+				"Waterfall",
+				"Volcano",
+				"Glacier",
+				"Marshland",
+				"Sand Dunes",
+				"Lava Field",
+				"Prairie",
+				"Fjord",
+				"Oasis",
+				"Delta",
+				"Savanna",
+				"Tundra",
+				"Alpine Lodge",
+				"Hot Springs",
+				"Gorge",
+				"Plateau",
+				"Steppe",
+				"Coral Reef",
+				"Mangrove Forest",
+				"Bamboo Forest",
+				"Salt Flats",
+				"Sunflower Field",
+				"Village Square",
+				"Old Town",
+				"Old Dockyard",
+				"Moors",
+				"Valley",
+				"Orchard",
+				"Skyscraper",
+				"Suburbs",
+				"Town Hall",
+				"City Park",
+				"Opera House",
+				"Campus",
+				"Art Museum",
+				"Library",
+				"Cathedral",
+				"Shopping Mall",
+				"Train Station",
+				"Airport Terminal",
+				"Sports Arena",
+				"Theatre",
+				"High-rise",
+				"Warehouse ",
+				"Industrial Park",
+				"Convention Center",
+				"City Square",
+				"Historical Monument",
+				"Docklands",
+				"Metro Station",
+				"Business District",
+				"Luxury Hotel",
+				"Pedestrian Street",
+				"Gothic Quarter",
+				"Financial Center",
+				"Urban Alley",
+				"Rooftop Garden",
+				"Abandoned Factory",
+			],
 			costumes: [
 				"Gown",
 				"Uniform",
@@ -1128,28 +1338,6 @@ const store = createStore({
 				"Alien Makeup",
 				"Fishtail Braid",
 				"Cyberpunk Makeup",
-			],
-			smallInvestors: [
-				"Penny Spendwell",
-				"Elvis Quarterman",
-				"Sean Simoleon",
-				"Nick L. Endime",
-				"Eleanor Plentycents",
-				"Macon Green",
-				"Bette Sheesflusch",
-				"Francis Dollarhyde",
-				"Quincy Quarterman",
-				"Patsy Pence",
-				"Cora Minte",
-				"Chuck Change",
-				"Owen Priceman",
-				"Frankie Fiverly",
-				"Tina Tennerson",
-				"Sally Centavo",
-				"Imelda Glamheel",
-				"Petra Pesobeso",
-				"Zainab Deenar",
-				"Ron Minbee",
 			],
 		},
 
@@ -1555,6 +1743,20 @@ const store = createStore({
 
 			// Utilizing the script description constructed in the action
 			state.scriptDescription = script.description;
+			state.roleDescription = script.roleDescription;
+
+			// Update the script details popup in the popup registry
+			if (state.popupManager && state.popupManager.popupRegistry) {
+				state.popupManager.popupRegistry["script_details"] = {
+					...state.popupManager.popupRegistry["script_details"],
+					title: script.title || "Script Details",
+					text: script.description,
+					emoji: "📒",
+					type: "info",
+					buttonText: "Let's Get Started!",
+					theme: "achievement",
+				};
+			}
 
 			// Updating the newScriptPopup with details from the currentScript
 			state.popups.newScript = {
@@ -1567,8 +1769,9 @@ const store = createStore({
 				inputTarget: "currentScript.title",
 			};
 			state.popups.scriptDetails = {
-				title: "Script Details",
+				title: script.title || "Script Details",
 				text: state.scriptDescription,
+				emoji: "📒",
 			};
 		},
 
@@ -1758,85 +1961,14 @@ const store = createStore({
 
 			console.log(`Sold ${cardType} for ${pay} dollars (cost: ${cost} words)`);
 
-			// Check for product-based milestones
-			if (
-				cardType === "logline" &&
-				state.products.logline.count >= 5 &&
-				!state.milestones.fiveLoglines
-			) {
-				// Mark the milestone as achieved
-				commit("SET_MILESTONE_ACHIEVED", "fiveLoglines");
-
-				// Make the synopsis product visible
-				commit("UPDATE_STATE_VARIABLE", {
-					key: "products.synopsis.visible",
-					value: true,
-				});
-
-				// Show the unlock popup
-				dispatch("popupManager/showPopup", { id: "achievement_synopsis" });
-			}
-
-			if (
-				cardType === "synopsis" &&
-				state.products.synopsis.count >= 5 &&
-				!state.milestones.fiveSynopses
-			) {
-				commit("SET_MILESTONE_ACHIEVED", "fiveSynopses");
-				commit("UPDATE_STATE_VARIABLE", {
-					key: "products.outline.visible",
-					value: true,
-				});
-				dispatch("popupManager/showPopup", { id: "achievement_outline" });
-			}
-
-			if (
-				cardType === "outline" &&
-				state.products.outline.count >= 5 &&
-				!state.milestones.fiveOutlines
-			) {
-				commit("SET_MILESTONE_ACHIEVED", "fiveOutlines");
-				commit("UPDATE_STATE_VARIABLE", {
-					key: "products.treatment.visible",
-					value: true,
-				});
-				dispatch("popupManager/showPopup", { id: "achievement_treatment" });
-			}
-
-			if (
-				cardType === "treatment" &&
-				state.products.treatment.count >= 5 &&
-				!state.milestones.fiveTreatments
-			) {
-				commit("SET_MILESTONE_ACHIEVED", "fiveTreatments");
-				commit("UPDATE_STATE_VARIABLE", {
-					key: "products.draftScript.visible",
-					value: true,
-				});
-				dispatch("popupManager/showPopup", { id: "achievement_draftScript" });
-			}
-
-			if (
-				cardType === "draftScript" &&
-				state.products.draftScript.count >= 5 &&
-				!state.milestones.fiveDraftScripts
-			) {
-				commit("SET_MILESTONE_ACHIEVED", "fiveDraftScripts");
-				commit("UPDATE_STATE_VARIABLE", {
-					key: "products.shootingScript.visible",
-					value: true,
-				});
-				dispatch("popupManager/showPopup", {
-					id: "achievement_shootingScript",
-				});
-			}
-
+			// Check if this is the first shooting script being sold
 			if (
 				cardType === "shootingScript" &&
-				state.products.shootingScript.count >= 1 &&
 				!state.milestones.firstShootingScript
 			) {
+				// Mark the milestone as achieved
 				commit("SET_MILESTONE_ACHIEVED", "firstShootingScript");
+
 				// Unlock preproduction phase if not already unlocked
 				if (!state.isPreproductionUnlocked) {
 					commit("UPDATE_STATE_VARIABLE", {
@@ -1844,9 +1976,159 @@ const store = createStore({
 						value: true,
 					});
 				}
-				dispatch("popupManager/showPopup", {
-					id: "achievement_shootingScript",
-				});
+
+				// Generate a new script with the current genre if one doesn't exist
+				if (!state.currentScript.title) {
+					dispatch("generateScript", { genre: state.currentGenre });
+				}
+
+				// Ensure the script_details popup is correctly set up with current script information
+				const scriptDetails =
+					state.popupManager.popupRegistry["script_details"];
+				dispatch(
+					"popupManager/registerPopup",
+					{
+						id: "script_details",
+						config: {
+							...scriptDetails,
+							title: state.currentScript.title || "Script Details",
+							text: state.scriptDescription,
+						},
+					},
+					{ root: true }
+				);
+
+				// Get the popup from the registry
+				const popup =
+					state.popupManager.popupRegistry["script_firstShootingScript"];
+
+				// Get the current genre and capitalize the first letter
+				const genre = state.currentGenre;
+				const capitalizedGenre = genre.charAt(0).toUpperCase() + genre.slice(1);
+
+				// Show the popup with the genre replacement
+				dispatch(
+					"popupManager/showPopup",
+					{
+						id: "script_firstShootingScript",
+						props: {
+							text: popup.text.replace("{genre}", capitalizedGenre),
+							onSubmit: (inputValue) => {
+								// Update the currentScript title with the input value
+								commit("UPDATE_STATE_VARIABLE", {
+									key: "currentScript.title",
+									value: inputValue,
+								});
+
+								// Update the script_details popup again with the new title
+								dispatch(
+									"popupManager/registerPopup",
+									{
+										id: "script_details",
+										config: {
+											...state.popupManager.popupRegistry["script_details"],
+											title: inputValue || "Script Details",
+											text: state.scriptDescription,
+										},
+									},
+									{ root: true }
+								);
+							},
+						},
+					},
+					{ root: true }
+				);
+			} else {
+				// Check for product-based milestones
+				if (
+					cardType === "logline" &&
+					state.products.logline.count >= 5 &&
+					!state.milestones.fiveLoglines
+				) {
+					// Mark the milestone as achieved
+					commit("SET_MILESTONE_ACHIEVED", "fiveLoglines");
+
+					// Make the synopsis product visible
+					commit("UPDATE_STATE_VARIABLE", {
+						key: "products.synopsis.visible",
+						value: true,
+					});
+
+					// Show the unlock popup
+					dispatch(
+						"popupManager/showPopup",
+						{ id: "achievement_synopsis" },
+						{ root: true }
+					);
+				}
+
+				if (
+					cardType === "synopsis" &&
+					state.products.synopsis.count >= 5 &&
+					!state.milestones.fiveSynopses
+				) {
+					commit("SET_MILESTONE_ACHIEVED", "fiveSynopses");
+					commit("UPDATE_STATE_VARIABLE", {
+						key: "products.outline.visible",
+						value: true,
+					});
+					dispatch(
+						"popupManager/showPopup",
+						{ id: "achievement_outline" },
+						{ root: true }
+					);
+				}
+
+				if (
+					cardType === "outline" &&
+					state.products.outline.count >= 5 &&
+					!state.milestones.fiveOutlines
+				) {
+					commit("SET_MILESTONE_ACHIEVED", "fiveOutlines");
+					commit("UPDATE_STATE_VARIABLE", {
+						key: "products.treatment.visible",
+						value: true,
+					});
+					dispatch(
+						"popupManager/showPopup",
+						{ id: "achievement_treatment" },
+						{ root: true }
+					);
+				}
+
+				if (
+					cardType === "treatment" &&
+					state.products.treatment.count >= 5 &&
+					!state.milestones.fiveTreatments
+				) {
+					commit("SET_MILESTONE_ACHIEVED", "fiveTreatments");
+					commit("UPDATE_STATE_VARIABLE", {
+						key: "products.draftScript.visible",
+						value: true,
+					});
+					dispatch(
+						"popupManager/showPopup",
+						{ id: "achievement_draftScript" },
+						{ root: true }
+					);
+				}
+
+				if (
+					cardType === "draftScript" &&
+					state.products.draftScript.count >= 5 &&
+					!state.milestones.fiveDraftScripts
+				) {
+					commit("SET_MILESTONE_ACHIEVED", "fiveDraftScripts");
+					commit("UPDATE_STATE_VARIABLE", {
+						key: "products.shootingScript.visible",
+						value: true,
+					});
+					dispatch(
+						"popupManager/showPopup",
+						{ id: "achievement_shootingScript" },
+						{ root: true }
+					);
+				}
 			}
 
 			// Check for dollar-based milestones
@@ -2096,34 +2378,213 @@ const store = createStore({
 				// Check for the second writers room upgrade milestone
 				if (nextIndex === 2 && !state.milestones.secondWritersRoomUpgrade) {
 					commit("SET_MILESTONE_ACHIEVED", "secondWritersRoomUpgrade");
-				}
 
-				// Show confirmation popup if needed
-				dispatch("popupManager/showPopup", {
-					id: "writersRoom_capacityUpgrade",
-				});
+					// Only show the popup for the first capacity upgrade
+					dispatch("popupManager/showPopup", {
+						id: "writersRoom_capacityUpgrade",
+					});
+				}
 			}
 		},
 
 		generateScript({ commit, state, dispatch }, options = {}) {
-			// Placeholder for script generation logic
-			// This would typically generate script details, roles, etc.
-			console.log("Generating new script with options:", options);
+			// Use the genre from options or fall back to the current genre
+			const genre = options.genre || state.currentGenre;
+			const title = options.title || "";
 
-			// Example implementation (expand based on your actual requirements)
-			commit("ADD_SCRIPT", {
-				title: options.title || "New Script",
-				genre: options.genre || state.currentGenre,
-				// Add other script properties as needed
-			});
+			// Get ranges from state
+			const roleRange = state.ranges.roleAmount;
+			const shotRange = state.ranges.shotAmount;
+			const setRange = state.ranges.setAmount;
+			const locationRange = state.ranges.locationAmount;
+
+			// Calculate random counts based on ranges
+			const numberOfRoles =
+				Math.floor(Math.random() * (roleRange[1] - roleRange[0] + 1)) +
+				roleRange[0];
+			const numberOfShots =
+				Math.floor(Math.random() * (shotRange[1] - shotRange[0] + 1)) +
+				shotRange[0];
+			const numberOfSets =
+				Math.floor(Math.random() * (setRange[1] - setRange[0] + 1)) +
+				setRange[0];
+			const numberOfLocations =
+				Math.floor(Math.random() * (locationRange[1] - locationRange[0] + 1)) +
+				locationRange[0];
+
+			// Initialize arrays for script components
+			const roles = [];
+			const shots = [];
+			const sets = [];
+			const locations = [];
+			const costumes = [];
+			const looks = [];
+
+			// Get content pools from state
+			const possibleRoles = state.genres[genre].roles;
+			const possibleShots = state.pools.shots;
+			const possibleSets = state.pools.sets;
+			const possibleLocations = state.pools.locations;
+			const possibleCostumes = state.pools.costumes;
+			const possibleLooks = state.pools.looks;
+			const scriptQuality = state.genres[genre].quality;
+
+			// Assign roles randomly from the genre's roles pool
+			for (let i = 0; i < numberOfRoles; i++) {
+				const randomIndex = Math.floor(Math.random() * possibleRoles.length);
+				roles.push({
+					name: possibleRoles[randomIndex],
+					isCast: false,
+				});
+			}
+
+			// Assign shots randomly from the genre's shots pool
+			for (let i = 0; i < numberOfShots; i++) {
+				const randomIndex = Math.floor(Math.random() * possibleShots.length);
+				shots.push({
+					name: possibleShots[randomIndex],
+					isPlanned: false,
+				});
+			}
+
+			// Assign sets randomly from the sets pool
+			for (let i = 0; i < numberOfSets; i++) {
+				const randomIndex = Math.floor(Math.random() * possibleSets.length);
+				sets.push({
+					name: possibleSets[randomIndex],
+					isBuilt: false,
+				});
+			}
+
+			// Assign locations randomly from the locations pool
+			for (let i = 0; i < numberOfLocations; i++) {
+				const randomIndex = Math.floor(
+					Math.random() * possibleLocations.length
+				);
+				locations.push({
+					name: possibleLocations[randomIndex],
+					isScouted: false,
+				});
+			}
+
+			// Generate costumes for each role, with a chance of a second costume
+			for (let i = 0; i < numberOfRoles; i++) {
+				const costumeIndex = Math.floor(
+					Math.random() * possibleCostumes.length
+				);
+				const costumeName = state.pools.costumes[costumeIndex];
+
+				costumes.push({
+					name: costumeName,
+					role: roles[i].name,
+					isMade: false,
+				});
+				if (Math.random() >= 0.2) {
+					const secondCostumeIndex = Math.floor(
+						Math.random() * possibleCostumes.length
+					);
+					const secondCostumeName = state.pools.costumes[secondCostumeIndex];
+					costumes.push({
+						name: secondCostumeName,
+						role: roles[i].name,
+						isMade: false,
+					});
+				}
+			}
+
+			// Generate looks for each role, with a chance of a second look
+			for (let i = 0; i < numberOfRoles; i++) {
+				const lookIndex = Math.floor(Math.random() * possibleLooks.length);
+				const lookName = state.pools.looks[lookIndex];
+
+				looks.push({
+					name: lookName,
+					role: roles[i].name,
+					isDesigned: false,
+				});
+				if (Math.random() >= 0.2) {
+					const secondLookIndex = Math.floor(
+						Math.random() * possibleLooks.length
+					);
+					const secondLookName = state.pools.looks[secondLookIndex];
+					looks.push({
+						name: secondLookName,
+						role: roles[i].name,
+						isDesigned: false,
+					});
+				}
+			}
+
+			// Constructing the strings for the description
+			const rolesList = roles.map((role) => `${role.name}`).join(", ");
+			const shotsList = shots.map((shot) => `${shot.name}`).join(", ");
+			const setsList = sets.map((set) => `${set.name}`).join(", ");
+			const costumesList = costumes
+				.map((costume) => `${costume.name} for ${costume.role}`)
+				.join(", ");
+			const locationsList = locations
+				.map((location) => `${location.name}`)
+				.join(", ");
+			const looksList = looks
+				.map((look) => `${look.name} for ${look.role}`)
+				.join(", ");
+			const roleDescription = `Roles: ${rolesList}`;
+			const scriptDescription = `A ${scriptQuality.toFixed(
+				1
+			)} quality ${genre} script with ${roles.length} roles:
+			${rolesList} \n 
+			${shots.length} shots: \n ${shotsList}
+			\n
+			${sets.length} sets: \n ${setsList} \n
+			${locations.length} locations: \n ${locationsList} \n
+			${costumes.length} costumes: \n ${costumesList} \n
+			${looks.length} looks: \n ${looksList}`;
+
+			// Construct the script object including the description
+			const script = {
+				title:
+					title ||
+					`New ${genre.charAt(0).toUpperCase() + genre.slice(1)} Script`,
+				genre,
+				roles,
+				shots,
+				looks,
+				sets,
+				locations,
+				costumes,
+				quality: scriptQuality,
+				roleDescription: roleDescription,
+				description: scriptDescription,
+			};
+
+			// Add the script to the store
+			commit("ADD_SCRIPT", script);
+
+			// Show the new script popup if not specified to skip it
+			if (!options.skipPopup) {
+				// Use popupManager module to show popup
+				dispatch(
+					"popupManager/showPopup",
+					{ id: "script_new" },
+					{ root: true }
+				);
+			}
 		},
 
 		deductWorkerWages({ commit, state }) {
-			// Calculate total wages based on active workers
-			const totalWages = state.currentWorkers.reduce((total, worker) => {
-				const workerDetails = state.workers[worker.workerType];
-				return total + (workerDetails ? workerDetails.cost / 10 : 0); // Example calculation
-			}, 0);
+			// Calculate total wages based on assigned workers in departments
+			const workerRate = 3; // Rate per worker per second
+			const departmentWages = Object.values(state.departments).reduce(
+				(total, dept) => {
+					return total + dept.employees * workerRate;
+				},
+				0
+			);
+
+			// Add wages for searchers and pitchers
+			const searcherWages = state.searcherCount * workerRate;
+			const pitcherWages = state.pitcherCount * workerRate;
+			const totalWages = departmentWages + searcherWages + pitcherWages;
 
 			// Deduct wages if there are any workers
 			if (totalWages > 0) {

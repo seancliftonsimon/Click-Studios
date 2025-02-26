@@ -20,8 +20,30 @@ export default {
 	},
 
 	actions: {
-		calculateProgress({ commit }, { componentId, progress }) {
-			commit("UPDATE_PROGRESS", { componentId, progress });
+		calculateProgress({ commit, getters }, { componentId, amount }) {
+			// Get current progress
+			const currentProgress = getters.getProgress(componentId);
+
+			// Create a new progress object to avoid modifying the original
+			const newProgress = { ...currentProgress };
+
+			// Update barThree
+			newProgress.barThree += amount;
+
+			// Handle overflow for barThree to barTwo
+			while (newProgress.barThree >= 100) {
+				newProgress.barThree -= 100;
+				newProgress.barTwo += 1;
+			}
+
+			// Handle overflow for barTwo to barOne
+			while (newProgress.barTwo >= 50) {
+				newProgress.barTwo -= 50;
+				newProgress.barOne += 1;
+			}
+
+			// Commit the updated progress
+			commit("UPDATE_PROGRESS", { componentId, progress: newProgress });
 		},
 	},
 

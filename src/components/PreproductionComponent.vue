@@ -103,7 +103,46 @@ export default {
 	methods: {
 		...mapActions(["spendInspiration", "addInspiration"]),
 		testScript() {
-			this.$store.dispatch("generateScript", {});
+			// Get the current genre
+			const genre = this.scriptGenre;
+
+			// Generate a new script with the current genre
+			this.$store.dispatch("generateScript", { genre });
+
+			// Get the popup configuration from the registry
+			const popup =
+				this.$store.state.popupManager.popupRegistry[
+					"script_firstShootingScript"
+				];
+
+			// Show the first shooting script popup with the genre replacement
+			this.$store.dispatch("popupManager/showPopup", {
+				id: "script_firstShootingScript",
+				props: {
+					text: popup.text.replace("{genre}", genre),
+					onSubmit: (inputValue) => {
+						// Update the currentScript title with the input value
+						this.$store.commit("UPDATE_STATE_VARIABLE", {
+							key: "currentScript.title",
+							value: inputValue,
+						});
+
+						// Ensure the script_details popup has the current script details
+						const scriptDetails =
+							this.$store.state.popupManager.popupRegistry["script_details"];
+
+						// Update the script_details popup in the registry with current script info
+						this.$store.dispatch("popupManager/registerPopup", {
+							id: "script_details",
+							config: {
+								...scriptDetails,
+								title: inputValue || "Script Details",
+								text: this.$store.state.scriptDescription,
+							},
+						});
+					},
+				},
+			});
 		},
 		handleRoleCast(role) {
 			this.snackbarMessage = `Inspiring! You've cast the role of ${role}.`;
