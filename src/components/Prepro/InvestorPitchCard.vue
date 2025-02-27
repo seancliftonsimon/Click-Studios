@@ -36,6 +36,7 @@ export default {
 			pitcherCount: "pitcherCount",
 			pitcherSpeed: "pitcherSpeed",
 			currentInvestor: "currentInvestor",
+			preproDollarCount: "preproDollarCount",
 		}),
 		pitchesNeeded() {
 			return (
@@ -50,7 +51,10 @@ export default {
 	},
 	methods: {
 		updateProgress() {
-			this.pitchCount += this.pitchesPerSecond;
+			// Only update progress if there are preproduction dollars available
+			if (this.preproDollarCount > 0 && this.pitcherCount > 0) {
+				this.pitchCount += this.pitchesPerSecond;
+			}
 		},
 		addPitch() {
 			this.pitchCount += this.manualPitchAmount;

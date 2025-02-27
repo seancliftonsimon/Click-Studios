@@ -35,6 +35,7 @@ export default {
 			searchRange: "searchRange",
 			searcherCount: "searcherCount",
 			searcherSpeed: "searcherSpeed",
+			preproDollarCount: "preproDollarCount",
 		}),
 		searchesNeeded() {
 			return (
@@ -49,7 +50,10 @@ export default {
 	},
 	methods: {
 		updateProgress() {
-			this.searchCount += this.searchesPerSecond;
+			// Only update progress if there are preproduction dollars available
+			if (this.preproDollarCount > 0 && this.searcherCount > 0) {
+				this.searchCount += this.searchesPerSecond;
+			}
 		},
 		addSearch() {
 			this.searchCount += this.manualSearchAmount;
