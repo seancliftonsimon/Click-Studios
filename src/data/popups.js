@@ -179,15 +179,6 @@ export const writersRoomPopups = {
 
 // Script Popups
 export const scriptPopups = {
-	new: {
-		id: "script_new",
-		type: "info",
-		title: "New Script",
-		emoji: "📝",
-		text: "You've started a new script!",
-		buttonText: "Begin Writing",
-		theme: "default",
-	},
 	details: {
 		id: "script_details",
 		type: "info",
@@ -200,9 +191,9 @@ export const scriptPopups = {
 	firstShootingScript: {
 		id: "script_firstShootingScript",
 		type: "input",
-		title: "Your First Shooting Script!",
+		title: "You've Written a Shooting Script!",
 		emoji: "🎬",
-		text: "Congratulations! You've completed your first shooting script and can now move into preproduction. What would you like to name your {genre} script?",
+		text: "Congratulations! You've completed a shooting script and can now move into preproduction. What would you like to name your {genre} script?",
 		buttonText: "Let's Make a Movie!",
 		inputTarget: "currentScript.title",
 		nextPopup: "script_details",
@@ -272,7 +263,6 @@ export const popupKeyMapping = {
 	scriptDoctors: "writersRoom_scriptDoctors",
 	changeGenre: "achievement_changeGenre",
 	writersRoomCapacityUpgrade: "writersRoom_capacityUpgrade",
-	newScript: "script_new",
 	scriptDetails: "script_details",
 	writersRoom_upgrade: "writersRoom_upgrade",
 	genre_unlock: "genre_unlock",
