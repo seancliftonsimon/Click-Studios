@@ -3,44 +3,54 @@
 		<component :is="currentCard" @nextCard="nextCard"></component>
 		<!-- Example button to go to the next card -->
 	</div>
-	<v-row>
-		<v-col>
-			<v-row class="py-5">
-				<v-btn
-					@click="unassignSearcher"
-					class="plus-minus"
-					:disabled="searcherCount <= 0"
-					>-</v-btn
-				>
-				<span>👤{{ searcherCount }} </span>
-				<v-btn
-					@click="assignSearcher"
-					class="plus-minus"
-					:disabled="!hasUnassignedEmployees"
-					>+</v-btn
-				>
-				<span class="text-center"> Searchers</span>
-			</v-row>
-		</v-col>
-		<v-col>
-			<v-row class="py-5">
-				<v-btn
-					@click="unassignPitcher"
-					class="plus-minus"
-					:disabled="pitcherCount <= 0"
-					>-</v-btn
-				>
-				<span>👤{{ pitcherCount }} </span>
-				<v-btn
-					@click="assignPitcher"
-					class="plus-minus"
-					:disabled="!hasUnassignedEmployees"
-					>+</v-btn
-				>
-				<span class="text-center"> Pitchers</span>
-			</v-row>
-		</v-col>
-	</v-row>
+	<v-card class="mt-2 pa-2 elevation-2">
+		<v-row>
+			<v-col>
+				<v-row class="py-5 justify-center">
+					<div class="d-flex flex-column align-center">
+						<div class="d-flex align-center">
+							<v-btn
+								@click="unassignSearcher"
+								class="plus-minus-btn"
+								:disabled="searcherCount <= 0"
+								>-</v-btn
+							>
+							<span class="px-2">👤{{ searcherCount }} </span>
+							<v-btn
+								@click="assignSearcher"
+								class="plus-minus-btn"
+								:disabled="!hasUnassignedEmployees"
+								>+</v-btn
+							>
+						</div>
+						<span class="text-center font-weight-bold mt-2">Searchers</span>
+					</div>
+				</v-row>
+			</v-col>
+			<v-col>
+				<v-row class="py-5 justify-center">
+					<div class="d-flex flex-column align-center">
+						<div class="d-flex align-center">
+							<v-btn
+								@click="unassignPitcher"
+								class="plus-minus-btn"
+								:disabled="pitcherCount <= 0"
+								>-</v-btn
+							>
+							<span class="px-2">👤{{ pitcherCount }} </span>
+							<v-btn
+								@click="assignPitcher"
+								class="plus-minus-btn"
+								:disabled="!hasUnassignedEmployees"
+								>+</v-btn
+							>
+						</div>
+						<span class="text-center font-weight-bold mt-2">Pitchers</span>
+					</div>
+				</v-row>
+			</v-col>
+		</v-row>
+	</v-card>
 </template>
 
 <script>
@@ -112,5 +122,11 @@ export default {
 .v-btn {
 	width: fit-content;
 	min-width: 20px;
+}
+
+.plus-minus-btn {
+	min-width: 24px !important;
+	width: 24px !important;
+	padding: 0 !important;
 }
 </style>
