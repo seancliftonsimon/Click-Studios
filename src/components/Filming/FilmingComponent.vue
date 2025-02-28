@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import ViewFinder from "./Filming/ViewFinder.vue";
+import ViewFinder from "./ViewFinder.vue";
 
 export default {
 	components: {

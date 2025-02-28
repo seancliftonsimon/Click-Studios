@@ -55,15 +55,15 @@
 </template>
 <script>
 import { mapGetters, mapActions } from "vuex";
-import PitchingComponent from "./Prepro/PitchingComponent.vue";
-import InspirationShop from "./Prepro/InspirationShop.vue";
-import HireWorkersCard from "./Prepro/HireWorkersCard.vue";
-import CastingBarStack from "./Prepro/CastingBarStack.vue";
-import ShotPlanningBarStack from "./Prepro/ShotPlanningBarStack.vue";
-import SetBuildingBarStack from "./Prepro/SetBuildingBarStack.vue";
-import LocationScoutingBarStack from "./Prepro/LocationScoutingBarStack.vue";
-import CostumeMakingBarStack from "./Prepro/CostumeMakingBarStack.vue";
-import LookDesigningBarStack from "./Prepro/LookDesigningBarStack.vue";
+import PitchingComponent from "./PitchingComponent.vue";
+import InspirationShop from "./InspirationShop.vue";
+import HireWorkersCard from "./HireWorkersCard.vue";
+import CastingBarStack from "./CastingBarStack.vue";
+import ShotPlanningBarStack from "./ShotPlanningBarStack.vue";
+import SetBuildingBarStack from "./SetBuildingBarStack.vue";
+import LocationScoutingBarStack from "./LocationScoutingBarStack.vue";
+import CostumeMakingBarStack from "./CostumeMakingBarStack.vue";
+import LookDesigningBarStack from "./LookDesigningBarStack.vue";
 
 import PreproBanner from "./PreproBanner.vue";
 

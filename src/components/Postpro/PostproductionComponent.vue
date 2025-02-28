@@ -2,11 +2,11 @@
 
 <template>
 	<v-container>
-	<div>
-		<!-- Component template goes here -->
-		<h2>Postproduction Component</h2>
-	</div>
-</v-container>
+		<div>
+			<!-- Component template goes here -->
+			<h2>Postproduction Component</h2>
+		</div>
+	</v-container>
 </template>
 
 <script>

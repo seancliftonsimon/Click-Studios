@@ -40,15 +40,15 @@
 <script>
 import { mapState } from "vuex";
 
-import PurchaseCard from "../PurchaseCard.vue";
+import PurchaseCard from "./PurchaseCard.vue";
 import WorkerCard from "./WorkerCard.vue";
-import WriteButton from "../buttons/WriteButton.vue";
+import WriteButton from "./WriteButton.vue";
 import WritingToolCard from "./WritingToolCard.vue";
 import WordCounter from "./WordCounter.vue";
 import GenreCard from "./GenreCard.vue";
 import WritersRoom from "./WritersRoom.vue";
 import WritersRoomUpgradeCard from "./WritersRoomUpgradeCard.vue";
-import DollarCounter from "../DollarCounter.vue";
+import DollarCounter from "./DollarCounter.vue";
 
 export default {
 	name: "WritingComponent", // It's a good practice to name your components

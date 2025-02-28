@@ -53,7 +53,7 @@ import {
 	featureUnlockPopups,
 	gamePhasePopups,
 	errorPopups,
-} from "../data/popups";
+} from "../../data/popups";
 
 export default {
 	name: "PopupTester",

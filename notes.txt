@@ -3,6 +3,19 @@ Ability later to hire in people to sell projects for you automatically?
 
 
 
+I should adjust some values:
+set the words and dollars value at the start to zero again, and add in some kind of dev code or shortcut that can boost them for quick testing
+Adjust the values of the bar stacks, see if there's something satisfying I can set them all to
+adjust the pitches and searches needed to bring in funding to be larger, and scale the money amounts so it scales well with 
+the increasing worker counts, perhaps developing formulae that represent how each one grows and finding a pair where they start far apart and slowly approach each other, one being exponential, one being incremental
+
+
+
+
+
+
+
+
 Colors: 
 
 #931621 Curtain Red
