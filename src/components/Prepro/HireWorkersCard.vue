@@ -2,7 +2,10 @@
 	<v-card>
 		<v-col>
 			<v-row>
-				<span class="dollar-counter">
+				<span
+					class="dollar-counter"
+					:class="{ 'zero-balance': preproDollarCount === 0 }"
+				>
 					${{ $formatNumber(preproDollarCount) }}
 				</span></v-row
 			>
@@ -13,6 +16,7 @@
 				<v-row>
 					<v-btn
 						class="hire-worker-button"
+						:class="{ 'active-button': canAffordWorker }"
 						@click="employeeHireClick"
 						:disabled="!canAffordWorker"
 					>
@@ -99,10 +103,18 @@ export default {
 	height: 3.4em;
 }
 
+.active-button {
+	background-color: #fef7e5 !important;
+}
+
 .dollar-counter {
 	padding-top: 4px;
 	margin: auto;
 	font-size: 2.2em;
+}
+
+.zero-balance {
+	color: red;
 }
 
 .payrate-counter {
@@ -113,5 +125,10 @@ export default {
 
 .employee-assignments {
 	justify-content: space-evenly;
+}
+
+/* Custom color to match InspirationShop buttons */
+:deep(.v-btn.hire-worker-button.v-btn--color-custom-beige) {
+	background-color: #fef7e5;
 }
 </style>

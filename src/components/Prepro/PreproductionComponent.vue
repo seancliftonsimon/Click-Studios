@@ -43,12 +43,12 @@
 				<PitchingComponent v-if="componentVisibility.pitchingComponent" />
 				<v-card v-else class="center-content"><br /><br /></v-card>
 			</v-col>
+			<v-col cols="3">
+				<HireWorkersCard />
+			</v-col>
 			<v-col cols="6">
 				<InspirationShop v-if="componentVisibility.inspirationShop" />
 				<v-card v-else class="center-content"><br /><br /></v-card>
-			</v-col>
-			<v-col cols="3">
-				<HireWorkersCard />
 			</v-col>
 		</v-row>
 	</v-container>
@@ -145,7 +145,6 @@ export default {
 
 			// Check if we need to update the store with the current state
 			this.checkDepartmentHeadsMilestone();
-			this.checkInspirationMilestone();
 
 			// Set initial visibility based on milestones
 			if (this.milestones.twoDepartmentHeads) {
@@ -175,10 +174,11 @@ export default {
 				}
 			}
 
+			// Only update the visibility of the inspiration shop without showing the popup
 			if (this.milestones.firstInspirationPoint) {
 				console.log("First inspiration point milestone is achieved");
 				if (!this.componentVisibility.inspirationShop) {
-					console.log("Making inspirationShop visible");
+					console.log("Making inspirationShop visible (without popup)");
 					this.$store.commit("TOGGLE_COMPONENT_VISIBILITY", "inspirationShop");
 				}
 			}

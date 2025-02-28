@@ -467,8 +467,8 @@ const store = createStore({
 
 		searcherCount: 0,
 		pitcherCount: 0,
-		searcherSpeed: 3,
-		pitcherSpeed: 3,
+		searcherSpeed: 1,
+		pitcherSpeed: 1,
 
 		//PrePro Progress Values
 

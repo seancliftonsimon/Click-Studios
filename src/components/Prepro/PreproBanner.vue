@@ -1,52 +1,58 @@
 <template>
 	<v-card>
-		<v-container fluid class="d-flex flex-column px-8">
-			<h3>{{ title }} Preproduction Progress</h3>
-			<v-row justify="space-between" align="center">
-				<v-col>
-					<v-chip color="red-darken-2"
-						>{{ completeRolesCount }}/{{ actorGoal }}</v-chip
-					><span>Actors </span>
-					<span
-						v-show="showActorSparkle"
-						@animationend="handleAnimationEnd"
-						class="sparkle"
-					>
-						✨
-					</span>
+		<v-container fluid class="px-8">
+			<v-row>
+				<v-col cols="11">
+					<h3>{{ title }} Preproduction Progress</h3>
+					<v-row justify="space-between" align="center" class="py-2">
+						<v-col>
+							<v-chip color="red-darken-2"
+								>{{ completeRolesCount }}/{{ actorGoal }}</v-chip
+							><span>Actors </span>
+							<span
+								v-show="showActorSparkle"
+								@animationend="handleAnimationEnd"
+								class="sparkle"
+							>
+								✨
+							</span>
+						</v-col>
+						<v-col>
+							<v-chip color="orange-darken-2"
+								>{{ completeShotsCount }}/{{ shotGoal }}</v-chip
+							><span>Shots</span>
+						</v-col>
+						<v-col>
+							<v-chip color="grey-darken-4"
+								>{{ builtSetsCount }}/{{ setGoal }}</v-chip
+							>
+							<span>Sets</span></v-col
+						>
+						<v-col
+							><v-chip color="green-darken-2"
+								>{{ scoutedLocationsCount }}/{{ locationGoal }}</v-chip
+							><span>Locations</span>
+						</v-col>
+						<v-col>
+							<v-chip color="blue-darken-2"
+								>{{ madeCostumesCount }}/{{ costumeGoal }}</v-chip
+							><span>Costumes</span></v-col
+						>
+						<v-col>
+							<v-chip color="indigo-darken-2"
+								>{{ styledLooksCount }}/{{ lookGoal }}</v-chip
+							>
+							<span>Looks</span>
+						</v-col>
+					</v-row>
 				</v-col>
-				<v-col>
-					<v-chip color="orange-darken-2"
-						>{{ completeShotsCount }}/{{ shotGoal }}</v-chip
-					><span>Shots</span>
+				<v-col cols="1" class="d-flex align-center justify-center">
+					<v-progress-circular
+						:model-value="totalProgress"
+						:size="70"
+						:width="10"
+					></v-progress-circular>
 				</v-col>
-				<v-col>
-					<v-chip color="grey-darken-4"
-						>{{ builtSetsCount }}/{{ setGoal }}</v-chip
-					>
-					<span>Sets</span></v-col
-				>
-				<v-col
-					><v-chip color="green-darken-2"
-						>{{ scoutedLocationsCount }}/{{ locationGoal }}</v-chip
-					><span>Locations</span>
-				</v-col>
-				<v-col>
-					<v-chip color="blue-darken-2"
-						>{{ madeCostumesCount }}/{{ costumeGoal }}</v-chip
-					><span>Costumes</span></v-col
-				>
-				<v-col>
-					<v-chip color="indigo-darken-2"
-						>{{ styledLooksCount }}/{{ lookGoal }}</v-chip
-					>
-					<span>Looks</span>
-				</v-col>
-				<v-progress-circular
-					:model-value="totalProgress"
-					:size="70"
-					:width="10"
-				></v-progress-circular>
 			</v-row>
 		</v-container>
 	</v-card>
