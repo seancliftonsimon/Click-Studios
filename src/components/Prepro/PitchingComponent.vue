@@ -3,7 +3,10 @@
 		<component :is="currentCard" @nextCard="nextCard"></component>
 		<!-- Example button to go to the next card -->
 	</div>
-	<v-card class="mt-2 pa-2 elevation-2">
+	<v-card
+		v-if="componentVisibility.searchersPitchersCard"
+		class="mt-2 pa-2 elevation-2"
+	>
 		<v-row>
 			<v-col>
 				<v-row class="py-5 justify-center">
@@ -54,7 +57,7 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters, mapState } from "vuex";
 
 import InvestorSearchCard from "./InvestorSearchCard.vue";
 import InvestorFoundCard from "./InvestorFoundCard.vue";
@@ -72,6 +75,9 @@ export default {
 			unassignedEmployeeCount: "unassignedEmployeeCount",
 			searcherCount: "searcherCount",
 			pitcherCount: "pitcherCount",
+		}),
+		...mapState({
+			componentVisibility: (state) => state.componentVisibility,
 		}),
 		hasUnassignedEmployees() {
 			return this.unassignedEmployeeCount >= 1;

@@ -57,27 +57,32 @@
 						</v-col>
 					</v-list-item>
 				</v-list>
-				<v-btn @click="updateProgressOnClick">+{{ ticksPerClick }}</v-btn
-				><br />
+				<div class="d-flex justify-center">
+					<v-btn @click="updateProgressOnClick">+{{ ticksPerClick }}</v-btn>
+				</div>
+				<br />
 				<v-divider class="py-1"></v-divider>
-				<v-row class="py-5">
+				<!-- Employee controls section with conditional visibility -->
+				<v-row class="py-5 justify-center align-center">
 					<v-btn
+						v-show="isHireWorkersVisible"
 						@click="unassignEmployee"
-						class="plus-minus"
+						class="plus-minus mx-1"
 						:disabled="localEmployees <= 0"
 						>-</v-btn
 					>
-					<span>👤{{ localEmployees }} </span>
+					<span class="mx-1">👤{{ localEmployees }} </span>
 					<v-btn
+						v-show="isHireWorkersVisible"
 						@click="assignEmployee"
-						class="plus-minus"
+						class="plus-minus mx-1"
 						:disabled="!hasUnassignedEmployees"
 						>+</v-btn
 					>
-					<span class="text-center">{{ ticksPerSecond }}ps</span>
+					<span class="text-center mx-1">{{ ticksPerSecond }}ps</span>
 				</v-row>
 			</v-container>
-			<v-container v-show="!deptLocked && !hasLocationsToScout">
+			<v-container v-if="!deptLocked && !hasLocationsToScout" class="d-flex flex-column align-center justify-center text-center" style="min-height: 100%">
 				<span>Complete.</span> <br />
 				<span> Workers have been unassigned.</span>
 			</v-container>
@@ -92,9 +97,9 @@ export default {
 	data() {
 		return {
 			componentId: "locationScouting",
-			progressbarOneMax: 20,
-			progressbarTwoMax: 50,
-			progressbarThreeMax: 100,
+			progressbarOneMax: 3,
+			progressbarTwoMax: 5,
+			progressbarThreeMax: 10,
 			employeeSpeed: 1,
 			intervalId: null,
 			ticksPerClick: 1,
@@ -110,7 +115,11 @@ export default {
 		]),
 		...mapState({
 			departmentState: (state) => state.departments.locationScouting,
+			componentVisibility: (state) => state.componentVisibility,
 		}),
+		isHireWorkersVisible() {
+			return this.componentVisibility.hireWorkersCard;
+		},
 		deptLocked: {
 			get() {
 				return this.departmentState.isLocked;
@@ -173,6 +182,7 @@ export default {
 		...mapMutations(["HIRE_EMPLOYEE", "HIRE_DEPARTMENT_HEAD"]),
 		...mapActions({
 			calculateProgress: "progressManager/calculateProgress",
+			hireDepartmentHead: "hireDepartmentHead",
 		}),
 		updateProgress() {
 			if (!this.hasLocationsToScout || this.preproDollarCount <= 0) return;
@@ -182,6 +192,11 @@ export default {
 					componentId: this.componentId,
 					amount: this.ticksPerSecond,
 				});
+
+				// Check if the top bar is full and trigger scoutLocation if it is
+				if (this.progressBarOne >= this.progressbarOneMax) {
+					this.scoutLocation();
+				}
 			});
 		},
 		updateProgressOnClick() {
@@ -203,6 +218,10 @@ export default {
 				this.$store.commit("SET_LOCATION_SCOUTED", {
 					locationIndex: this.currentLocationIndex,
 				});
+
+				// Reset progress for this component
+				this.$store.commit("progressManager/RESET_PROGRESS", this.componentId);
+
 				const nextLocationIndex = this.scriptLocations.findIndex(
 					(location, index) =>
 						!location.isScouted && index > this.currentLocationIndex
@@ -218,7 +237,15 @@ export default {
 						console.log("Unassigned one employee!");
 					}
 				}
+
+				// Emit the locationScouted event with the location name
 				this.$emit("locationScouted", lastLocation);
+
+				// Also emit a more specific event that includes the component ID
+				this.$emit("taskCompleted", {
+					component: this.componentId,
+					location: lastLocation,
+				});
 			}
 		},
 		assignEmployee() {
@@ -230,7 +257,7 @@ export default {
 			this.localEmployees -= 1;
 		},
 		hireDeptHead() {
-			this.$store.commit("HIRE_DEPARTMENT_HEAD", {
+			this.$store.dispatch("hireDepartmentHead", {
 				department: this.componentId,
 				cost: 5000,
 			});
@@ -240,9 +267,27 @@ export default {
 	},
 
 	created() {
-		// No longer needed as we're using the store directly
+		// Initialize from store if exists
+		const storedProgress = this.$store.getters["progressManager/getProgress"](
+			this.componentId
+		);
+		if (storedProgress) {
+			this.localProgress = { ...storedProgress };
+		}
+		// Initialize max values in the store
+		this.$store.commit("progressManager/SET_MAX_VALUES", {
+			componentId: this.componentId,
+			maxValues: {
+				barOne: this.progressbarOneMax,
+				barTwo: this.progressbarTwoMax,
+				barThree: this.progressbarThreeMax,
+			},
+		});
 	},
 	mounted() {
+		// Reset progress when component is mounted
+		this.$store.commit("progressManager/RESET_PROGRESS", this.componentId);
+
 		this.intervalId = setInterval(this.updateProgress, 1000);
 		window.intervals = window.intervals || [];
 		window.intervals.push(this.intervalId);

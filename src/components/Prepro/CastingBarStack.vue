@@ -58,27 +58,33 @@
 					</v-list-item>
 				</v-list>
 
-				<v-btn @click="updateProgressOnClick">+{{ ticksPerClick }}</v-btn
-				><br />
+				<div class="d-flex justify-center">
+					<v-btn @click="updateProgressOnClick">+{{ ticksPerClick }}</v-btn>
+				</div>
+				<br />
 				<v-divider class="py-1"></v-divider>
-				<v-row class="py-5">
+
+				<!-- Employee controls section with conditional visibility -->
+				<v-row class="py-5 justify-center align-center">
 					<v-btn
+						v-show="isHireWorkersVisible"
 						@click="unassignEmployee"
-						class="plus-minus"
+						class="plus-minus mx-1"
 						:disabled="localEmployees <= 0"
 						>-</v-btn
 					>
-					<span>👤{{ localEmployees }} </span>
+					<span class="mx-1">👤{{ localEmployees }} </span>
 					<v-btn
+						v-show="isHireWorkersVisible"
 						@click="assignEmployee"
-						class="plus-minus"
+						class="plus-minus mx-1"
 						:disabled="!hasUnassignedEmployees"
 						>+</v-btn
-					><br />
-					<span class="text-center">{{ ticksPerSecond }}ps</span>
+					>
+					<span class="text-center mx-1">{{ ticksPerSecond }}ps</span>
 				</v-row>
 			</v-container>
-			<v-container v-show="!deptLocked && !hasRolesToCast">
+			<v-container v-if="!deptLocked && !hasRolesToCast" class="d-flex flex-column align-center justify-center text-center" style="min-height: 100%">
 				<span>Complete.</span> <br />
 				<span> Workers have been unassigned.</span>
 			</v-container>
@@ -93,9 +99,9 @@ export default {
 	data() {
 		return {
 			componentId: "casting",
-			progressbarOneMax: 20,
-			progressbarTwoMax: 50,
-			progressbarThreeMax: 100,
+			progressbarOneMax: 3,
+			progressbarTwoMax: 5,
+			progressbarThreeMax: 10,
 			employeeSpeed: 1,
 			intervalId: null,
 			ticksPerClick: 1,
@@ -111,7 +117,11 @@ export default {
 		]),
 		...mapState({
 			departmentState: (state) => state.departments.casting,
+			componentVisibility: (state) => state.componentVisibility,
 		}),
+		isHireWorkersVisible() {
+			return this.componentVisibility.hireWorkersCard;
+		},
 		deptLocked: {
 			get() {
 				return this.departmentState.isLocked;
@@ -173,6 +183,7 @@ export default {
 		...mapMutations(["HIRE_EMPLOYEE", "HIRE_DEPARTMENT_HEAD"]),
 		...mapActions({
 			calculateProgress: "progressManager/calculateProgress",
+			hireDepartmentHead: "hireDepartmentHead",
 		}),
 		updateProgress() {
 			if (!this.hasRolesToCast || this.preproDollarCount <= 0) return;
@@ -182,6 +193,11 @@ export default {
 					componentId: this.componentId,
 					amount: this.ticksPerSecond,
 				});
+
+				// Check if the top bar is full and trigger castRole if it is
+				if (this.progressBarOne >= this.progressbarOneMax) {
+					this.castRole();
+				}
 			});
 		},
 		updateProgressOnClick() {
@@ -202,13 +218,20 @@ export default {
 				this.$store.commit("SET_ROLE_CAST", {
 					roleIndex: this.currentRoleIndex,
 				});
+
+				// Reset progress for this component
+				this.$store.commit("progressManager/RESET_PROGRESS", this.componentId);
+
+				// Find the next uncast role
 				const nextRoleIndex = this.scriptRoles.findIndex(
 					(role, index) => !role.isCast && index > this.currentRoleIndex
 				);
+
 				if (nextRoleIndex !== -1) {
 					this.currentRoleIndex = nextRoleIndex;
 				} else {
 					console.log("All roles have been cast.");
+					// Unassign all employees when all roles are cast
 					let i = this.localEmployees;
 					while (i > 0) {
 						this.unassignEmployee();
@@ -216,7 +239,15 @@ export default {
 						console.log("Unassigned one employee!");
 					}
 				}
+
+				// Emit the roleCast event with the role name
 				this.$emit("roleCast", lastRole);
+
+				// Also emit a more specific event that includes the component ID
+				this.$emit("taskCompleted", {
+					component: this.componentId,
+					role: lastRole,
+				});
 			}
 		},
 		assignEmployee() {
@@ -228,7 +259,7 @@ export default {
 			this.localEmployees -= 1;
 		},
 		hireDeptHead() {
-			this.$store.commit("HIRE_DEPARTMENT_HEAD", {
+			this.$store.dispatch("hireDepartmentHead", {
 				department: this.componentId,
 				cost: 5000,
 			});
@@ -244,10 +275,21 @@ export default {
 		if (storedProgress) {
 			this.localProgress = { ...storedProgress };
 		}
+		// Initialize max values in the store
+		this.$store.commit("progressManager/SET_MAX_VALUES", {
+			componentId: this.componentId,
+			maxValues: {
+				barOne: this.progressbarOneMax,
+				barTwo: this.progressbarTwoMax,
+				barThree: this.progressbarThreeMax,
+			},
+		});
 	},
 	mounted() {
+		// Reset progress when component is mounted
+		this.$store.commit("progressManager/RESET_PROGRESS", this.componentId);
+
 		this.intervalId = setInterval(this.updateProgress, 1000);
-		// Add to global intervals array
 		window.intervals = window.intervals || [];
 		window.intervals.push(this.intervalId);
 	},

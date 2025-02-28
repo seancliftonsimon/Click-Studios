@@ -226,6 +226,24 @@ export const featureUnlockPopups = {
 		buttonText: "Great!",
 		theme: "achievement",
 	},
+	hireWorkerUnlock: {
+		id: "feature_hireWorkerUnlock",
+		type: "info",
+		title: "🔓 Hire Workers",
+		emoji: "👥",
+		text: "You've hired two department heads! \n\n You can now hire workers to help with pre-production tasks. \n\n Assign them to different departments to speed up your progress.",
+		buttonText: "Great!",
+		theme: "achievement",
+	},
+	inspirationShopUnlock: {
+		id: "feature_inspirationShopUnlock",
+		type: "info",
+		title: "🔓 Inspiration Shop",
+		emoji: "✨",
+		text: "You've earned your first Inspiration Point! \n\n The Inspiration Shop is now available. \n\n Spend your Inspiration Points to unlock powerful upgrades for your pre-production process.",
+		buttonText: "Great!",
+		theme: "achievement",
+	},
 };
 
 // Game Phase Popups

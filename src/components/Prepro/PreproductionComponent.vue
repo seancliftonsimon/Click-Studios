@@ -4,7 +4,10 @@
 		<!-- First row spanning full width -->
 		<v-row>
 			<v-col cols="12">
-				<PreproBanner :actorSparkleIsActive="actorSparkleActive" />
+				<PreproBanner
+					v-if="componentVisibility.preproBanner"
+					:actorSparkleIsActive="actorSparkleActive"
+				/>
 			</v-col>
 		</v-row>
 		<!-- Second row with six components each containing three v-cards -->
@@ -37,11 +40,12 @@
 		<!-- Third row with four components -->
 		<v-row>
 			<v-col cols="3">
-				<PitchingComponent />
-				<v-card class="center-content"><br /><br /></v-card>
+				<PitchingComponent v-if="componentVisibility.pitchingComponent" />
+				<v-card v-else class="center-content"><br /><br /></v-card>
 			</v-col>
 			<v-col cols="6">
-				<InspirationShop />
+				<InspirationShop v-if="componentVisibility.inspirationShop" />
+				<v-card v-else class="center-content"><br /><br /></v-card>
 			</v-col>
 			<v-col cols="3">
 				<HireWorkersCard />
@@ -50,7 +54,7 @@
 	</v-container>
 </template>
 <script>
-import { mapGetters, mapActions } from "vuex";
+import { mapGetters, mapActions, mapState } from "vuex";
 import PitchingComponent from "./PitchingComponent.vue";
 import InspirationShop from "./InspirationShop.vue";
 import HireWorkersCard from "./HireWorkersCard.vue";
@@ -90,9 +94,20 @@ export default {
 			scriptTitle: "scriptTitle",
 			scriptGenre: "scriptGenre",
 		}),
+		...mapState({
+			componentVisibility: (state) => state.componentVisibility,
+			milestones: (state) => state.milestones,
+		}),
 	},
 	methods: {
-		...mapActions(["spendInspiration", "addInspiration", "showToast"]),
+		...mapActions([
+			"spendInspiration",
+			"addInspiration",
+			"showToast",
+			"checkDepartmentHeadsMilestone",
+			"checkInspirationMilestone",
+			"hireDepartmentHead",
+		]),
 		handleRoleCast(role) {
 			this.showToast(`Inspiring! You've cast the role of ${role}.`);
 			this.addInspiration(1);
@@ -123,6 +138,65 @@ export default {
 			this.showToast(`Inspiring! You've designed ${look}.`);
 			this.addInspiration(1);
 		},
+		initializePreproductionUI() {
+			console.log("Initializing preproduction UI...");
+			console.log("Current milestones:", this.milestones);
+			console.log("Current component visibility:", this.componentVisibility);
+
+			// Check if we need to update the store with the current state
+			this.checkDepartmentHeadsMilestone();
+			this.checkInspirationMilestone();
+
+			// Set initial visibility based on milestones
+			if (this.milestones.twoDepartmentHeads) {
+				console.log("Two department heads milestone is achieved");
+				// Make the hire workers card visible if it's not already
+				if (!this.componentVisibility.hireWorkersCard) {
+					console.log("Making hireWorkersCard visible");
+					this.$store.commit("TOGGLE_COMPONENT_VISIBILITY", "hireWorkersCard");
+				}
+
+				// Make the pitching component visible if it's not already
+				if (!this.componentVisibility.pitchingComponent) {
+					console.log("Making pitchingComponent visible");
+					this.$store.commit(
+						"TOGGLE_COMPONENT_VISIBILITY",
+						"pitchingComponent"
+					);
+				}
+
+				// Make the searchers and pitchers card visible if it's not already
+				if (!this.componentVisibility.searchersPitchersCard) {
+					console.log("Making searchersPitchersCard visible");
+					this.$store.commit(
+						"TOGGLE_COMPONENT_VISIBILITY",
+						"searchersPitchersCard"
+					);
+				}
+			}
+
+			if (this.milestones.firstInspirationPoint) {
+				console.log("First inspiration point milestone is achieved");
+				if (!this.componentVisibility.inspirationShop) {
+					console.log("Making inspirationShop visible");
+					this.$store.commit("TOGGLE_COMPONENT_VISIBILITY", "inspirationShop");
+				}
+			}
+
+			// Pitching component is always visible initially if two department heads milestone is not achieved
+			if (
+				!this.milestones.twoDepartmentHeads &&
+				!this.componentVisibility.pitchingComponent
+			) {
+				console.log("Making pitchingComponent visible (default)");
+				this.$store.commit("TOGGLE_COMPONENT_VISIBILITY", "pitchingComponent");
+			}
+
+			console.log(
+				"After initialization, component visibility:",
+				this.componentVisibility
+			);
+		},
 	},
 	// Add created hook to ensure initial state
 	created() {
@@ -138,6 +212,9 @@ export default {
 			this.$store.dispatch("deductWorkerWages");
 		}, 1000);
 		window.intervals.push(wageInterval);
+
+		// Initialize component visibility based on milestones
+		this.initializePreproductionUI();
 	},
 	beforeUnmount() {
 		console.log("PreproductionComponent beforeUnmount");

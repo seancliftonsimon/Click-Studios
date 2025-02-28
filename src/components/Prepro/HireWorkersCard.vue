@@ -6,33 +6,37 @@
 					${{ $formatNumber(preproDollarCount) }}
 				</span></v-row
 			>
-			<v-row>
-				<span class="payrate-counter"> -${{ totalPayrate }}/s</span>
-			</v-row>
-			<v-row>
-				<v-btn
-					class="hire-worker-button"
-					@click="employeeHireClick"
-					:disabled="!canAffordWorker"
+			<template v-if="isVisible">
+				<v-row>
+					<span class="payrate-counter"> -${{ totalPayrate }}/s</span>
+				</v-row>
+				<v-row>
+					<v-btn
+						class="hire-worker-button"
+						@click="employeeHireClick"
+						:disabled="!canAffordWorker"
+					>
+						Hire Worker ${{ displayWorkerCost }}
+					</v-btn></v-row
 				>
-					Hire Worker ${{ displayWorkerCost }}
-				</v-btn></v-row
-			>
+			</template>
 		</v-col>
-		<v-divider />
-		<v-row class="my-3 employee-assignments">
-			<v-chip color="gray">
-				<span>Unassigned: {{ unassignedEmployeeCount }}</span>
-			</v-chip>
-			<v-chip color="primary" variant="flat">
-				<span>Assigned: {{ assignedEmployeeCount }}</span>
-			</v-chip>
-		</v-row>
+		<template v-if="isVisible">
+			<v-divider />
+			<v-row class="my-3 employee-assignments">
+				<v-chip color="gray">
+					<span>Unassigned: {{ unassignedEmployeeCount }}</span>
+				</v-chip>
+				<v-chip color="primary" variant="flat">
+					<span>Assigned: {{ assignedEmployeeCount }}</span>
+				</v-chip>
+			</v-row>
+		</template>
 	</v-card>
 </template>
 
 <script>
-import { mapGetters, mapMutations } from "vuex";
+import { mapGetters, mapMutations, mapState } from "vuex";
 
 export default {
 	data() {
@@ -64,6 +68,12 @@ export default {
 			employeeCount: "employeeCount",
 			unassignedEmployeeCount: "unassignedEmployeeCount",
 		}),
+		...mapState({
+			componentVisibility: (state) => state.componentVisibility,
+		}),
+		isVisible() {
+			return this.componentVisibility.hireWorkersCard;
+		},
 		assignedEmployeeCount() {
 			return this.employeeCount - this.unassignedEmployeeCount;
 		},
