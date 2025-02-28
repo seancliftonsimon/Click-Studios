@@ -8,6 +8,7 @@ import PostproductionComponent from "@/components/Postpro/PostproductionComponen
 import MarketingComponent from "@/components/Marketing/MarketingComponent.vue";
 import ReleaseComponent from "@/components/Release/ReleaseComponent.vue";
 import PopupTester from "@/components/ui/PopupTester.vue";
+import ExampleToastUsage from "@/components/ExampleToastUsage.vue";
 
 const routes = [
 	{
@@ -44,6 +45,11 @@ const routes = [
 		path: "/popup-tester",
 		name: "popupTester",
 		component: PopupTester,
+	},
+	{
+		path: "/toast-examples",
+		name: "toastExamples",
+		component: ExampleToastUsage,
 	},
 ];
 

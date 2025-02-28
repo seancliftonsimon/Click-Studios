@@ -9,6 +9,7 @@ Adjust the values of the bar stacks, see if there's something satisfying I can s
 adjust the pitches and searches needed to bring in funding to be larger, and scale the money amounts so it scales well with 
 the increasing worker counts, perhaps developing formulae that represent how each one grows and finding a pair where they start far apart and slowly approach each other, one being exponential, one being incremental
 
+Do a font review, find all sizes, colors, etc. and streamline/centralize them.
 
 
 

@@ -230,7 +230,15 @@ export const featureUnlockPopups = {
 
 // Game Phase Popups
 export const gamePhasePopups = {
-	// Add game phase popups here
+	preproductionUnlocked: {
+		id: "game_preproductionUnlocked",
+		type: "info",
+		title: "🔓 Preproduction Phase Unlocked!",
+		emoji: "🎬",
+		text: "Congratulations! You've completed your first shooting script and can now begin preproduction. \n\n Head over to the Preproduction tab to start bringing your script to life!",
+		buttonText: "Let's Make a Movie!",
+		theme: "achievement",
+	},
 };
 
 // Error Popups
@@ -248,7 +256,7 @@ export const errorPopups = {
 
 // Mapping from old popup keys to new popup keys for backward compatibility
 export const popupKeyMapping = {
-	tutorialOne: "tutorial_welcome",
+	welcome: "tutorial_welcome",
 	introduction: "tutorial_introduction",
 	writingTool: "achievement_writingTool",
 	synopsis: "achievement_synopsis",
@@ -268,6 +276,7 @@ export const popupKeyMapping = {
 	genre_unlock: "genre_unlock",
 	filmingUnlocked: "achievement_filmingUnlocked",
 	firstShootingScript: "script_firstShootingScript",
+	preproductionUnlocked: "game_preproductionUnlocked",
 };
 
 // Registration function to load all popup definitions

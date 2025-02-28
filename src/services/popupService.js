@@ -7,6 +7,13 @@ import { popupKeyMapping } from "@/data/popups";
  */
 class PopupService {
 	/**
+	 * Constructor
+	 */
+	constructor() {
+		this.store = store;
+	}
+
+	/**
 	 * Show a popup by ID with optional props
 	 * @param {string} id - The ID of the popup to show
 	 * @param {Object} props - Optional props to override default popup configuration
@@ -16,7 +23,7 @@ class PopupService {
 		// Check for legacy popup keys
 		const mappedId = popupKeyMapping[id] || id;
 
-		store.dispatch("popupManager/showPopup", {
+		this.store.dispatch("popupManager/showPopup", {
 			id: mappedId,
 			props,
 		});
@@ -32,7 +39,7 @@ class PopupService {
 		// Check for legacy popup keys
 		const mappedId = popupKeyMapping[id] || id;
 
-		store.dispatch("popupManager/queuePopup", {
+		this.store.dispatch("popupManager/queuePopup", {
 			id: mappedId,
 			props,
 		});
@@ -57,13 +64,13 @@ class PopupService {
 		const id = options.id || `dynamic_info_${Date.now()}`;
 
 		// Register the popup first
-		store.dispatch("popupManager/registerPopup", {
+		this.store.dispatch("popupManager/registerPopup", {
 			id,
 			config: popupConfig,
 		});
 
 		// Then show it
-		store.dispatch("popupManager/showPopup", {
+		this.store.dispatch("popupManager/showPopup", {
 			id,
 			props: {},
 		});
@@ -95,13 +102,13 @@ class PopupService {
 		const id = options.id || `dynamic_confirm_${Date.now()}`;
 
 		// Register the popup first
-		store.dispatch("popupManager/registerPopup", {
+		this.store.dispatch("popupManager/registerPopup", {
 			id,
 			config: popupConfig,
 		});
 
 		// Then show it
-		store.dispatch("popupManager/showPopup", {
+		this.store.dispatch("popupManager/showPopup", {
 			id,
 			props: {},
 		});
@@ -141,13 +148,13 @@ class PopupService {
 		const id = options.id || `dynamic_input_${Date.now()}`;
 
 		// Register the popup first
-		store.dispatch("popupManager/registerPopup", {
+		this.store.dispatch("popupManager/registerPopup", {
 			id,
 			config: popupConfig,
 		});
 
 		// Then show it
-		store.dispatch("popupManager/showPopup", {
+		this.store.dispatch("popupManager/showPopup", {
 			id,
 			props: {},
 		});
@@ -158,7 +165,7 @@ class PopupService {
 	 * @returns {void}
 	 */
 	closeCurrentPopup() {
-		store.dispatch("popupManager/closePopup");
+		this.store.dispatch("popupManager/closePopup");
 	}
 
 	/**
@@ -166,7 +173,7 @@ class PopupService {
 	 * @returns {void}
 	 */
 	clearAllPopups() {
-		store.dispatch("popupManager/clearAllPopups");
+		this.store.dispatch("popupManager/clearAllPopups");
 	}
 
 	/**
@@ -210,6 +217,30 @@ class PopupService {
 			emoji: "⚠️",
 			theme: "error",
 			buttonText: "OK",
+		});
+	}
+
+	/**
+	 * Show a temporary toast notification that auto-dismisses
+	 * @param {string} message - The toast message
+	 * @returns {void}
+	 */
+	showTemporaryToast(message) {
+		this.store.dispatch("showToast", {
+			message,
+			type: "temporary",
+		});
+	}
+
+	/**
+	 * Show a persistent toast notification that requires manual dismissal
+	 * @param {string} message - The toast message
+	 * @returns {void}
+	 */
+	showPersistentToast(message) {
+		this.store.dispatch("showToast", {
+			message,
+			type: "persistent",
 		});
 	}
 }

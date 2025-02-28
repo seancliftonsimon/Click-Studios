@@ -2,7 +2,7 @@
 	<div style="width: 100%" align="center">
 		<v-btn
 			:ripple="false"
-			@mouseup="increaseWordCount"
+			@mouseup="handleClick"
 			class="write-tool-button d-flex flex-column mx-auto"
 		>
 			<v-col>
@@ -27,6 +27,10 @@ import { mapActions } from "vuex";
 export default {
 	methods: {
 		...mapActions(["increaseWordCount"]),
+		handleClick() {
+			// Call the original increaseWordCount action
+			this.increaseWordCount();
+		},
 	},
 	computed: {
 		...mapGetters(["previousToolDetails"]),

@@ -1,6 +1,24 @@
 <!-- App.vue Component -->
 <template>
 	<v-app>
+		<!-- Global Toast Notification -->
+		<v-snackbar
+			v-model="toastVisible"
+			:timeout="toastType === 'temporary' ? 4000 : -1"
+			location="top right"
+			color="success"
+		>
+			{{ toastMessage }}
+			<template v-slot:actions v-if="toastType === 'persistent'">
+				<v-btn
+					icon="mdi-close"
+					size="small"
+					variant="text"
+					@click="hideToast"
+				></v-btn>
+			</template>
+		</v-snackbar>
+
 		<v-row class="mb-0">
 			<img :src="bannerImage" alt="Prototype Banner" class="banner-image" />
 			<!-- Permanent Navigation Bar -->
@@ -95,6 +113,9 @@ export default {
 			this.$store.commit("LOAD_STATE");
 			console.log("Game Loaded");
 		},
+		hideToast() {
+			this.$store.commit("SET_TOAST_VISIBLE", false);
+		},
 	},
 	computed: {
 		...mapGetters([
@@ -104,7 +125,17 @@ export default {
 			"isPostproductionUnlocked",
 			"isMarketingUnlocked",
 			"isReleaseUnlocked",
+			"toastMessage",
+			"toastType",
 		]),
+		toastVisible: {
+			get() {
+				return this.$store.getters.toastVisible;
+			},
+			set(value) {
+				this.$store.commit("SET_TOAST_VISIBLE", value);
+			},
+		},
 		titleFontSize() {
 			if (this.studioName.length >= 28) {
 				return "1.2em";

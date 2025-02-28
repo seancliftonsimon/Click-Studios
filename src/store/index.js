@@ -36,6 +36,11 @@ const store = createStore({
 		isMarketingUnlocked: false,
 		isReleaseUnlocked: false,
 
+		// Toast notification state
+		toastMessage: "",
+		toastVisible: false,
+		toastType: "temporary", // New property: 'temporary' or 'persistent'
+
 		// Word Variables
 
 		wordCount: 10000000,
@@ -1575,6 +1580,19 @@ const store = createStore({
 		isToolVisible: (state) => (cost) => {
 			return cost !== 0 && state.writingToolCardVisible;
 		},
+
+		// Toast getters
+		toastMessage(state) {
+			return state.toastMessage;
+		},
+
+		toastVisible(state) {
+			return state.toastVisible;
+		},
+
+		toastType(state) {
+			return state.toastType;
+		},
 	},
 	mutations: {
 		// Mutation to save the state to localStorage
@@ -1786,7 +1804,7 @@ const store = createStore({
 		},
 
 		DECREASE_INSPIRATION(state, cost) {
-			state.inspiration -= cost;
+			state.inspiration = Math.max(0, state.inspiration - cost);
 		},
 
 		ASSIGN_SEARCHER(state, amt) {
@@ -1870,6 +1888,19 @@ const store = createStore({
 				expectedRemovalTime,
 				animationStartTime,
 			};
+		},
+
+		// Toast notification mutations
+		SET_TOAST_MESSAGE(state, message) {
+			state.toastMessage = message;
+		},
+
+		SET_TOAST_VISIBLE(state, isVisible) {
+			state.toastVisible = isVisible;
+		},
+
+		SET_TOAST_TYPE(state, type) {
+			state.toastType = type;
 		},
 	},
 	actions: {
@@ -1956,6 +1987,9 @@ const store = createStore({
 							key: "isPreproductionUnlocked",
 							value: true,
 						});
+
+						// Show a toast notification to inform the user that preproduction is unlocked
+						dispatch("showPreproductionUnlockedToast");
 					}
 				}
 
@@ -2607,6 +2641,50 @@ const store = createStore({
 					// Show the genre unlock popup
 					dispatch("popupManager/showPopup", { id: "genre_unlock" });
 				}
+			}
+		},
+
+		// Show a toast notification when preproduction is unlocked
+		showPreproductionUnlockedToast({ commit, dispatch }) {
+			// Show a persistent toast notification
+			dispatch("showToast", {
+				message:
+					"Preproduction phase unlocked! Welcome to your first movie project!",
+				type: "persistent",
+			});
+
+			// Show a popup to explain the preproduction phase
+			dispatch(
+				"popupManager/showPopup",
+				{
+					id: "game_preproductionUnlocked",
+				},
+				{ root: true }
+			);
+		},
+
+		// Show a toast notification via the store
+		showToast({ commit }, payload) {
+			// Handle both string messages and object payloads
+			let message, type;
+
+			if (typeof payload === "string") {
+				message = payload;
+				type = "temporary"; // Default to temporary for backward compatibility
+			} else {
+				message = payload.message;
+				type = payload.type || "temporary";
+			}
+
+			commit("SET_TOAST_MESSAGE", message);
+			commit("SET_TOAST_TYPE", type);
+			commit("SET_TOAST_VISIBLE", true);
+
+			// Only auto-hide temporary toasts
+			if (type === "temporary") {
+				setTimeout(() => {
+					commit("SET_TOAST_VISIBLE", false);
+				}, 4000);
 			}
 		},
 	},

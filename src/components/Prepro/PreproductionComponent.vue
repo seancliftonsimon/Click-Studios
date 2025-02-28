@@ -1,9 +1,5 @@
 <!-- Preproductioncomponent.vue -->
 <template>
-	<v-snackbar v-model="snackbarVisible" :timeout="4000" right color="success">
-		<span> {{ snackbarMessage }}</span>
-		<v-btn flat color="white" @click="snackbarVisible = false">X</v-btn>
-	</v-snackbar>
 	<v-container fluid class="phase-container bg-grey-lighten-2">
 		<!-- First row spanning full width -->
 		<v-row>
@@ -42,8 +38,8 @@
 		<v-row>
 			<v-col cols="3">
 				<PitchingComponent />
-				<v-card class="center-content"><br /><br /> </v-card
-			></v-col>
+				<v-card class="center-content"><br /><br /></v-card>
+			</v-col>
 			<v-col cols="6">
 				<InspirationShop />
 			</v-col>
@@ -82,8 +78,6 @@ export default {
 	},
 	data() {
 		return {
-			snackbarVisible: false,
-			snackbarMessage: "empty snackbar",
 			actorSparkleActive: false,
 		};
 	},
@@ -98,10 +92,9 @@ export default {
 		}),
 	},
 	methods: {
-		...mapActions(["spendInspiration", "addInspiration"]),
+		...mapActions(["spendInspiration", "addInspiration", "showToast"]),
 		handleRoleCast(role) {
-			this.snackbarMessage = `Inspiring! You've cast the role of ${role}.`;
-			this.snackbarVisible = true;
+			this.showToast(`Inspiring! You've cast the role of ${role}.`);
 			this.addInspiration(1);
 
 			// Add timeout to reset the sparkle effect
@@ -111,28 +104,23 @@ export default {
 			}, 2000); // Reset after 2 seconds
 		},
 		handleCostumeMade(costume) {
-			this.snackbarMessage = `Inspiring! You've made ${costume}.`;
-			this.snackbarVisible = true;
+			this.showToast(`Inspiring! You've made ${costume}.`);
 			this.addInspiration(1);
 		},
 		handleShotPlanned(shot) {
-			this.snackbarMessage = `Inspiring! You've planned ${shot}.`;
-			this.snackbarVisible = true;
+			this.showToast(`Inspiring! You've planned ${shot}.`);
 			this.addInspiration(1);
 		},
 		handleSetBuilt(set) {
-			this.snackbarMessage = `Inspiring! You've built ${set}.`;
-			this.snackbarVisible = true;
+			this.showToast(`Inspiring! You've built ${set}.`);
 			this.addInspiration(1);
 		},
 		handleLocationScouted(location) {
-			this.snackbarMessage = `Inspiring! You've scouted ${location}.`;
-			this.snackbarVisible = true;
+			this.showToast(`Inspiring! You've scouted ${location}.`);
 			this.addInspiration(1);
 		},
 		handleLookDesigned(look) {
-			this.snackbarMessage = `Inspiring! You've designed ${look}.`;
-			this.snackbarVisible = true;
+			this.showToast(`Inspiring! You've designed ${look}.`);
 			this.addInspiration(1);
 		},
 	},
