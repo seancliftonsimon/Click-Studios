@@ -2653,16 +2653,27 @@ const store = createStore({
 				.map((look) => `${look.name} for ${look.role}`)
 				.join(", ");
 			const roleDescription = `Roles: ${rolesList}`;
-			const scriptDescription = `A ${scriptQuality.toFixed(
+			const scriptDescription = `✨ A ${scriptQuality.toFixed(
 				1
-			)} quality ${genre} script with ${roles.length} roles:
-			${rolesList} \n 
-			${shots.length} shots: \n ${shotsList}
-			\n
-			${sets.length} sets: \n ${setsList} \n
-			${locations.length} locations: \n ${locationsList} \n
-			${costumes.length} costumes: \n ${costumesList} \n
-			${looks.length} looks: \n ${looksList}`;
+			)} quality ${genre} script ✨
+
+🎭 ${roles.length} ROLES:
+${rolesList}
+
+🎬 ${shots.length} SHOTS:
+${shotsList}
+
+🏗️ ${sets.length} SETS:
+${setsList}
+
+📍 ${locations.length} LOCATIONS:
+${locationsList}
+
+👔 ${costumes.length} COSTUMES:
+${costumesList}
+
+💄 ${looks.length} LOOKS:
+${looksList}`;
 
 			// Construct the script object including the description
 			const script = {
