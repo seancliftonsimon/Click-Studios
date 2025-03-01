@@ -11,11 +11,53 @@
 			>
 			<template v-if="isVisible">
 				<v-row>
-					<span class="payrate-counter"> -${{ totalPayrate }}/s</span>
+					<span class="payrate-counter">
+						-${{ preproDollarCount === 0 ? 0 : totalPayrate }}/s</span
+					>
+				</v-row>
+				<v-divider />
+				<v-row class="my-3 employee-assignments">
+					<div class="progress-container">
+						<v-progress-linear
+							:model-value="assignedProgressValue"
+							height="40"
+							background-color="#EEEEEE"
+							:rounded="false"
+							class="employee-progress"
+						>
+							<template v-slot:default>
+								<span
+									class="employee-stats"
+									:class="{ 'furloughed-text': preproDollarCount === 0 }"
+								>
+									<strong v-if="preproDollarCount === 0 && employeeCount > 0">
+										{{ employeeCount }} Workers Furloughed
+									</strong>
+									<strong
+										v-else-if="
+											assignedEmployeeCount > 0 &&
+											assignedEmployeeCount === employeeCount &&
+											preproDollarCount > 0
+										"
+									>
+										All {{ employeeCount }} Workers Assigned
+									</strong>
+									<strong v-else-if="assignedEmployeeCount > 0">
+										{{ assignedEmployeeCount }}/{{ employeeCount }} Workers
+										Assigned
+									</strong>
+									<strong v-else-if="employeeCount > 0">
+										{{ employeeCount }} Workers Unassigned
+									</strong>
+									<strong v-else>0 Workers</strong>
+								</span>
+							</template>
+						</v-progress-linear>
+					</div>
 				</v-row>
 				<v-row>
 					<v-btn
-						class="hire-worker-button"
+						class="hire-worker-button mb-3"
 						:class="{ 'active-button': canAffordWorker }"
 						@click="employeeHireClick"
 						:disabled="!canAffordWorker"
@@ -25,17 +67,6 @@
 				>
 			</template>
 		</v-col>
-		<template v-if="isVisible">
-			<v-divider />
-			<v-row class="my-3 employee-assignments">
-				<v-chip color="gray">
-					<span>Unassigned: {{ unassignedEmployeeCount }}</span>
-				</v-chip>
-				<v-chip color="primary" variant="flat">
-					<span>Assigned: {{ assignedEmployeeCount }}</span>
-				</v-chip>
-			</v-row>
-		</template>
 	</v-card>
 </template>
 
@@ -91,6 +122,30 @@ export default {
 		canAffordWorker() {
 			return this.preproDollarCount >= this.displayWorkerCost;
 		},
+		progressValue() {
+			// Convert to numbers and calculate percentage
+			const assigned = Number(this.assignedEmployeeCount);
+			const total = Number(this.employeeCount);
+			// Return 0 if there are no employees, otherwise calculate the percentage
+			return total > 0 ? (assigned / total) * 100 : 0;
+		},
+		assignedProgressValue() {
+			// Log the dollar count to help debug
+			console.log("Current preproDollarCount:", this.preproDollarCount);
+
+			// Calculate percentage of assigned workers
+			const assigned = Number(this.assignedEmployeeCount);
+			const total = Number(this.employeeCount);
+			// Return 0 if there are no employees, otherwise calculate the percentage
+			return total > 0 ? (assigned / total) * 100 : 0;
+		},
+		unassignedProgressValue() {
+			// Convert to numbers and calculate percentage of unassigned workers
+			const unassigned = Number(this.unassignedEmployeeCount);
+			const total = Number(this.employeeCount);
+			// Return 0 if there are no employees, otherwise calculate the percentage
+			return total > 0 ? (unassigned / total) * 100 : 0;
+		},
 	},
 };
 </script>
@@ -125,6 +180,40 @@ export default {
 
 .employee-assignments {
 	justify-content: space-evenly;
+}
+
+.progress-container {
+	width: 80%;
+	margin: auto;
+}
+
+.employee-progress {
+	border-radius: 4px;
+	overflow: hidden;
+}
+
+/* Override progress bar colors with more specific selectors */
+:deep(.employee-progress .v-progress-linear__determinate) {
+	background-color: v-bind(
+		'preproDollarCount === 0 ? "#FF5252" : "#FFCC80"'
+	) !important;
+}
+
+:deep(.employee-progress .v-progress-linear__background) {
+	background-color: #eeeeee !important;
+	opacity: 1 !important;
+}
+
+.employee-stats {
+	width: 100%;
+	text-align: center;
+	color: black;
+	font-size: 1.1rem;
+	font-weight: 500;
+}
+
+.furloughed-text {
+	color: white;
 }
 
 /* Custom color to match InspirationShop buttons */
