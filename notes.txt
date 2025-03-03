@@ -2,14 +2,12 @@ Ability later to hire in people to sell projects for you automatically?
 
 
 
+make the individual objects appear as v chips for all of the resources, perhaps in a dynamic way
 
 
->I should separately make sure that the add worker components on all of the barstacks has its visiblity dependent on the player having unlocked the ability to hire workers, make sure to use the established code where we're already using a variable to flag visibility elsewhere based on that unlock.
-> the popup for hire workers unlocked is triggering every time I hire a department head. It should only hire the first time that milestone is reached, so check the code to see how other milestones track their one-time status and make sure the two department heads milestone operates that way too. 
 
 
-when I get my first inspiration point, I correctly see the toast notification, but it doesn't trigger the pop up or the reveal of the inspiration shop as it should. Please make sure that unlock works as intended, just in the very same way the hire workers unlock functions, which is working successfully. Make sure it only triggers once, as well.
-
+initial worker cost 100, initial average investment 500, worker cost multiplier 1.05, upgrade multiplier 2.6, 4 upgrades, 100 max workers,  upgrades available ~ 12 workers, 36 workers, 61 workers, 85 workers, 
 
 
 I should adjust some values:
