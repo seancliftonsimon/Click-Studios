@@ -1,5 +1,23 @@
 <template>
 	<div>
+		<!-- Add investor tier indicator with tooltip -->
+		<div class="investor-tier-indicator text-center mb-2">
+			<v-tooltip bottom>
+				<template v-slot:activator="{ on, attrs }">
+					<span v-bind="attrs" v-on="on" class="font-weight-bold">
+						Current Investor Tier:
+						<span v-if="currentInvestorTier === 1">Small Investors</span>
+						<span v-else-if="currentInvestorTier === 2">Medium Investors</span>
+						<span v-else-if="currentInvestorTier === 3">Large Investors</span>
+						<span v-else-if="currentInvestorTier === 4"
+							>Very Large Investors</span
+						>
+						<span v-else-if="currentInvestorTier === 5">Whale Investors</span>
+					</span>
+				</template>
+				<span>Higher tier investors provide larger funding amounts</span>
+			</v-tooltip>
+		</div>
 		<component :is="currentCard" @nextCard="nextCard"></component>
 		<!-- Example button to go to the next card -->
 	</div>
@@ -75,6 +93,7 @@ export default {
 			unassignedEmployeeCount: "unassignedEmployeeCount",
 			searcherCount: "searcherCount",
 			pitcherCount: "pitcherCount",
+			currentInvestorTier: "currentInvestorTier",
 		}),
 		...mapState({
 			componentVisibility: (state) => state.componentVisibility,
@@ -134,5 +153,13 @@ export default {
 	min-width: 24px !important;
 	width: 24px !important;
 	padding: 0 !important;
+}
+
+/* Add styles for the investor tier indicator */
+.investor-tier-indicator {
+	background-color: #f5f5f5;
+	padding: 8px;
+	border-radius: 4px;
+	margin-bottom: 12px;
 }
 </style>

@@ -2,20 +2,22 @@
 	<v-card>
 		<v-container fluid class="px-8">
 			<v-row>
-				<v-col cols="11">
+				<v-col cols="12">
 					<h3>{{ title }} Preproduction Progress</h3>
 					<v-row justify="space-between" align="center" class="py-2">
 						<v-col>
-							<v-chip color="red-darken-2"
-								>{{ completeRolesCount }}/{{ actorGoal }}</v-chip
-							><span>Actors </span>
-							<span
-								v-show="showActorSparkle"
-								@animationend="handleAnimationEnd"
-								class="sparkle"
-							>
-								✨
-							</span>
+							<div class="counter-wrapper">
+								<v-chip color="red-darken-2"
+									>{{ completeRolesCount }}/{{ actorGoal }}</v-chip
+								><span>Actors </span>
+								<span
+									v-show="showActorSparkle"
+									@animationend="handleAnimationEnd"
+									class="sparkle"
+								>
+									✨
+								</span>
+							</div>
 							<div class="resource-chips">
 								<v-chip
 									v-for="(role, index) in scriptRoles"
@@ -32,11 +34,14 @@
 									{{ role.name }}
 								</v-chip>
 							</div>
+							<CastingBarStack class="mt-4" @roleCast="handleRoleCast" />
 						</v-col>
 						<v-col>
-							<v-chip color="orange-darken-2"
-								>{{ completeShotsCount }}/{{ shotGoal }}</v-chip
-							><span>Shots</span>
+							<div class="counter-wrapper">
+								<v-chip color="orange-darken-2"
+									>{{ completeShotsCount }}/{{ shotGoal }}</v-chip
+								><span>Shots</span>
+							</div>
 							<div class="resource-chips">
 								<v-chip
 									v-for="(shot, index) in scriptShots"
@@ -53,12 +58,17 @@
 									{{ shot.name }}
 								</v-chip>
 							</div>
+							<ShotPlanningBarStack
+								class="mt-4"
+								@shotPlanned="handleShotPlanned"
+							/>
 						</v-col>
 						<v-col>
-							<v-chip color="grey-darken-4"
-								>{{ builtSetsCount }}/{{ setGoal }}</v-chip
-							>
-							<span>Sets</span>
+							<div class="counter-wrapper">
+								<v-chip color="grey-darken-4"
+									>{{ builtSetsCount }}/{{ setGoal }}</v-chip
+								><span>Sets</span>
+							</div>
 							<div class="resource-chips">
 								<v-chip
 									v-for="(set, index) in scriptSets"
@@ -75,11 +85,14 @@
 									{{ set.name }}
 								</v-chip>
 							</div>
+							<SetBuildingBarStack class="mt-4" @setBuilt="handleSetBuilt" />
 						</v-col>
-						<v-col
-							><v-chip color="green-darken-2"
-								>{{ scoutedLocationsCount }}/{{ locationGoal }}</v-chip
-							><span>Locations</span>
+						<v-col>
+							<div class="counter-wrapper">
+								<v-chip color="green-darken-2"
+									>{{ scoutedLocationsCount }}/{{ locationGoal }}</v-chip
+								><span>Locations</span>
+							</div>
 							<div class="resource-chips">
 								<v-chip
 									v-for="(location, index) in scriptLocations"
@@ -96,11 +109,17 @@
 									{{ location.name }}
 								</v-chip>
 							</div>
+							<LocationScoutingBarStack
+								class="mt-4"
+								@locationScouted="handleLocationScouted"
+							/>
 						</v-col>
 						<v-col>
-							<v-chip color="blue-darken-2"
-								>{{ madeCostumesCount }}/{{ costumeGoal }}</v-chip
-							><span>Costumes</span>
+							<div class="counter-wrapper">
+								<v-chip color="blue-darken-2"
+									>{{ madeCostumesCount }}/{{ costumeGoal }}</v-chip
+								><span>Costumes</span>
+							</div>
 							<div class="resource-chips">
 								<v-chip
 									v-for="(costume, index) in scriptCostumes"
@@ -117,12 +136,17 @@
 									{{ costume.name }} ({{ costume.role }})
 								</v-chip>
 							</div>
+							<CostumeMakingBarStack
+								class="mt-4"
+								@costumeMade="handleCostumeMade"
+							/>
 						</v-col>
 						<v-col>
-							<v-chip color="indigo-darken-2"
-								>{{ styledLooksCount }}/{{ lookGoal }}</v-chip
-							>
-							<span>Looks</span>
+							<div class="counter-wrapper">
+								<v-chip color="indigo-darken-2"
+									>{{ styledLooksCount }}/{{ lookGoal }}</v-chip
+								><span>Looks</span>
+							</div>
 							<div class="resource-chips">
 								<v-chip
 									v-for="(look, index) in scriptLooks"
@@ -139,9 +163,14 @@
 									{{ look.name }} ({{ look.role }})
 								</v-chip>
 							</div>
+							<LookDesigningBarStack
+								class="mt-4"
+								@lookDesigned="handleLookDesigned"
+							/>
 						</v-col>
 					</v-row>
 				</v-col>
+				<!-- Progress bar column commented out
 				<v-col cols="1" class="d-flex align-center justify-center">
 					<v-progress-circular
 						:model-value="totalProgress"
@@ -149,6 +178,7 @@
 						:width="10"
 					></v-progress-circular>
 				</v-col>
+				-->
 			</v-row>
 		</v-container>
 	</v-card>
@@ -156,8 +186,22 @@
 
 <script>
 import { mapGetters } from "vuex";
+import CastingBarStack from "./CastingBarStack.vue";
+import ShotPlanningBarStack from "./ShotPlanningBarStack.vue";
+import SetBuildingBarStack from "./SetBuildingBarStack.vue";
+import LocationScoutingBarStack from "./LocationScoutingBarStack.vue";
+import CostumeMakingBarStack from "./CostumeMakingBarStack.vue";
+import LookDesigningBarStack from "./LookDesigningBarStack.vue";
 
 export default {
+	components: {
+		CastingBarStack,
+		ShotPlanningBarStack,
+		SetBuildingBarStack,
+		LocationScoutingBarStack,
+		CostumeMakingBarStack,
+		LookDesigningBarStack,
+	},
 	props: {
 		actorSparkleIsActive: Boolean,
 	},
@@ -239,6 +283,24 @@ export default {
 				this.$emit("animation-complete");
 			});
 		},
+		handleRoleCast(role) {
+			this.$emit("roleCast", role);
+		},
+		handleShotPlanned(shot) {
+			this.$emit("shotPlanned", shot);
+		},
+		handleSetBuilt(set) {
+			this.$emit("setBuilt", set);
+		},
+		handleLocationScouted(location) {
+			this.$emit("locationScouted", location);
+		},
+		handleCostumeMade(costume) {
+			this.$emit("costumeMade", costume);
+		},
+		handleLookDesigned(look) {
+			this.$emit("lookDesigned", look);
+		},
 	},
 };
 </script>
@@ -253,6 +315,13 @@ span {
 	font-family: Roboto;
 	font-size: 16px;
 	text-transform: capitalize;
+}
+
+.counter-wrapper {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 8px;
 }
 
 .sparkle {

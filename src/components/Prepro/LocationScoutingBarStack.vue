@@ -4,7 +4,9 @@
 			<h3>📍 Locations</h3>
 			<v-container v-show="deptLocked" align="center">
 				<span>Hire Location Manager</span>
-				<v-btn :disabled="!canAffordHire" @click="hireDeptHead"> $5K </v-btn>
+				<v-btn :disabled="!canAffordHire" @click="hireDeptHead">
+					${{ cost }}
+				</v-btn>
 			</v-container>
 			<v-container v-show="!deptLocked && hasLocationsToScout" class="py-0">
 				<h4 class="py-0" align="center">
@@ -82,7 +84,11 @@
 					<span class="text-center mx-1">{{ ticksPerSecond }}ps</span>
 				</v-row>
 			</v-container>
-			<v-container v-if="!deptLocked && !hasLocationsToScout" class="d-flex flex-column align-center justify-center text-center" style="min-height: 100%">
+			<v-container
+				v-if="!deptLocked && !hasLocationsToScout"
+				class="d-flex flex-column align-center justify-center text-center"
+				style="min-height: 100%"
+			>
 				<span>Complete.</span> <br />
 				<span> Workers have been unassigned.</span>
 			</v-container>
@@ -104,6 +110,7 @@ export default {
 			intervalId: null,
 			ticksPerClick: 1,
 			currentLocationIndex: 0,
+			cost: 500,
 		};
 	},
 	computed: {
@@ -156,7 +163,8 @@ export default {
 			return this.localEmployees * this.employeeSpeed;
 		},
 		canAffordHire() {
-			return this.preproDollarCount >= 5000;
+			// TODO: Change back to 5000 after testing
+			return this.preproDollarCount >= 500;
 		},
 		currentProgress() {
 			return (
@@ -259,7 +267,8 @@ export default {
 		hireDeptHead() {
 			this.$store.dispatch("hireDepartmentHead", {
 				department: this.componentId,
-				cost: 5000,
+				// TODO: Change back to 5000 after testing
+				cost: this.cost,
 			});
 			this.$store.commit("HIRE_EMPLOYEE", 1);
 			this.assignEmployee();

@@ -4,7 +4,9 @@
 			<h3>🪡 Costumes</h3>
 			<v-container v-show="deptLocked" align="center">
 				<span>Hire Head of Costumes</span>
-				<v-btn :disabled="!canAffordHire" @click="hireDeptHead"> $5K </v-btn>
+				<v-btn :disabled="!canAffordHire" @click="hireDeptHead">
+					${{ cost }}
+				</v-btn>
 			</v-container>
 			<v-container v-show="!deptLocked && hasCostumesToMake" class="py-0">
 				<h4 class="py-0" align="center">
@@ -57,13 +59,13 @@
 						</v-col>
 					</v-list-item>
 				</v-list>
-				<div class="d-flex justify-center"><v-btn @click="updateProgressOnClick">+{{ ticksPerClick }}</v-btn
-				></div><br />
+				<div class="d-flex justify-center">
+					<v-btn @click="updateProgressOnClick">+{{ ticksPerClick }}</v-btn>
+				</div>
+				<br />
 				<v-divider class="py-1"></v-divider>
 				<!-- Employee controls section with conditional visibility -->
-				<v-row
-					class="py-5 justify-center align-center"
-				>
+				<v-row class="py-5 justify-center align-center">
 					<v-btn
 						v-show="isHireWorkersVisible"
 						@click="unassignEmployee"
@@ -82,7 +84,11 @@
 					<span class="text-center mx-1">{{ ticksPerSecond }}ps</span>
 				</v-row>
 			</v-container>
-			<v-container v-if="!deptLocked && !hasCostumesToMake" class="d-flex flex-column align-center justify-center text-center" style="min-height: 100%">
+			<v-container
+				v-if="!deptLocked && !hasCostumesToMake"
+				class="d-flex flex-column align-center justify-center text-center"
+				style="min-height: 100%"
+			>
 				<span>Complete.</span> <br />
 				<span> Workers have been unassigned.</span>
 			</v-container>
@@ -104,6 +110,7 @@ export default {
 			intervalId: null,
 			ticksPerClick: 1,
 			currentCostumeIndex: 0,
+			cost: 500,
 		};
 	},
 	computed: {
@@ -155,7 +162,8 @@ export default {
 			return this.localEmployees * this.employeeSpeed;
 		},
 		canAffordHire() {
-			return this.preproDollarCount >= 5000;
+			// TODO: Change back to 5000 after testing
+			return this.preproDollarCount >= 500;
 		},
 		...mapGetters("progressManager", ["getProgress"]),
 		currentProgress() {
@@ -256,10 +264,10 @@ export default {
 			this.localEmployees -= 1;
 		},
 		hireDeptHead() {
-			// Use the action instead of directly committing the mutation
 			this.$store.dispatch("hireDepartmentHead", {
 				department: this.componentId,
-				cost: 5000,
+				// TODO: Change back to 5000 after testing
+				cost: this.cost,
 			});
 			this.$store.commit("HIRE_EMPLOYEE", 1);
 			this.assignEmployee();

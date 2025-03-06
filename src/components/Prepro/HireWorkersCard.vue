@@ -76,10 +76,10 @@ import { mapGetters, mapMutations, mapState } from "vuex";
 export default {
 	data() {
 		return {
-			baseWorkerCost: 10, // Initial cost for the first worker
-			trueWorkerCost: 10, // Tracks the actual cost with decimal precision
+			baseWorkerCost: 100, // Initial cost for the first worker
+			trueWorkerCost: 100, // Tracks the actual cost with decimal precision
 			workerRate: 3,
-			costMultiplier: 1.1, // Each worker costs 1.1x the previous one
+			costMultiplier: 1.05, // Each worker costs 1.x the previous one
 		};
 	},
 	methods: {

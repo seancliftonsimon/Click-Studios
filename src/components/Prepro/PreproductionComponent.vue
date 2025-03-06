@@ -3,42 +3,6 @@
 	<v-container fluid class="phase-container bg-grey-lighten-2">
 		<!-- First row spanning full width -->
 		<v-row>
-			<v-col cols="12">
-				<PreproBanner
-					v-if="componentVisibility.preproBanner"
-					:actorSparkleIsActive="actorSparkleActive"
-				/>
-			</v-col>
-		</v-row>
-		<!-- Second row with six components each containing three v-cards -->
-		<v-row>
-			<v-col cols="2">
-				<CastingBarStack class="pa-0" @roleCast="handleRoleCast" />
-			</v-col>
-			<v-col cols="2">
-				<ShotPlanningBarStack class="pa-0" @shotPlanned="handleShotPlanned" />
-			</v-col>
-			<v-col cols="2">
-				<SetBuildingBarStack class="pa-0" @setBuilt="handleSetBuilt" />
-			</v-col>
-			<v-col cols="2">
-				<LocationScoutingBarStack
-					class="pa-0"
-					@locationScouted="handleLocationScouted"
-				/>
-			</v-col>
-			<v-col cols="2">
-				<CostumeMakingBarStack class="pa-0" @costumeMade="handleCostumeMade" />
-			</v-col>
-			<v-col cols="2">
-				<LookDesigningBarStack
-					class="pa-0"
-					@lookDesigned="handleLookDesigned"
-				/>
-			</v-col>
-		</v-row>
-		<!-- Third row with four components -->
-		<v-row>
 			<v-col cols="3">
 				<PitchingComponent v-if="componentVisibility.pitchingComponent" />
 				<v-card v-else class="center-content"><br /><br /></v-card>
@@ -51,6 +15,21 @@
 				<v-card v-else class="center-content"><br /><br /></v-card>
 			</v-col>
 		</v-row>
+		<!-- Second row with PreproBanner -->
+		<v-row>
+			<v-col cols="12">
+				<PreproBanner
+					v-if="componentVisibility.preproBanner"
+					:actorSparkleIsActive="actorSparkleActive"
+					@roleCast="handleRoleCast"
+					@shotPlanned="handleShotPlanned"
+					@setBuilt="handleSetBuilt"
+					@locationScouted="handleLocationScouted"
+					@costumeMade="handleCostumeMade"
+					@lookDesigned="handleLookDesigned"
+				/>
+			</v-col>
+		</v-row>
 	</v-container>
 </template>
 <script>
@@ -58,13 +37,6 @@ import { mapGetters, mapActions, mapState } from "vuex";
 import PitchingComponent from "./PitchingComponent.vue";
 import InspirationShop from "./InspirationShop.vue";
 import HireWorkersCard from "./HireWorkersCard.vue";
-import CastingBarStack from "./CastingBarStack.vue";
-import ShotPlanningBarStack from "./ShotPlanningBarStack.vue";
-import SetBuildingBarStack from "./SetBuildingBarStack.vue";
-import LocationScoutingBarStack from "./LocationScoutingBarStack.vue";
-import CostumeMakingBarStack from "./CostumeMakingBarStack.vue";
-import LookDesigningBarStack from "./LookDesigningBarStack.vue";
-
 import PreproBanner from "./PreproBanner.vue";
 
 export default {
@@ -72,13 +44,7 @@ export default {
 		PitchingComponent,
 		InspirationShop,
 		HireWorkersCard,
-		CastingBarStack,
 		PreproBanner,
-		ShotPlanningBarStack,
-		LocationScoutingBarStack,
-		SetBuildingBarStack,
-		CostumeMakingBarStack,
-		LookDesigningBarStack,
 	},
 	data() {
 		return {

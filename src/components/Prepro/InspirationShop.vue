@@ -144,7 +144,7 @@
 
 <script>
 // Import Vuex helpers for mapping state and actions
-import { mapGetters, mapActions } from "vuex";
+import { mapGetters, mapActions, mapMutations } from "vuex";
 
 export default {
 	data() {
@@ -208,24 +208,57 @@ export default {
 		},
 	},
 	methods: {
-		// Map Vuex actions to local methods
-		...mapActions(["spendInspiration", "addInspiration"]),
-		// Helper method to calculate the cost of an upgrade
-		calculateCost(count, increments) {
-			let cost = 0;
-			for (let i = 0; i <= count && i < increments.length; i++) {
-				cost += increments[i];
-			}
-			return cost;
+		...mapMutations([
+			"INCREASE_MANUAL_SEARCH_AMOUNT",
+			"INCREASE_MANUAL_PITCH_AMOUNT",
+			"INCREASE_WORKER_SEARCH_SPEED",
+			"INCREASE_WORKER_PITCH_SPEED",
+			"DECREASE_SEARCH_RANGE",
+			"DECREASE_PITCH_RANGE",
+			"UPGRADE_INVESTOR_TIER",
+		]),
+		...mapActions(["spendInspiration", "showToast"]),
+		calculateCost(activations, costArray) {
+			return activations < costArray.length ? costArray[activations] : Infinity;
 		},
-		// Method triggered when an upgrade button is clicked
-		triggerAction(actionName, cost) {
-			if (this.playerInspiration >= cost) {
-				this.buttonActivations[actionName]++;
-				this.spendInspiration(cost);
-				console.log(`${actionName} has been triggered.`);
-			} else {
-				console.log(`Not enough inspiration to trigger ${actionName}.`);
+		triggerAction(action, cost) {
+			// Spend inspiration first
+			this.spendInspiration(cost);
+			this.buttonActivations[action]++;
+
+			switch (action) {
+				case "searchesPerClick":
+					this.INCREASE_MANUAL_SEARCH_AMOUNT(1);
+					this.showToast("Manual search amount increased!");
+					break;
+				case "pitchesPerClick":
+					this.INCREASE_MANUAL_PITCH_AMOUNT(1);
+					this.showToast("Manual pitch amount increased!");
+					break;
+				case "workerSearchSpeed":
+					this.INCREASE_WORKER_SEARCH_SPEED(1);
+					this.showToast("Worker search speed increased!");
+					break;
+				case "workerPitchSpeed":
+					this.INCREASE_WORKER_PITCH_SPEED(1);
+					this.showToast("Worker pitch speed increased!");
+					break;
+				case "shortenSearches":
+					this.DECREASE_SEARCH_RANGE();
+					this.showToast("Search time shortened!");
+					break;
+				case "biggerInvestors": {
+					this.UPGRADE_INVESTOR_TIER();
+					const tierNames = ["Small", "Medium", "Large", "Very Large", "Whale"];
+					const newTier = this.$store.state.currentInvestorTier;
+					this.showToast(`Unlocked ${tierNames[newTier - 1]} Investors!`);
+					break;
+				}
+				case "betterPitches":
+					this.DECREASE_PITCH_RANGE();
+					this.showToast("Pitch time shortened!");
+					break;
+				// Add other cases as needed
 			}
 		},
 	},

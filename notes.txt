@@ -1,13 +1,33 @@
 Ability later to hire in people to sell projects for you automatically?
 
 
+> TO DO NEXT - balance the numbers with the values below, introduce size of investors to pitch, and make the inspiration shop work.
+Then we worry about transition to filming
+
+
+Consider making the department head acquisitions progressively more expensive, starting lower than 5K.
+make sure wage draw always appears- or at least as soon as a dept head is hired.
+
+perhaps give the player a way to upgrade their pitches per click earlier, with money?
+
+let the player increase investor size earlier, way earlier
 
 make the individual objects appear as v chips for all of the resources, perhaps in a dynamic way
 
 
+Fix the issue with the entire state being saved as part of the save file.
 
 
-initial worker cost 100, initial average investment 500, worker cost multiplier 1.05, upgrade multiplier 2.6, 4 upgrades, 100 max workers,  upgrades available ~ 12 workers, 36 workers, 61 workers, 85 workers, 
+
+
+initial worker cost 100, 
+initial average investment 500, 
+worker cost multiplier 1.05, 
+upgrade multiplier 2.6, 
+4 upgrades,
+ 100 max workers,  
+ upgrades available ~ 12 workers, 
+ 36 workers, 61 workers, 85 workers, 
 
 
 I should adjust some values:
