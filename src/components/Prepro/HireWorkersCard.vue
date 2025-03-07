@@ -2,13 +2,16 @@
 	<v-card>
 		<v-col>
 			<v-row>
+				<h3 class="dollar-counter-title">{{ title }} Budget</h3>
+			</v-row>
+			<v-row>
 				<span
 					class="dollar-counter"
 					:class="{ 'zero-balance': preproDollarCount === 0 }"
 				>
 					${{ $formatNumber(preproDollarCount) }}
-				</span></v-row
-			>
+				</span>
+			</v-row>
 			<template v-if="isVisible">
 				<v-row>
 					<span class="payrate-counter">
@@ -99,6 +102,7 @@ export default {
 	},
 	computed: {
 		...mapGetters({
+			title: "scriptTitle",
 			preproDollarCount: "preproDollarCount",
 			employeeCount: "employeeCount",
 			unassignedEmployeeCount: "unassignedEmployeeCount",
@@ -166,6 +170,11 @@ export default {
 	padding-top: 4px;
 	margin: auto;
 	font-size: 2.2em;
+}
+
+.dollar-counter-title {
+	font-size: 1.2em;
+	margin: auto;
 }
 
 .zero-balance {

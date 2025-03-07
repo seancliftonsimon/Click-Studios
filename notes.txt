@@ -5,6 +5,10 @@ Ability later to hire in people to sell projects for you automatically?
 Then we worry about transition to filming
 
 
+Fix the 1-2 becoming 1-3 instead of 2-3 in the insipriation shop after upgrade
+make sure looks column isn't bumped to second row
+
+
 Consider making the department head acquisitions progressively more expensive, starting lower than 5K.
 make sure wage draw always appears- or at least as soon as a dept head is hired.
 

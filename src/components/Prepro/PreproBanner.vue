@@ -3,9 +3,11 @@
 		<v-container fluid class="px-8">
 			<v-row>
 				<v-col cols="12">
-					<h3>{{ title }} Preproduction Progress</h3>
-					<v-row justify="space-between" align="center" class="py-2">
+					<v-row justify="space-between" align="start">
 						<v-col>
+							<div class="w-100 d-flex justify-center align-start">
+								<CastingBarStack class="px-0" @roleCast="handleRoleCast" />
+							</div>
 							<div class="counter-wrapper">
 								<v-chip color="red-darken-2"
 									>{{ completeRolesCount }}/{{ actorGoal }}</v-chip
@@ -34,9 +36,14 @@
 									{{ role.name }}
 								</v-chip>
 							</div>
-							<CastingBarStack class="mt-4" @roleCast="handleRoleCast" />
 						</v-col>
 						<v-col>
+							<div class="w-100 d-flex justify-center align-start">
+								<ShotPlanningBarStack
+									class="px-0"
+									@shotPlanned="handleShotPlanned"
+								/>
+							</div>
 							<div class="counter-wrapper">
 								<v-chip color="orange-darken-2"
 									>{{ completeShotsCount }}/{{ shotGoal }}</v-chip
@@ -58,12 +65,11 @@
 									{{ shot.name }}
 								</v-chip>
 							</div>
-							<ShotPlanningBarStack
-								class="mt-4"
-								@shotPlanned="handleShotPlanned"
-							/>
 						</v-col>
 						<v-col>
+							<div class="w-100 d-flex justify-center align-start">
+								<SetBuildingBarStack class="px-0" @setBuilt="handleSetBuilt" />
+							</div>
 							<div class="counter-wrapper">
 								<v-chip color="grey-darken-4"
 									>{{ builtSetsCount }}/{{ setGoal }}</v-chip
@@ -85,9 +91,14 @@
 									{{ set.name }}
 								</v-chip>
 							</div>
-							<SetBuildingBarStack class="mt-4" @setBuilt="handleSetBuilt" />
 						</v-col>
 						<v-col>
+							<div class="w-100 d-flex justify-center align-start">
+								<LocationScoutingBarStack
+								class="px-0"
+									@locationScouted="handleLocationScouted"
+								/>
+							</div>
 							<div class="counter-wrapper">
 								<v-chip color="green-darken-2"
 									>{{ scoutedLocationsCount }}/{{ locationGoal }}</v-chip
@@ -109,12 +120,14 @@
 									{{ location.name }}
 								</v-chip>
 							</div>
-							<LocationScoutingBarStack
-								class="mt-4"
-								@locationScouted="handleLocationScouted"
-							/>
 						</v-col>
 						<v-col>
+							<div class="w-100 d-flex justify-center align-start">
+								<CostumeMakingBarStack
+									class="px-0"
+									@costumeMade="handleCostumeMade"
+								/>
+							</div>
 							<div class="counter-wrapper">
 								<v-chip color="blue-darken-2"
 									>{{ madeCostumesCount }}/{{ costumeGoal }}</v-chip
@@ -136,12 +149,14 @@
 									{{ costume.name }} ({{ costume.role }})
 								</v-chip>
 							</div>
-							<CostumeMakingBarStack
-								class="mt-4"
-								@costumeMade="handleCostumeMade"
-							/>
 						</v-col>
 						<v-col>
+							<div class="w-100 d-flex justify-center align-start">
+								<LookDesigningBarStack
+									class="px-0"
+									@lookDesigned="handleLookDesigned"
+								/>
+							</div>
 							<div class="counter-wrapper">
 								<v-chip color="indigo-darken-2"
 									>{{ styledLooksCount }}/{{ lookGoal }}</v-chip
@@ -163,10 +178,6 @@
 									{{ look.name }} ({{ look.role }})
 								</v-chip>
 							</div>
-							<LookDesigningBarStack
-								class="mt-4"
-								@lookDesigned="handleLookDesigned"
-							/>
 						</v-col>
 					</v-row>
 				</v-col>
@@ -238,7 +249,6 @@ export default {
 	},
 	computed: {
 		...mapGetters({
-			title: "scriptTitle",
 			actorGoal: "actorGoal",
 			completeRolesCount: "completeRolesCount",
 			shotGoal: "shotGoal",
