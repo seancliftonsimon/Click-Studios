@@ -2,9 +2,9 @@
 	<v-card>
 		<v-container fluid class="px-8">
 			<v-row>
-				<v-col cols="12">
+				<v-col class="py-0" cols="12">
 					<v-row justify="space-between" align="start">
-						<v-col>
+						<v-col class="py-0">
 							<div class="w-100 d-flex justify-center align-start">
 								<CastingBarStack class="px-0" @roleCast="handleRoleCast" />
 							</div>
@@ -37,7 +37,7 @@
 								</v-chip>
 							</div>
 						</v-col>
-						<v-col>
+						<v-col class="py-0">
 							<div class="w-100 d-flex justify-center align-start">
 								<ShotPlanningBarStack
 									class="px-0"
@@ -66,7 +66,7 @@
 								</v-chip>
 							</div>
 						</v-col>
-						<v-col>
+						<v-col class="py-0">
 							<div class="w-100 d-flex justify-center align-start">
 								<SetBuildingBarStack class="px-0" @setBuilt="handleSetBuilt" />
 							</div>
@@ -92,10 +92,10 @@
 								</v-chip>
 							</div>
 						</v-col>
-						<v-col>
+						<v-col class="py-0">
 							<div class="w-100 d-flex justify-center align-start">
 								<LocationScoutingBarStack
-								class="px-0"
+									class="px-0"
 									@locationScouted="handleLocationScouted"
 								/>
 							</div>
@@ -121,7 +121,7 @@
 								</v-chip>
 							</div>
 						</v-col>
-						<v-col>
+						<v-col class="py-0">
 							<div class="w-100 d-flex justify-center align-start">
 								<CostumeMakingBarStack
 									class="px-0"
@@ -150,7 +150,7 @@
 								</v-chip>
 							</div>
 						</v-col>
-						<v-col>
+						<v-col class="py-0">
 							<div class="w-100 d-flex justify-center align-start">
 								<LookDesigningBarStack
 									class="px-0"
@@ -182,7 +182,7 @@
 					</v-row>
 				</v-col>
 				<!-- Progress bar column commented out
-				<v-col cols="1" class="d-flex align-center justify-center">
+				<v-col class="py-0" cols="1" class="d-flex align-center justify-center">
 					<v-progress-circular
 						:model-value="totalProgress"
 						:size="70"
@@ -227,22 +227,6 @@ export default {
 				this.$nextTick(() => {
 					this.showActorSparkle = newVal;
 				});
-			},
-			immediate: true,
-		},
-		totalProgress: {
-			handler(newVal) {
-				if (newVal === 100) {
-					// All preproduction tasks are complete, unlock filming phase
-					this.$store.commit("UPDATE_STATE_VARIABLE", {
-						key: "isFilmingUnlocked",
-						value: true,
-					});
-					// Show a popup to notify the player
-					this.$store.dispatch("popupManager/showPopup", {
-						id: "achievement_filmingUnlocked",
-					});
-				}
 			},
 			immediate: true,
 		},

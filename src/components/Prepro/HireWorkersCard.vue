@@ -12,12 +12,12 @@
 					${{ $formatNumber(preproDollarCount) }}
 				</span>
 			</v-row>
+			<v-row>
+				<span class="payrate-counter">
+					-${{ preproDollarCount === 0 ? 0 : totalPayrate }}/s</span
+				>
+			</v-row>
 			<template v-if="isVisible">
-				<v-row>
-					<span class="payrate-counter">
-						-${{ preproDollarCount === 0 ? 0 : totalPayrate }}/s</span
-					>
-				</v-row>
 				<v-divider />
 				<v-row class="my-3 employee-assignments">
 					<div class="progress-container">
@@ -204,7 +204,7 @@ export default {
 /* Override progress bar colors with more specific selectors */
 :deep(.employee-progress .v-progress-linear__determinate) {
 	background-color: v-bind(
-		'preproDollarCount === 0 ? "#FF5252" : "#FFCC80"'
+		'preproDollarCount === 0 ? "#FF5252" : assignedEmployeeCount === employeeCount && employeeCount > 0 ? "#81C784" : "#FFCC80"'
 	) !important;
 }
 

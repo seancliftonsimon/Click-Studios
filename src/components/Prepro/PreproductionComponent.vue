@@ -7,12 +7,53 @@
 				<PitchingComponent v-if="componentVisibility.pitchingComponent" />
 				<v-card v-else class="center-content"><br /><br /></v-card>
 			</v-col>
-			<v-col cols="3">
-				<HireWorkersCard />
-			</v-col>
-			<v-col cols="6">
-				<InspirationShop v-if="componentVisibility.inspirationShop" />
-				<v-card v-else class="center-content"><br /><br /></v-card>
+			<v-col cols="9">
+				<!-- Progress bar row -->
+				<v-row>
+					<v-col cols="12">
+						<v-card class="pa-2">
+							<div class="d-flex align-center">
+								<span class="mr-3 font-weight-bold"
+									>Progress:</span
+								>
+								<v-progress-linear
+									:model-value="totalProgress"
+									height="30"
+									color="primary"
+								>
+								</v-progress-linear>
+							</div>
+						</v-card>
+					</v-col>
+				</v-row>
+				<!-- HireWorkersCard and InspirationShop row -->
+				<v-row>
+					<v-col cols="4">
+						<HireWorkersCard />
+						<v-card
+							v-if="currentInvestorTier < 5"
+							class="mt-2 pa-2 elevation-2"
+						>
+							<v-btn
+								block
+								class="upgrade-button py-2"
+								@click="upgradeInvestors"
+								:disabled="preproDollarCount < investorUpgradeCost"
+							>
+								<v-col>
+									<div class="button-text">Upgrade Investor Tier</div>
+									<div class="button-cost">
+										${{ investorUpgradeCost.toLocaleString() }}
+									</div>
+								</v-col>
+							</v-btn>
+						</v-card>
+					</v-col>
+					<v-col cols="8">
+						<InspirationShop v-if="componentVisibility.inspirationShop" />
+						<v-card v-else class="center-content"><br /><br /></v-card>
+					</v-col>
+				</v-row>
 			</v-col>
 		</v-row>
 		<!-- Second row with PreproBanner -->
@@ -33,7 +74,7 @@
 	</v-container>
 </template>
 <script>
-import { mapGetters, mapActions, mapState } from "vuex";
+import { mapGetters, mapActions, mapState, mapMutations } from "vuex";
 import PitchingComponent from "./PitchingComponent.vue";
 import InspirationShop from "./InspirationShop.vue";
 import HireWorkersCard from "./HireWorkersCard.vue";
@@ -59,11 +100,48 @@ export default {
 			inspiration: "inspiration",
 			scriptTitle: "scriptTitle",
 			scriptGenre: "scriptGenre",
+			actorGoal: "actorGoal",
+			completeRolesCount: "completeRolesCount",
+			shotGoal: "shotGoal",
+			completeShotsCount: "completeShotsCount",
+			setGoal: "setGoal",
+			builtSetsCount: "builtSetsCount",
+			locationGoal: "locationGoal",
+			scoutedLocationsCount: "scoutedLocationsCount",
+			costumeGoal: "costumeGoal",
+			madeCostumesCount: "madeCostumesCount",
+			lookGoal: "lookGoal",
+			styledLooksCount: "styledLooksCount",
 		}),
 		...mapState({
 			componentVisibility: (state) => state.componentVisibility,
 			milestones: (state) => state.milestones,
+			currentInvestorTier: (state) => state.currentInvestorTier,
 		}),
+		investorUpgradeCost() {
+			// Return the cost for the next tier upgrade based on current tier
+			// Tier 1 is Small, so currentInvestorTier of 1 means we want index 0 for upgrade to Medium
+			return this.$store.state.investorTierUpgradeCosts[
+				this.currentInvestorTier - 1
+			];
+		},
+		totalProgress() {
+			const goalTotal =
+				this.actorGoal +
+				this.shotGoal +
+				this.setGoal +
+				this.locationGoal +
+				this.costumeGoal +
+				this.lookGoal;
+			const completeTotal =
+				this.completeRolesCount +
+				this.completeShotsCount +
+				this.builtSetsCount +
+				this.scoutedLocationsCount +
+				this.madeCostumesCount +
+				this.styledLooksCount;
+			return (completeTotal / goalTotal) * 100;
+		},
 	},
 	methods: {
 		...mapActions([
@@ -74,6 +152,16 @@ export default {
 			"checkInspirationMilestone",
 			"hireDepartmentHead",
 		]),
+		...mapMutations(["UPGRADE_INVESTOR_TIER", "DECREASE_PREPRO_DOLLAR_AMOUNT"]),
+		upgradeInvestors() {
+			if (this.preproDollarCount >= this.investorUpgradeCost) {
+				this.DECREASE_PREPRO_DOLLAR_AMOUNT(this.investorUpgradeCost);
+				this.UPGRADE_INVESTOR_TIER();
+				const tierNames = ["Small", "Medium", "Large", "Very Large", "Whale"];
+				const newTier = this.currentInvestorTier;
+				this.showToast(`Unlocked ${tierNames[newTier - 1]} Investors!`);
+			}
+		},
 		handleRoleCast(role) {
 			this.showToast(`Inspiring! You've cast the role of ${role}.`);
 			this.addInspiration(1);
@@ -168,6 +256,24 @@ export default {
 	created() {
 		this.actorSparkleActive = false;
 	},
+	watch: {
+		totalProgress: {
+			handler(newVal) {
+				if (newVal === 100) {
+					// All preproduction tasks are complete, unlock filming phase
+					this.$store.commit("UPDATE_STATE_VARIABLE", {
+						key: "isFilmingUnlocked",
+						value: true,
+					});
+					// Show a popup to notify the player
+					this.$store.dispatch("popupManager/showPopup", {
+						id: "achievement_filmingUnlocked",
+					});
+				}
+			},
+			immediate: true,
+		},
+	},
 	mounted() {
 		console.log("PreproductionComponent mounted");
 		// Store intervals globally so they can be cleaned up
@@ -212,5 +318,10 @@ export default {
 	justify-content: center; /* Vertically center the content */
 	align-items: center; /* Horizontally center the content */
 	width: 100%; /* Ensure it spans the width of its container */
+}
+.progress-text {
+	color: white;
+	font-weight: bold;
+	text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
 }
 </style>

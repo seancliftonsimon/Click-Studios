@@ -1448,6 +1448,14 @@ const store = createStore({
 			whaleInvestorPayAmount: [11500, 34500], // Average 23000 (2.6x)
 		},
 
+		// Investor tier upgrade costs
+		investorTierUpgradeCosts: [
+			5000, // Small to Medium
+			15000, // Medium to Large
+			50000, // Large to Very Large
+			150000, // Very Large to Whale
+		],
+
 		levelCaps: [
 			0, 100, 600, 1000, 2200, 4700, 10300, 22400, 48600, 105700, 229900,
 			500000,

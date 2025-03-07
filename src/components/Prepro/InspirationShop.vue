@@ -29,7 +29,13 @@
 					:disabled="playerInspiration < costs.searchesPerClick"
 				>
 					<v-col>
-						<div class="button-text">{{ "Searches per click 1 → 3" }}</div>
+						<div class="button-text">
+							{{
+								`Searches per click ${manualSearchAmount} → ${
+									manualSearchAmount + 1
+								}`
+							}}
+						</div>
 						<div class="button-cost">{{ costs.searchesPerClick }} ✨</div>
 					</v-col>
 				</v-btn>
@@ -43,7 +49,13 @@
 					:disabled="playerInspiration < costs.pitchesPerClick"
 				>
 					<v-col>
-						<div class="button-text">{{ "Pitches per click 1 → 3" }}</div>
+						<div class="button-text">
+							{{
+								`Pitches per click ${manualPitchAmount} → ${
+									manualPitchAmount + 1
+								}`
+							}}
+						</div>
 						<div class="button-cost">{{ costs.pitchesPerClick }} ✨</div>
 					</v-col>
 				</v-btn>
@@ -62,20 +74,6 @@
 					<v-col>
 						<div class="button-text">{{ "Shorter Searches" }}</div>
 						<div class="button-cost">{{ costs.shortenSearches }} ✨</div>
-					</v-col>
-				</v-btn>
-			</v-col>
-
-			<!-- Button for attracting bigger investors -->
-			<v-col align="center">
-				<v-btn
-					class="upgrade-button"
-					@click="triggerAction('biggerInvestors', costs.biggerInvestors)"
-					:disabled="playerInspiration < costs.biggerInvestors"
-				>
-					<v-col>
-						<div class="button-text">{{ "Bigger Investors" }}</div>
-						<div class="button-cost">{{ costs.biggerInvestors }} ✨</div>
 					</v-col>
 				</v-btn>
 			</v-col>
@@ -159,7 +157,6 @@ export default {
 				workerSearchSpeed: 0,
 				workerPitchSpeed: 0,
 				shortenSearches: 0,
-				biggerInvestors: 0,
 				betterPitches: 0,
 			},
 		};
@@ -169,6 +166,8 @@ export default {
 		...mapGetters({
 			playerInspiration: "inspiration",
 			unassignedEmployeeCount: "unassignedEmployeeCount",
+			manualSearchAmount: "manualSearchAmount",
+			manualPitchAmount: "manualPitchAmount",
 		}),
 		// Calculate costs for each upgrade based on activations
 		costs() {
@@ -196,10 +195,6 @@ export default {
 					this.buttonActivations.shortenSearches,
 					[8, 14]
 				),
-				biggerInvestors: this.calculateCost(
-					this.buttonActivations.biggerInvestors,
-					[8, 14]
-				),
 				betterPitches: this.calculateCost(
 					this.buttonActivations.betterPitches,
 					[8, 14]
@@ -215,7 +210,6 @@ export default {
 			"INCREASE_WORKER_PITCH_SPEED",
 			"DECREASE_SEARCH_RANGE",
 			"DECREASE_PITCH_RANGE",
-			"UPGRADE_INVESTOR_TIER",
 		]),
 		...mapActions(["spendInspiration", "showToast"]),
 		calculateCost(activations, costArray) {
@@ -247,18 +241,10 @@ export default {
 					this.DECREASE_SEARCH_RANGE();
 					this.showToast("Search time shortened!");
 					break;
-				case "biggerInvestors": {
-					this.UPGRADE_INVESTOR_TIER();
-					const tierNames = ["Small", "Medium", "Large", "Very Large", "Whale"];
-					const newTier = this.$store.state.currentInvestorTier;
-					this.showToast(`Unlocked ${tierNames[newTier - 1]} Investors!`);
-					break;
-				}
 				case "betterPitches":
 					this.DECREASE_PITCH_RANGE();
 					this.showToast("Pitch time shortened!");
 					break;
-				// Add other cases as needed
 			}
 		},
 	},
