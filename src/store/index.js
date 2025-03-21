@@ -43,7 +43,7 @@ const store = createStore({
 
 		// Word Variables
 
-		wordCount: 10000000,
+		wordCount: 0,
 		wordsPerSecond: 0,
 		totalWordCount: 0,
 
@@ -1519,6 +1519,11 @@ const store = createStore({
 
 		// Add current investor tier tracking
 		currentInvestorTier: 1, // 1-5 representing the tiers
+
+		// Auto-feature states
+		autoSearchEnabled: false,
+		autoPitchEnabled: false,
+		autoCollectEnabled: false,
 	},
 	getters: {
 		wordCount: (state) => {
@@ -1710,6 +1715,11 @@ const store = createStore({
 		toastType(state) {
 			return state.toastType;
 		},
+
+		// Auto-feature getters
+		autoSearchEnabled: (state) => state.autoSearchEnabled,
+		autoPitchEnabled: (state) => state.autoPitchEnabled,
+		autoCollectEnabled: (state) => state.autoCollectEnabled,
 	},
 	mutations: {
 		// Mutation to save the state to localStorage
@@ -2164,6 +2174,19 @@ const store = createStore({
 		// Spend inspiration points
 		spendInspiration({ commit }, cost) {
 			commit("DECREASE_INSPIRATION", cost);
+		},
+
+		// Auto-feature mutations
+		TOGGLE_AUTO_SEARCH(state) {
+			state.autoSearchEnabled = !state.autoSearchEnabled;
+		},
+
+		TOGGLE_AUTO_PITCH(state) {
+			state.autoPitchEnabled = !state.autoPitchEnabled;
+		},
+
+		TOGGLE_AUTO_COLLECT(state) {
+			state.autoCollectEnabled = !state.autoCollectEnabled;
 		},
 	},
 	actions: {

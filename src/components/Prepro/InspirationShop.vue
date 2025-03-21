@@ -98,13 +98,15 @@
 			<!-- Button for enabling auto search -->
 			<v-col align="center">
 				<v-btn
-					class="upgrade-button"
-					@click="triggerAction('autoSearch', costs.autoSearch)"
-					:disabled="playerInspiration < costs.autoSearch"
+					:class="['upgrade-button', { 'enabled-button': autoSearchEnabled }]"
+					@click="triggerAction('autoSearch', 2)"
+					:disabled="playerInspiration < 2 || autoSearchEnabled"
 				>
 					<v-col>
-						<div class="button-text">{{ "Auto Search" }}</div>
-						<div class="button-cost">{{ costs.autoSearch }} ✨</div>
+						<div class="button-text">
+							{{ autoSearchEnabled ? "Auto Search Enabled ✓" : "Auto Search" }}
+						</div>
+						<div class="button-cost" v-if="!autoSearchEnabled">2 ✨</div>
 					</v-col>
 				</v-btn>
 			</v-col>
@@ -112,13 +114,15 @@
 			<!-- Button for enabling auto pitch -->
 			<v-col align="center">
 				<v-btn
-					class="upgrade-button"
-					@click="triggerAction('autoPitch', costs.autoPitch)"
-					:disabled="playerInspiration < costs.autoPitch"
+					:class="['upgrade-button', { 'enabled-button': autoPitchEnabled }]"
+					@click="triggerAction('autoPitch', 2)"
+					:disabled="playerInspiration < 2 || autoPitchEnabled"
 				>
 					<v-col>
-						<div class="button-text">{{ "Auto Pitch" }}</div>
-						<div class="button-cost">{{ costs.autoPitch }} ✨</div>
+						<div class="button-text">
+							{{ autoPitchEnabled ? "Auto Pitch Enabled ✓" : "Auto Pitch" }}
+						</div>
+						<div class="button-cost" v-if="!autoPitchEnabled">2 ✨</div>
 					</v-col>
 				</v-btn>
 			</v-col>
@@ -126,13 +130,17 @@
 			<!-- Button for enabling auto collect -->
 			<v-col align="center">
 				<v-btn
-					class="upgrade-button"
-					@click="triggerAction('autoCollect', costs.autoCollect)"
-					:disabled="playerInspiration < costs.autoCollect"
+					:class="['upgrade-button', { 'enabled-button': autoCollectEnabled }]"
+					@click="triggerAction('autoCollect', 2)"
+					:disabled="playerInspiration < 2 || autoCollectEnabled"
 				>
 					<v-col>
-						<div class="button-text">{{ "Auto Collect" }}</div>
-						<div class="button-cost">{{ costs.autoCollect }} ✨</div>
+						<div class="button-text">
+							{{
+								autoCollectEnabled ? "Auto Collect Enabled ✓" : "Auto Collect"
+							}}
+						</div>
+						<div class="button-cost" v-if="!autoCollectEnabled">2 ✨</div>
 					</v-col>
 				</v-btn>
 			</v-col>
@@ -149,9 +157,6 @@ export default {
 		return {
 			// Track button activations for upgrades
 			buttonActivations: {
-				autoSearch: 0,
-				autoPitch: 0,
-				autoCollect: 0,
 				searchesPerClick: 0,
 				pitchesPerClick: 0,
 				workerSearchSpeed: 0,
@@ -168,13 +173,13 @@ export default {
 			unassignedEmployeeCount: "unassignedEmployeeCount",
 			manualSearchAmount: "manualSearchAmount",
 			manualPitchAmount: "manualPitchAmount",
+			autoSearchEnabled: "autoSearchEnabled",
+			autoPitchEnabled: "autoPitchEnabled",
+			autoCollectEnabled: "autoCollectEnabled",
 		}),
 		// Calculate costs for each upgrade based on activations
 		costs() {
 			return {
-				autoSearch: this.buttonActivations.autoSearch * 2 + 10,
-				autoPitch: this.buttonActivations.autoPitch * 2 + 10,
-				autoCollect: this.buttonActivations.autoCollect * 2 + 10,
 				searchesPerClick: this.calculateCost(
 					this.buttonActivations.searchesPerClick,
 					[1, 2, 4, 6, 8]
@@ -210,6 +215,9 @@ export default {
 			"INCREASE_WORKER_PITCH_SPEED",
 			"DECREASE_SEARCH_RANGE",
 			"DECREASE_PITCH_RANGE",
+			"TOGGLE_AUTO_SEARCH",
+			"TOGGLE_AUTO_PITCH",
+			"TOGGLE_AUTO_COLLECT",
 		]),
 		...mapActions(["spendInspiration", "showToast"]),
 		calculateCost(activations, costArray) {
@@ -218,7 +226,11 @@ export default {
 		triggerAction(action, cost) {
 			// Spend inspiration first
 			this.spendInspiration(cost);
-			this.buttonActivations[action]++;
+
+			// Only increment button activations for non-auto features
+			if (!["autoSearch", "autoPitch", "autoCollect"].includes(action)) {
+				this.buttonActivations[action]++;
+			}
 
 			switch (action) {
 				case "searchesPerClick":
@@ -245,6 +257,18 @@ export default {
 					this.DECREASE_PITCH_RANGE();
 					this.showToast("Pitch time shortened!");
 					break;
+				case "autoSearch":
+					this.TOGGLE_AUTO_SEARCH();
+					this.showToast("Auto search enabled!");
+					break;
+				case "autoPitch":
+					this.TOGGLE_AUTO_PITCH();
+					this.showToast("Auto pitch enabled!");
+					break;
+				case "autoCollect":
+					this.TOGGLE_AUTO_COLLECT();
+					this.showToast("Auto collect enabled!");
+					break;
 			}
 		},
 	},
@@ -264,6 +288,17 @@ export default {
 	background-color: #fef7e5;
 }
 
+.enabled-button {
+	background-color: #e0f2e9 !important;
+	color: #2e7d32 !important;
+	border-color: #2e7d32 !important;
+}
+
+.enabled-button .button-text {
+	color: #2e7d32 !important;
+	font-weight: bold;
+}
+
 .button-text,
 .button-cost {
 	width: 100%;
@@ -271,6 +306,6 @@ export default {
 
 .button-text {
 	padding-top: 2px;
-	margin-bottom: 4px; /* Add a bit of space between text and cost if needed */
+	margin-bottom: 4px;
 }
 </style>

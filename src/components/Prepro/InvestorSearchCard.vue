@@ -1,7 +1,18 @@
 <template>
 	<v-card class="text-center pa-3" outlined>
-		<!-- Manual Search Button -->
-		<v-btn color="primary" @click="addSearch"
+		<!-- Show progress bar when auto-searching, button otherwise -->
+		<div v-if="autoSearchEnabled && preproDollarCount > 0" class="mb-4">
+			<div class="text-subtitle-1 mb-1">Auto Searching...</div>
+			<v-progress-linear
+				:model-value="searchActionProgress"
+				height="36"
+				color="primary"
+				rounded
+			>
+				<template v-slot:default>Searching...</template>
+			</v-progress-linear>
+		</div>
+		<v-btn v-else color="primary" @click="addSearch"
 			>Search x{{ manualSearchAmount }}</v-btn
 		>
 		<!-- Text: Finding Investors... -->
@@ -27,6 +38,8 @@ export default {
 	data() {
 		return {
 			searchCount: 0,
+			searchActionProgress: 0,
+			progressInterval: null,
 		};
 	},
 	computed: {
@@ -36,6 +49,7 @@ export default {
 			searcherCount: "searcherCount",
 			searcherSpeed: "searcherSpeed",
 			preproDollarCount: "preproDollarCount",
+			autoSearchEnabled: "autoSearchEnabled",
 		}),
 		searchesNeeded() {
 			return (
@@ -54,6 +68,42 @@ export default {
 			if (this.preproDollarCount > 0 && this.searcherCount > 0) {
 				this.searchCount += this.searchesPerSecond;
 			}
+
+			// If auto-search is enabled and we have enough preproduction dollars,
+			// start the progress bar if not already running
+			if (
+				this.autoSearchEnabled &&
+				this.preproDollarCount > 0 &&
+				!this.progressInterval
+			) {
+				this.startAutoSearch();
+			} else if (
+				(!this.autoSearchEnabled || this.preproDollarCount <= 0) &&
+				this.progressInterval
+			) {
+				this.stopAutoSearch();
+			}
+		},
+		startAutoSearch() {
+			// Add initial delay before starting progress
+			setTimeout(() => {
+				this.searchActionProgress = 0;
+				// Update progress every 50ms (20 updates over 1000ms)
+				this.progressInterval = setInterval(() => {
+					this.searchActionProgress += 5; // 5% increment
+					if (this.searchActionProgress >= 100) {
+						this.searchActionProgress = 0; // Reset for next cycle
+						this.addSearch();
+					}
+				}, 50);
+			}, 100); // Wait 100ms before starting progress
+		},
+		stopAutoSearch() {
+			if (this.progressInterval) {
+				clearInterval(this.progressInterval);
+				this.progressInterval = null;
+			}
+			this.searchActionProgress = 0;
 		},
 		addSearch() {
 			this.searchCount += this.manualSearchAmount;
@@ -65,9 +115,9 @@ export default {
 	watch: {
 		searchCount(newValue) {
 			if (newValue >= this.searchesNeeded) {
+				this.stopAutoSearch();
 				this.$emit("nextCard");
 				this.resetSearchCount();
-				console.log("Search Target Met!");
 			}
 		},
 	},
@@ -76,8 +126,9 @@ export default {
 		this.intervalId = setInterval(this.updateProgress, 1000);
 	},
 	beforeUnmount() {
-		// Clear the interval when the component is about to unmount
+		// Clear all intervals when component unmounts
 		clearInterval(this.intervalId);
+		this.stopAutoSearch();
 	},
 };
 </script>
