@@ -2171,11 +2171,6 @@ const store = createStore({
 			state.ranges.searchAmount = [lowerBound, upperBound];
 		},
 
-		// Spend inspiration points
-		spendInspiration({ commit }, cost) {
-			commit("DECREASE_INSPIRATION", cost);
-		},
-
 		// Auto-feature mutations
 		TOGGLE_AUTO_SEARCH(state) {
 			state.autoSearchEnabled = !state.autoSearchEnabled;

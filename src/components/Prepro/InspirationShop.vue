@@ -224,7 +224,7 @@ export default {
 			return activations < costArray.length ? costArray[activations] : Infinity;
 		},
 		triggerAction(action, cost) {
-			// Spend inspiration first
+			if (this.playerInspiration < cost) return;
 			this.spendInspiration(cost);
 
 			// Only increment button activations for non-auto features
