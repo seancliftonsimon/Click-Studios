@@ -1,4 +1,8 @@
 <template>
+	<div class="current-shot-banner">
+		<span v-if="currentShot">Now filming: {{ currentShot.name }}</span>
+		<span v-else>All planned shots have been filmed.</span>
+	</div>
 	<v-row class="side-by-side">
 		<div
 			class="image-container"
@@ -65,9 +69,19 @@
 		</v-col>
 	</v-row>
 	<div class="text-center">
-		<v-btn @click="evaluateAndWrapShot" color="primary">
+		<v-btn
+			@click="evaluateAndWrapShot"
+			color="primary"
+			:disabled="!currentShot || isComplete"
+		>
 			<span style="font-size: 2em">📣</span> <span>Action!</span>
 		</v-btn>
+
+		<div v-if="isComplete" class="mt-4 feedback-box">
+			<div class="shot-score score-excellent">
+				Principal photography is wrapped.
+			</div>
+		</div>
 
 		<div v-if="lastShotFeedback.length > 0" class="mt-4 feedback-box">
 			<div class="shot-score" :class="lastShotScoreClass">
@@ -86,6 +100,17 @@
 
 <script>
 export default {
+	props: {
+		currentShot: {
+			type: Object,
+			default: null,
+		},
+		isComplete: {
+			type: Boolean,
+			default: false,
+		},
+	},
+	emits: ["shot-wrapped"],
 	data() {
 		return {
 			// Image list and index
@@ -378,6 +403,10 @@ export default {
 	},
 	methods: {
 		evaluateAndWrapShot() {
+			if (!this.currentShot || this.isComplete) {
+				return;
+			}
+
 			const quality = this.currentShotQuality;
 			this.lastShotScore = quality.score;
 			this.lastShotFeedback = quality.feedback;
@@ -386,6 +415,12 @@ export default {
 			if (quality.feedback.length === 0) {
 				this.lastShotFeedback = ["Perfect shot! Everything is just right!"];
 			}
+
+			this.$emit("shot-wrapped", {
+				shot: this.currentShot,
+				score: quality.score,
+				feedback: quality.feedback,
+			});
 
 			// Move to next shot
 			this.showRandomImage();
@@ -427,6 +462,13 @@ export default {
 </script>
 
 <style scoped>
+.current-shot-banner {
+	font-size: 1.1rem;
+	font-weight: 600;
+	margin-bottom: 12px;
+	text-align: center;
+}
+
 .image-container img {
 	display: block;
 	margin: 0 auto;

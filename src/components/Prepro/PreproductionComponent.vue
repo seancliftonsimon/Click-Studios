@@ -259,7 +259,7 @@ export default {
 	watch: {
 		totalProgress: {
 			handler(newVal) {
-				if (newVal === 100) {
+				if (newVal === 100 && !this.$store.state.isFilmingUnlocked) {
 					// All preproduction tasks are complete, unlock filming phase
 					this.$store.commit("UPDATE_STATE_VARIABLE", {
 						key: "isFilmingUnlocked",

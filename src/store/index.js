@@ -443,6 +443,8 @@ const store = createStore({
 			looks: [],
 		},
 
+		currentDevelopmentEndpointReached: false,
+
 		// Dialog Box
 		activeDialog: null,
 		showDialog: false,
@@ -1574,6 +1576,53 @@ const store = createStore({
 		scriptTitle: (state) => state.currentScript.title,
 		scriptGenre: (state) => state.currentScript.genre,
 
+		filmingShots: (state) => {
+			const shots = state.currentScript?.shots || [];
+			const currentIndex = shots.findIndex((shot) => !shot.isFilmed);
+
+			return shots.map((shot, index) => {
+				let status = "pending";
+				if (shot.isFilmed) {
+					status = "completed";
+				} else if (index === currentIndex) {
+					status = "current";
+				}
+
+				return {
+					...shot,
+					id: index + 1,
+					status,
+					score: shot.shotScore,
+				};
+			});
+		},
+		filmingShotGoal: (state) => state.currentScript?.shots?.length || 0,
+		filmedShotsCount: (state) =>
+			(state.currentScript?.shots || []).filter((shot) => shot.isFilmed)
+				.length,
+		currentFilmingShotIndex: (state) =>
+			(state.currentScript?.shots || []).findIndex((shot) => !shot.isFilmed),
+		currentFilmingShot: (state, getters) => {
+			const index = getters.currentFilmingShotIndex;
+			return index >= 0 ? state.currentScript.shots[index] : null;
+		},
+		averageFilmingScore: (state) => {
+			const filmedShots = (state.currentScript?.shots || []).filter(
+				(shot) => shot.isFilmed
+			);
+			if (!filmedShots.length) {
+				return 0;
+			}
+
+			const totalScore = filmedShots.reduce(
+				(total, shot) => total + (shot.shotScore || 0),
+				0
+			);
+			return Math.round(totalScore / filmedShots.length);
+		},
+		currentDevelopmentEndpointReached: (state) =>
+			state.currentDevelopmentEndpointReached,
+
 		// Roles
 		totalRoles(state) {
 			// Check if currentScript and its roles array exist, then return its length
@@ -2034,6 +2083,22 @@ const store = createStore({
 				state.currentScript.shots[shotIndex].isPlanned = true;
 			}
 		},
+		SET_SHOT_FILMED(state, { shotIndex, score }) {
+			if (state.currentScript.shots[shotIndex]) {
+				state.currentScript.shots[shotIndex].isFilmed = true;
+				state.currentScript.shots[shotIndex].shotScore = score;
+			}
+		},
+		RESET_FILMING_PROGRESS(state) {
+			(state.currentScript.shots || []).forEach((shot) => {
+				shot.isFilmed = false;
+				shot.shotScore = null;
+			});
+			state.currentDevelopmentEndpointReached = false;
+		},
+		SET_DEVELOPMENT_ENDPOINT_REACHED(state, value) {
+			state.currentDevelopmentEndpointReached = value;
+		},
 		SET_LOCATION_SCOUTED(state, { locationIndex }) {
 			if (state.currentScript.locations[locationIndex]) {
 				state.currentScript.locations[locationIndex].isScouted = true;
@@ -2188,6 +2253,35 @@ const store = createStore({
 		addInspiration({ commit }, amount) {
 			commit("INCREASE_INSPIRATION", amount);
 			// The milestone check is handled in the INCREASE_INSPIRATION mutation
+		},
+
+		wrapCurrentShot({ commit, getters, dispatch }, score) {
+			const shotIndex = getters.currentFilmingShotIndex;
+			if (shotIndex < 0) {
+				dispatch("showDevelopmentEndpoint");
+				return;
+			}
+
+			commit("SET_SHOT_FILMED", { shotIndex, score });
+
+			if (getters.filmedShotsCount >= getters.filmingShotGoal) {
+				dispatch("showDevelopmentEndpoint");
+			}
+		},
+
+		showDevelopmentEndpoint({ state, commit, dispatch }, { force = false } = {}) {
+			if (!force && state.currentDevelopmentEndpointReached) {
+				return;
+			}
+
+			commit("SET_DEVELOPMENT_ENDPOINT_REACHED", true);
+			dispatch(
+				"popupManager/showPopup",
+				{
+					id: "game_developmentComplete",
+				},
+				{ root: true }
+			);
 		},
 
 		increaseWordCount({ state, commit, dispatch, getters }) {
@@ -2747,6 +2841,8 @@ const store = createStore({
 				shots.push({
 					name: possibleShots[randomIndex],
 					isPlanned: false,
+					isFilmed: false,
+					shotScore: null,
 				});
 			}
 

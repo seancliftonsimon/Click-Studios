@@ -1,4 +1,5 @@
 import { createRouter, createWebHashHistory } from "vue-router";
+import store from "@/store";
 
 //importing the components for each main phase
 import WritingComponent from "@/components/Writing/WritingComponent.vue";
@@ -20,26 +21,40 @@ const routes = [
 		path: "/preproduction",
 		name: "preproduction",
 		component: PreproductionComponent,
+		meta: { unlockGetter: "isPreproductionUnlocked" },
 	},
 	{
 		path: "/filming",
 		name: "filming",
 		component: FilmingComponent,
+		meta: { unlockGetter: "isFilmingUnlocked" },
 	},
 	{
 		path: "/postproduction",
 		name: "postproduction",
 		component: PostproductionComponent,
+		meta: {
+			unlockGetter: "isPostproductionUnlocked",
+			developmentEndpoint: true,
+		},
 	},
 	{
 		path: "/marketing",
 		name: "marketing",
 		component: MarketingComponent,
+		meta: {
+			unlockGetter: "isMarketingUnlocked",
+			developmentEndpoint: true,
+		},
 	},
 	{
 		path: "/release",
 		name: "release",
 		component: ReleaseComponent,
+		meta: {
+			unlockGetter: "isReleaseUnlocked",
+			developmentEndpoint: true,
+		},
 	},
 	{
 		path: "/popup-tester",
@@ -62,6 +77,21 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
 	// Log the navigation attempt
 	console.log(`Navigating from ${from.name || "start"} to ${to.name}`);
+
+	if (to.meta.unlockGetter && !store.getters[to.meta.unlockGetter]) {
+		if (to.meta.developmentEndpoint && store.getters.isFilmingUnlocked) {
+			store.dispatch("showDevelopmentEndpoint", { force: true });
+			next({ name: "filming" });
+			return;
+		}
+
+		store.dispatch("showToast", {
+			message: "That phase is still locked.",
+			type: "temporary",
+		});
+		next({ name: "writing" });
+		return;
+	}
 
 	// Clean up any intervals or timers from the previous component
 	if (from.name === "preproduction") {

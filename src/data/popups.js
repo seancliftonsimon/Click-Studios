@@ -257,6 +257,15 @@ export const gamePhasePopups = {
 		buttonText: "Let's Make a Movie!",
 		theme: "achievement",
 	},
+	developmentComplete: {
+		id: "game_developmentComplete",
+		type: "info",
+		title: "End of Current Development",
+		emoji: "🎞️",
+		text: "You've gotten as far as development has gone so far. \n\n The next phase is not implemented yet, but your film has made it through the playable prototype content.",
+		buttonText: "Got it",
+		theme: "achievement",
+	},
 };
 
 // Error Popups
@@ -295,6 +304,7 @@ export const popupKeyMapping = {
 	filmingUnlocked: "achievement_filmingUnlocked",
 	firstShootingScript: "script_firstShootingScript",
 	preproductionUnlocked: "game_preproductionUnlocked",
+	developmentComplete: "game_developmentComplete",
 };
 
 // Registration function to load all popup definitions
