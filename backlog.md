@@ -18,10 +18,8 @@
 ## Next
 
 - Resource accounting hotfixes.
-- State ownership and game rules refactor.
 - Save/load schema cleanup.
-- Timer lifecycle cleanup.
-- Preproduction component deduplication.
+- Continue moving ownership from the core `useGameStore` into focused domain stores.
 
 ## Backlog
 

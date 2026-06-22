@@ -4,7 +4,7 @@ Last updated: 2026-06-22
 
 This file tracks the structural refactors needed to make Click Studios easier to extend into a full production-to-release idle game. Each step has a status, goal, implementation notes, and acceptance checks.
 
-Architecture decision: migrate from the current single Vuex root store to focused Pinia stores. Vuex can remain temporarily as a compatibility layer while each domain moves over, but new refactor work should target Pinia.
+Architecture decision: the app now runs on Pinia. The former Vuex root store has been converted into the core Pinia `useGameStore`, with popup state moved into `usePopupStore` and domain-facing stores in `src/stores/`.
 
 ## Status Key
 
@@ -18,7 +18,7 @@ Architecture decision: migrate from the current single Vuex root store to focuse
 | --- | --- | --- | --- |
 | [x] | 1 | Preproduction correctness | Fix broken inspiration/search/worker upgrade wiring |
 | [ ] | 2 | Save/load | Add a versioned save schema and stop saving static/dev data |
-| [x] | 3 | Pinia state ownership | Install Pinia and add focused domain stores with a Vuex compatibility bridge |
+| [x] | 3 | Pinia state ownership | Remove Vuex and run the app through Pinia stores |
 | [x] | 4 | Preproduction UI | Replace duplicated department bar-stack components with one configurable component |
 | [x] | 5 | Timers | Centralize game-rule ticking for writing workers and preproduction progress |
 | [x] | 6 | Static data | Move preproduction config, balance constants, and investor tiers out of components |
@@ -61,26 +61,26 @@ Status: `[ ]` Not started
 
 ### Goal
 
-Replace full-state serialization with a stable save format that stores only durable player/run state and can hydrate the target Pinia stores.
+Replace full-state serialization with a stable save format that stores only durable player/run state and can hydrate the Pinia stores.
 
 ### Why It Matters
 
-The current `SAVE_STATE` mutation serializes the whole Vuex state. That includes static content pools, popup registries, dev checkpoint data, UI-only state, and any stale fields from previous experiments. As the project grows, this will make saves fragile and harder to migrate. The save schema should be designed around the future Pinia store boundaries instead of the current root Vuex object shape.
+The current `SAVE_STATE` action serializes the whole core Pinia `useGameStore` state. That still includes static content pools, dev checkpoint data, UI-only state, and any stale fields from previous experiments. As the project grows, this will make saves fragile and harder to migrate. The save schema should be designed around durable domain boundaries instead of the current full-store object shape.
 
 ### Implementation Notes
 
 - Introduce `SAVE_VERSION`.
 - Create `createSaveSnapshot(stores)` that returns only durable state from Pinia-owned domains.
 - Create `loadSaveSnapshot(snapshot, stores)` with migration support.
-- Preserve compatibility with current localStorage saves where possible, including old full Vuex snapshots.
-- Add a migration adapter that maps old Vuex fields into the new Pinia save shape.
+- Preserve compatibility with current localStorage saves where possible, including old full Vuex snapshots and current full Pinia snapshots.
+- Add a migration adapter that maps old Vuex/current Pinia fields into the new save shape.
 - Exclude popup registry/history, static pools, dev fixtures, generated build-only data, and transient timers.
 
 ### Acceptance Checks
 
 - `[ ]` New saves include a version number.
 - `[ ]` Loading an old save does not crash.
-- `[ ]` Save/load does not depend on the root Vuex state shape.
+- `[ ]` Save/load does not depend on the old root Vuex state shape or the current full `useGameStore` shape.
 - `[ ]` Each durable Pinia store has a clear serialize/hydrate path or equivalent save adapter.
 - `[ ]` Save payload is meaningfully smaller than current full-state saves.
 - `[ ]` Static content changes do not require wiping player saves.
@@ -94,7 +94,7 @@ Status: `[x]` Complete
 
 ### Goal
 
-Install Pinia and create focused game-domain stores. Active preproduction work now goes through Pinia stores; older writing, popup, and save/load paths remain behind a Vuex compatibility bridge until Step 2 and later screen migrations remove the legacy root store.
+Remove Vuex and run the app through Pinia stores. The former Vuex root store now exists as the core Pinia `useGameStore`; domain stores in `src/stores/` compose that core store and `usePopupStore` while future work continues pushing ownership downward into smaller domain stores.
 
 ### Target Stores
 
@@ -109,13 +109,13 @@ Install Pinia and create focused game-domain stores. Active preproduction work n
 
 ### Migration Strategy
 
-1. Install Pinia and register it in `src/main.js` alongside Vuex.
+1. Install Pinia and register it in `src/main.js`.
 2. Add new stores under `src/stores/`.
 3. Move a low-risk domain first, such as UI state or progression flags.
 4. Move rule-heavy domains next: writing, project, preproduction, then filming.
 5. Replace `mapGetters` / `mapMutations` usage with direct Pinia store calls in migrated components.
-6. Keep a temporary compatibility bridge only where old Vuex callers still exist.
-7. Remove Vuex when no components, routes, or save/load paths depend on it.
+6. Convert the popup module into `usePopupStore`.
+7. Remove Vuex dependencies and dead Vuex modules.
 
 ### Changes Made
 
@@ -123,18 +123,21 @@ Install Pinia and create focused game-domain stores. Active preproduction work n
 - Added domain stores under `src/stores/`: player, writing, project, preproduction, filming, progression, UI, debug, and game clock.
 - Moved the preproduction department workflow through `usePreproductionStore` and `useProjectStore`.
 - Moved the debug checkpoint shortcut into `useDebugStore`.
-- Kept Vuex as a compatibility bridge for older screens and current save/load behavior.
+- Converted the former Vuex root store into Pinia `useGameStore`.
+- Converted the former popup Vuex module into Pinia `usePopupStore`.
+- Removed the `vuex` and `@vue/cli-plugin-vuex` dependencies.
+- Removed the dead Vuex `popupManager` and `progressManager` module files.
 
 ### Acceptance Checks
 
 - `[x]` `pinia` is installed and registered with the Vue app.
 - `[x]` New stores live under `src/stores/` with clear domain ownership.
-- `[x]` No new preproduction features are added directly to the root Vuex store.
+- `[x]` Vuex is removed from runtime dependencies.
 - `[x]` Preproduction department rules no longer live in six component-local implementations.
 - `[x]` Existing user-facing flows still build: writing, preproduction unlock, filming endpoint.
 - `[x]` Migrated cross-domain behavior is expressed through Pinia actions.
-- `[~]` `UPDATE_STATE_VARIABLE` is still used by legacy save/debug/UI paths and should be narrowed during Step 2.
-- `[~]` `vuex` remains required as a compatibility bridge until save/load and older screens are migrated.
+- `[~]` `UPDATE_STATE_VARIABLE` is still used by save/debug/UI paths and should be narrowed during Step 2.
+- `[~]` The core `useGameStore` is still large; later refactors should move more ownership into the domain stores.
 - `[x]` `npm run lint` passes.
 - `[x]` `npm run build` passes.
 
@@ -246,8 +249,8 @@ Move content pools and balancing constants out of mutable store state.
 
 ### Acceptance Checks
 
-- `[~]` Existing Vuex saves still include legacy static pools until Step 2 replaces full-state serialization.
-- `[~]` Script generation still reads legacy pools; this should move with the Step 2 save migration.
+- `[~]` Existing saves still include static pools until Step 2 replaces full-store serialization.
+- `[~]` Script generation still reads pools from the core store; this should move with the Step 2 save migration.
 - `[x]` Migrated Pinia state stores progress/selection data, not source config pools.
 - `[x]` Preproduction balance and department changes can be made without touching player save shape.
 - `[x]` `npm run lint` passes.
@@ -356,6 +359,6 @@ Recommended patterns:
 - Keep one owning store per concept. For example, writing products belong to `useWritingStore`; generated roles and shots belong to `useProjectStore`; unlock rules belong to `useProgressionStore`.
 - Allow cross-store calls when they express real game behavior, such as a writing action creating a project and then asking progression to unlock preproduction.
 - Keep static data outside Pinia state. Stores can import data files, but save files should only contain player/run progress.
-- Treat Vuex as temporary compatibility scaffolding. Once a domain moves to Pinia, new work in that domain should stay in Pinia.
+- Keep pushing ownership out of the core `useGameStore` into smaller domain stores as features expand.
 
-The migration is complete when the app runs with Pinia stores only, save/load hydrates those stores through a versioned schema, and `vuex` can be removed from `package.json`.
+The Vuex migration is complete: the app runs with Pinia stores only and `vuex` has been removed from `package.json`. The next architectural cleanup is Step 2: save/load should hydrate durable Pinia store slices through a versioned schema instead of serializing the full core store.
