@@ -1,0 +1,42 @@
+---
+description: Rules and guidance for developing click studios and implementing gameplay features
+globs: 
+alwaysApply: false
+---
+1. Core Priorities
+Reuse > Rewrite: Extend existing code through parameters/props before creating alternatives
+Minimal Impact: Implement targeted changes, preserve legacy APIs during transitions
+Documented Evolution: Mark deprecated code with @tags, track technical debt with TODOs
+2. Component Architecture
+Self-Contained Units: Manage own lifecycle/state, communicate via typed props/events
+Centralized Logic: Shared helpers for cross-component functions, stores for global state
+Reactive Patterns: Prefer computed properties/watch effects over manual DOM updates
+3. Development Practices
+Implementation Sequence:
+Existing utilities
+Parameterized extensions
+New shared modules
+Component-specific solutions
+Quality Checks:
+No state duplication
+Type-safe boundaries
+Direct event-driven updates
+Legacy compatibility paths
+4. Code Health
+Documentation:
+Self-documenting names first
+Comments for non-obvious patterns
+Version annotations for deprecated features
+Framework Conventions:
+Vuetify layout utilities > custom CSS
+Emit events over callbacks
+Avoid inline styling exceptions
+5. Prohibited Patterns
+Component Anti-Patterns:
+External state dependencies
+Parent-managed child lifecycles
+String type checking
+System Risks:
+Core logic in templates
+Frequent manual DOM manipulation
+Unversioned API breaks
