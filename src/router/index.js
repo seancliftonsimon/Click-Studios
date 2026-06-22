@@ -93,14 +93,6 @@ router.beforeEach((to, from, next) => {
 		return;
 	}
 
-	// Clean up any intervals or timers from the previous component
-	if (from.name === "preproduction") {
-		// Get all intervals and clear them
-		const intervals = window.intervals || [];
-		intervals.forEach(clearInterval);
-		window.intervals = [];
-	}
-
 	next();
 });
 

@@ -39,6 +39,8 @@
 
 <script>
 import { mapState } from "vuex";
+import { useGameClockStore } from "@/stores/gameClockStore";
+import { useWritingStore } from "@/stores/writingStore";
 
 import PurchaseCard from "./PurchaseCard.vue";
 import WorkerCard from "./WorkerCard.vue";
@@ -63,6 +65,11 @@ export default {
 		GenreCard,
 		DollarCounter,
 	},
+	data() {
+		return {
+			unregisterWorkerExpirationTicker: null,
+		};
+	},
 	computed: {
 		...mapState({
 			productCards: (state) => state.products, // This specifically maps `state.cards` from your `productcards` module to `productcards` computed property
@@ -83,20 +90,27 @@ export default {
 				...value,
 			}));
 		},
+		gameClockStore() {
+			return useGameClockStore();
+		},
+		writingStore() {
+			return useWritingStore();
+		},
 	},
 	mounted() {
 		console.log("WritingComponent mounted");
-
-		// Create a global array to store worker timeouts that can be cleared when the component unmounts
-		window.workerTimeouts = window.workerTimeouts || [];
+		this.unregisterWorkerExpirationTicker = this.gameClockStore.registerTicker(
+			"writing:worker-expiration",
+			() => {
+				this.writingStore.expireWorkers();
+			}
+		);
 	},
 	beforeUnmount() {
 		console.log("WritingComponent beforeUnmount");
-
-		// Clean up any remaining worker timeouts
-		if (window.workerTimeouts) {
-			window.workerTimeouts.forEach(clearTimeout);
-			window.workerTimeouts = [];
+		if (this.unregisterWorkerExpirationTicker) {
+			this.unregisterWorkerExpirationTicker();
+			this.unregisterWorkerExpirationTicker = null;
 		}
 	},
 };

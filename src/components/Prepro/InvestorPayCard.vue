@@ -25,16 +25,20 @@
 </template>
 <script>
 import { mapGetters } from "vuex";
+import { useGameClockStore } from "@/stores/gameClockStore";
 
 export default {
 	data() {
 		return {
 			collectProgress: 0,
-			progressInterval: null,
+			unregisterTicker: null,
 		};
 	},
 	computed: {
 		...mapGetters(["currentInvestment", "autoCollectEnabled"]),
+		gameClockStore() {
+			return useGameClockStore();
+		},
 	},
 	methods: {
 		nextCard() {
@@ -46,31 +50,29 @@ export default {
 			console.log(this.currentInvestment);
 			this.$emit("nextCard");
 		},
-		autoCollect() {
-			// If auto-collect is enabled, show progress bar
-			if (this.autoCollectEnabled) {
-				// Add initial delay before starting progress
-				setTimeout(() => {
-					this.collectProgress = 0;
-					// Update progress every 50ms (20 updates over 1000ms)
-					this.progressInterval = setInterval(() => {
-						this.collectProgress += 5; // 5% increment
-						if (this.collectProgress >= 100) {
-							clearInterval(this.progressInterval);
-							this.nextCard();
-						}
-					}, 50);
-				}, 100); // Wait 100ms before starting progress
+		autoCollect(elapsedSeconds = 1) {
+			if (!this.autoCollectEnabled) {
+				this.collectProgress = 0;
+				return;
+			}
+
+			this.collectProgress += elapsedSeconds * 100;
+			if (this.collectProgress >= 100) {
+				this.collectProgress = 0;
+				this.nextCard();
 			}
 		},
 	},
 	mounted() {
-		this.autoCollect();
+		this.unregisterTicker = this.gameClockStore.registerTicker(
+			"investor:collect",
+			this.autoCollect
+		);
 	},
 	beforeUnmount() {
-		// Clear any existing intervals
-		if (this.progressInterval) {
-			clearInterval(this.progressInterval);
+		if (this.unregisterTicker) {
+			this.unregisterTicker();
+			this.unregisterTicker = null;
 		}
 	},
 };

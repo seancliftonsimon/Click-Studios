@@ -19,6 +19,8 @@ import {
 	registerAllPopups,
 } from "../data/popups";
 
+let nextWorkerId = 1;
+
 const store = createStore({
 	modules: {
 		popupManager,
@@ -1526,6 +1528,15 @@ const store = createStore({
 		autoSearchEnabled: false,
 		autoPitchEnabled: false,
 		autoCollectEnabled: false,
+
+		preproUpgradeLevels: {
+			searchesPerClick: 0,
+			pitchesPerClick: 0,
+			workerSearchSpeed: 0,
+			workerPitchSpeed: 0,
+			shortenSearches: 0,
+			betterPitches: 0,
+		},
 	},
 	getters: {
 		wordCount: (state) => {
@@ -1769,6 +1780,15 @@ const store = createStore({
 		autoSearchEnabled: (state) => state.autoSearchEnabled,
 		autoPitchEnabled: (state) => state.autoPitchEnabled,
 		autoCollectEnabled: (state) => state.autoCollectEnabled,
+		preproUpgradeLevels: (state) =>
+			state.preproUpgradeLevels || {
+				searchesPerClick: 0,
+				pitchesPerClick: 0,
+				workerSearchSpeed: 0,
+				workerPitchSpeed: 0,
+				shortenSearches: 0,
+				betterPitches: 0,
+			},
 	},
 	mutations: {
 		// Mutation to save the state to localStorage
@@ -2218,22 +2238,31 @@ const store = createStore({
 
 		// Increase the search speed for workers
 		INCREASE_WORKER_SEARCH_SPEED(state, amount) {
-			state.workerSearchSpeed += amount;
+			state.searcherSpeed += amount;
 		},
 
 		// Increase the pitch speed for workers
 		INCREASE_WORKER_PITCH_SPEED(state, amount) {
-			state.workerPitchSpeed += amount;
+			state.pitcherSpeed += amount;
 		},
 
 		// Decrease the search range to make searching faster
 		DECREASE_SEARCH_RANGE(state) {
 			// Decrease the upper and lower bounds by a percentage (e.g., 10%)
-			const currentRange = state.ranges.searchAmount;
+			const currentRange = state.ranges.investorSearchAmount;
 			const lowerBound = Math.max(5, Math.floor(currentRange[0] * 0.9)); // Don't go below 5
 			const upperBound = Math.max(10, Math.floor(currentRange[1] * 0.9)); // Don't go below 10
 
-			state.ranges.searchAmount = [lowerBound, upperBound];
+			state.ranges.investorSearchAmount = [lowerBound, upperBound];
+		},
+
+		INCREMENT_PREPRO_UPGRADE_LEVEL(state, upgradeKey) {
+			if (!state.preproUpgradeLevels) {
+				state.preproUpgradeLevels = {};
+			}
+
+			state.preproUpgradeLevels[upgradeKey] =
+				(state.preproUpgradeLevels[upgradeKey] || 0) + 1;
 		},
 
 		// Auto-feature mutations
@@ -2645,19 +2674,10 @@ const store = createStore({
 				worker.times = {};
 			}
 
-			// Generate a unique ID for this worker
-			if (!window.nextWorkerId) {
-				window.nextWorkerId = 1;
-			}
-			const id = window.nextWorkerId++;
+			const id = Date.now() + nextWorkerId++;
 
 			// Add worker to state
 			commit("ADD_WORKER", { workerType, id });
-
-			// Initialize worker timeout tracking if not done already
-			if (!window.workerTimeouts) {
-				window.workerTimeouts = [];
-			}
 
 			// Set the exact time this worker was hired
 			const exactHireTime = Date.now();
@@ -2672,34 +2692,6 @@ const store = createStore({
 					(durationMs - animationBufferMs) / 1000
 				}s before removal at exactly ${duration} minutes.`
 			);
-
-			// Set timeout to remove worker at exactly the duration (not duration + buffer)
-			const timeoutId = setTimeout(() => {
-				// Check if worker still exists before removing
-				const workerExists = state.currentWorkers.some(
-					(worker) => worker.id === id
-				);
-				if (workerExists) {
-					const removeTime = Date.now();
-					console.log(
-						`Worker ${name} (ID: ${id}) removed at ${new Date(
-							removeTime
-						).toLocaleTimeString()}, total duration: ${
-							(removeTime - exactHireTime) / 1000
-						} seconds`
-					);
-					commit("REMOVE_WORKER", { workerType, id });
-				}
-
-				// Remove this timeout from the global array
-				const timeoutIndex = window.workerTimeouts.indexOf(timeoutId);
-				if (timeoutIndex > -1) {
-					window.workerTimeouts.splice(timeoutIndex, 1);
-				}
-			}, durationMs); // Remove exactly at duration end (not + buffer)
-
-			// Add the timeout ID to the global array
-			window.workerTimeouts.push(timeoutId);
 
 			// Store timing information for animation
 			commit("UPDATE_WORKER_TIMES", {
@@ -2758,6 +2750,19 @@ const store = createStore({
 				// Show the upgrade popup
 				dispatch("popupManager/showPopup", { id: "writersRoom_upgrade" });
 			}
+		},
+
+		expireWorkers({ commit, state }) {
+			const now = Date.now();
+			state.currentWorkers.forEach(({ workerType, id }) => {
+				const workerTimes = state.workers[workerType]?.times;
+				const expectedRemovalTime = workerTimes?.[id]?.expectedRemovalTime;
+
+				if (expectedRemovalTime && expectedRemovalTime <= now) {
+					commit("REMOVE_WORKER", { workerType, id });
+					delete workerTimes[id];
+				}
+			});
 		},
 
 		upgradeWritersRoom({ commit, state, dispatch }) {

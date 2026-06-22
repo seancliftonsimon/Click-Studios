@@ -74,11 +74,13 @@
 	</v-container>
 </template>
 <script>
-import { mapGetters, mapActions, mapState, mapMutations } from "vuex";
+import { mapGetters, mapActions, mapState } from "vuex";
 import PitchingComponent from "./PitchingComponent.vue";
 import InspirationShop from "./InspirationShop.vue";
 import HireWorkersCard from "./HireWorkersCard.vue";
 import PreproBanner from "./PreproBanner.vue";
+import { useGameClockStore } from "@/stores/gameClockStore";
+import { usePreproductionStore } from "@/stores/preproductionStore";
 
 export default {
 	components: {
@@ -90,6 +92,7 @@ export default {
 	data() {
 		return {
 			actorSparkleActive: false,
+			unregisterWageTicker: null,
 		};
 	},
 	computed: {
@@ -119,11 +122,13 @@ export default {
 			currentInvestorTier: (state) => state.currentInvestorTier,
 		}),
 		investorUpgradeCost() {
-			// Return the cost for the next tier upgrade based on current tier
-			// Tier 1 is Small, so currentInvestorTier of 1 means we want index 0 for upgrade to Medium
-			return this.$store.state.investorTierUpgradeCosts[
-				this.currentInvestorTier - 1
-			];
+			return this.preproductionStore.investorUpgradeCost;
+		},
+		preproductionStore() {
+			return usePreproductionStore();
+		},
+		gameClockStore() {
+			return useGameClockStore();
 		},
 		totalProgress() {
 			const goalTotal =
@@ -152,11 +157,8 @@ export default {
 			"checkInspirationMilestone",
 			"hireDepartmentHead",
 		]),
-		...mapMutations(["UPGRADE_INVESTOR_TIER", "DECREASE_PREPRO_DOLLAR_AMOUNT"]),
 		upgradeInvestors() {
-			if (this.preproDollarCount >= this.investorUpgradeCost) {
-				this.DECREASE_PREPRO_DOLLAR_AMOUNT(this.investorUpgradeCost);
-				this.UPGRADE_INVESTOR_TIER();
+			if (this.preproductionStore.upgradeInvestors()) {
 				const tierNames = ["Small", "Medium", "Large", "Very Large", "Whale"];
 				const newTier = this.currentInvestorTier;
 				this.showToast(`Unlocked ${tierNames[newTier - 1]} Investors!`);
@@ -276,24 +278,21 @@ export default {
 	},
 	mounted() {
 		console.log("PreproductionComponent mounted");
-		// Store intervals globally so they can be cleaned up
-		window.intervals = window.intervals || [];
-
-		// Add wage deduction interval
-		const wageInterval = setInterval(() => {
-			this.$store.dispatch("deductWorkerWages");
-		}, 1000);
-		window.intervals.push(wageInterval);
+		this.unregisterWageTicker = this.gameClockStore.registerTicker(
+			"preproduction:wages",
+			(elapsedSeconds) => {
+				this.preproductionStore.deductWorkerWages(elapsedSeconds);
+			}
+		);
 
 		// Initialize component visibility based on milestones
 		this.initializePreproductionUI();
 	},
 	beforeUnmount() {
 		console.log("PreproductionComponent beforeUnmount");
-		// Clean up any remaining intervals
-		if (window.intervals) {
-			window.intervals.forEach(clearInterval);
-			window.intervals = [];
+		if (this.unregisterWageTicker) {
+			this.unregisterWageTicker();
+			this.unregisterWageTicker = null;
 		}
 	},
 };

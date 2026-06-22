@@ -33,13 +33,15 @@
 
 <script>
 import { mapGetters } from "vuex";
+import { useGameClockStore } from "@/stores/gameClockStore";
 
 export default {
 	data() {
 		return {
 			searchCount: 0,
 			searchActionProgress: 0,
-			progressInterval: null,
+			searchesNeededValue: 0,
+			unregisterTicker: null,
 		};
 	},
 	computed: {
@@ -52,57 +54,40 @@ export default {
 			autoSearchEnabled: "autoSearchEnabled",
 		}),
 		searchesNeeded() {
-			return (
-				Math.floor(
-					Math.random() * (this.searchRange[1] - this.searchRange[0] + 1)
-				) + this.searchRange[0]
-			);
+			return this.searchesNeededValue;
 		},
 		searchesPerSecond() {
 			return this.searcherCount * this.searcherSpeed;
 		},
+		gameClockStore() {
+			return useGameClockStore();
+		},
 	},
 	methods: {
-		updateProgress() {
+		rollSearchesNeeded() {
+			this.searchesNeededValue =
+				Math.floor(
+					Math.random() * (this.searchRange[1] - this.searchRange[0] + 1)
+				) + this.searchRange[0];
+		},
+		updateProgress(elapsedSeconds = 1) {
 			// Only update progress if there are preproduction dollars available
 			if (this.preproDollarCount > 0 && this.searcherCount > 0) {
-				this.searchCount += this.searchesPerSecond;
+				this.searchCount += this.searchesPerSecond * elapsedSeconds;
 			}
 
-			// If auto-search is enabled and we have enough preproduction dollars,
-			// start the progress bar if not already running
-			if (
-				this.autoSearchEnabled &&
-				this.preproDollarCount > 0 &&
-				!this.progressInterval
-			) {
-				this.startAutoSearch();
-			} else if (
-				(!this.autoSearchEnabled || this.preproDollarCount <= 0) &&
-				this.progressInterval
-			) {
+			if (this.autoSearchEnabled && this.preproDollarCount > 0) {
+				this.searchActionProgress += elapsedSeconds * 100;
+
+				while (this.searchActionProgress >= 100) {
+					this.searchActionProgress -= 100;
+					this.addSearch();
+				}
+			} else if (this.searchActionProgress > 0) {
 				this.stopAutoSearch();
 			}
 		},
-		startAutoSearch() {
-			// Add initial delay before starting progress
-			setTimeout(() => {
-				this.searchActionProgress = 0;
-				// Update progress every 50ms (20 updates over 1000ms)
-				this.progressInterval = setInterval(() => {
-					this.searchActionProgress += 5; // 5% increment
-					if (this.searchActionProgress >= 100) {
-						this.searchActionProgress = 0; // Reset for next cycle
-						this.addSearch();
-					}
-				}, 50);
-			}, 100); // Wait 100ms before starting progress
-		},
 		stopAutoSearch() {
-			if (this.progressInterval) {
-				clearInterval(this.progressInterval);
-				this.progressInterval = null;
-			}
 			this.searchActionProgress = 0;
 		},
 		addSearch() {
@@ -110,6 +95,7 @@ export default {
 		},
 		resetSearchCount() {
 			this.searchCount = 0;
+			this.rollSearchesNeeded();
 		},
 	},
 	watch: {
@@ -121,13 +107,20 @@ export default {
 			}
 		},
 	},
+	created() {
+		this.rollSearchesNeeded();
+	},
 	mounted() {
-		// Call updateProgress every second (1000 milliseconds)
-		this.intervalId = setInterval(this.updateProgress, 1000);
+		this.unregisterTicker = this.gameClockStore.registerTicker(
+			"investor:search",
+			this.updateProgress
+		);
 	},
 	beforeUnmount() {
-		// Clear all intervals when component unmounts
-		clearInterval(this.intervalId);
+		if (this.unregisterTicker) {
+			this.unregisterTicker();
+			this.unregisterTicker = null;
+		}
 		this.stopAutoSearch();
 	},
 };

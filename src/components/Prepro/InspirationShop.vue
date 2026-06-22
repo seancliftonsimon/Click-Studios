@@ -153,19 +153,6 @@
 import { mapGetters, mapActions, mapMutations } from "vuex";
 
 export default {
-	data() {
-		return {
-			// Track button activations for upgrades
-			buttonActivations: {
-				searchesPerClick: 0,
-				pitchesPerClick: 0,
-				workerSearchSpeed: 0,
-				workerPitchSpeed: 0,
-				shortenSearches: 0,
-				betterPitches: 0,
-			},
-		};
-	},
 	computed: {
 		// Map Vuex getters to local computed properties
 		...mapGetters({
@@ -176,32 +163,33 @@ export default {
 			autoSearchEnabled: "autoSearchEnabled",
 			autoPitchEnabled: "autoPitchEnabled",
 			autoCollectEnabled: "autoCollectEnabled",
+			preproUpgradeLevels: "preproUpgradeLevels",
 		}),
 		// Calculate costs for each upgrade based on activations
 		costs() {
 			return {
 				searchesPerClick: this.calculateCost(
-					this.buttonActivations.searchesPerClick,
+					this.preproUpgradeLevels.searchesPerClick,
 					[1, 2, 4, 6, 8]
 				),
 				pitchesPerClick: this.calculateCost(
-					this.buttonActivations.pitchesPerClick,
+					this.preproUpgradeLevels.pitchesPerClick,
 					[1, 2, 4, 6, 8]
 				),
 				workerSearchSpeed: this.calculateCost(
-					this.buttonActivations.workerSearchSpeed,
+					this.preproUpgradeLevels.workerSearchSpeed,
 					[3, 7, 10]
 				),
 				workerPitchSpeed: this.calculateCost(
-					this.buttonActivations.workerPitchSpeed,
+					this.preproUpgradeLevels.workerPitchSpeed,
 					[3, 7, 10]
 				),
 				shortenSearches: this.calculateCost(
-					this.buttonActivations.shortenSearches,
+					this.preproUpgradeLevels.shortenSearches,
 					[8, 14]
 				),
 				betterPitches: this.calculateCost(
-					this.buttonActivations.betterPitches,
+					this.preproUpgradeLevels.betterPitches,
 					[8, 14]
 				),
 			};
@@ -218,6 +206,7 @@ export default {
 			"TOGGLE_AUTO_SEARCH",
 			"TOGGLE_AUTO_PITCH",
 			"TOGGLE_AUTO_COLLECT",
+			"INCREMENT_PREPRO_UPGRADE_LEVEL",
 		]),
 		...mapActions(["spendInspiration", "showToast"]),
 		calculateCost(activations, costArray) {
@@ -229,7 +218,7 @@ export default {
 
 			// Only increment button activations for non-auto features
 			if (!["autoSearch", "autoPitch", "autoCollect"].includes(action)) {
-				this.buttonActivations[action]++;
+				this.INCREMENT_PREPRO_UPGRADE_LEVEL(action);
 			}
 
 			switch (action) {

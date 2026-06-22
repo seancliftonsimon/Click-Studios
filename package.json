@@ -11,6 +11,7 @@
 	"dependencies": {
 		"@mdi/font": "^7.4.47",
 		"core-js": "^3.8.3",
+		"pinia": "^2.0.36",
 		"roboto-fontface": "*",
 		"v-snackbars": "^3.2.8",
 		"vue": "^3.2.13",

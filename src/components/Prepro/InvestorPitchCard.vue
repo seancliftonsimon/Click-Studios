@@ -22,11 +22,14 @@
 
 <script>
 import { mapGetters } from "vuex";
+import { useGameClockStore } from "@/stores/gameClockStore";
 
 export default {
 	data() {
 		return {
 			pitchCount: 0,
+			pitchesNeededValue: 0,
+			unregisterTicker: null,
 		};
 	},
 	computed: {
@@ -39,21 +42,26 @@ export default {
 			preproDollarCount: "preproDollarCount",
 		}),
 		pitchesNeeded() {
-			return (
-				Math.floor(
-					Math.random() * (this.pitchRange[1] - this.pitchRange[0] + 1)
-				) + this.pitchRange[0]
-			);
+			return this.pitchesNeededValue;
 		},
 		pitchesPerSecond() {
 			return this.pitcherCount * this.pitcherSpeed;
 		},
+		gameClockStore() {
+			return useGameClockStore();
+		},
 	},
 	methods: {
-		updateProgress() {
+		rollPitchesNeeded() {
+			this.pitchesNeededValue =
+				Math.floor(
+					Math.random() * (this.pitchRange[1] - this.pitchRange[0] + 1)
+				) + this.pitchRange[0];
+		},
+		updateProgress(elapsedSeconds = 1) {
 			// Only update progress if there are preproduction dollars available
 			if (this.preproDollarCount > 0 && this.pitcherCount > 0) {
-				this.pitchCount += this.pitchesPerSecond;
+				this.pitchCount += this.pitchesPerSecond * elapsedSeconds;
 			}
 		},
 		addPitch() {
@@ -61,6 +69,7 @@ export default {
 		},
 		resetPitchCount() {
 			this.pitchCount = 0;
+			this.rollPitchesNeeded();
 		},
 	},
 	watch: {
@@ -72,13 +81,20 @@ export default {
 			}
 		},
 	},
+	created() {
+		this.rollPitchesNeeded();
+	},
 	mounted() {
-		// Call updateProgress every second (1000 milliseconds)
-		this.intervalId = setInterval(this.updateProgress, 1000);
+		this.unregisterTicker = this.gameClockStore.registerTicker(
+			"investor:pitch",
+			this.updateProgress
+		);
 	},
 	beforeUnmount() {
-		// Clear the interval when the component is about to unmount
-		clearInterval(this.intervalId);
+		if (this.unregisterTicker) {
+			this.unregisterTicker();
+			this.unregisterTicker = null;
+		}
 	},
 };
 </script>

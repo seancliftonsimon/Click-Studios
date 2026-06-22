@@ -1,4 +1,5 @@
 import { createApp } from "vue";
+import { createPinia } from "pinia";
 import App from "./App.vue";
 import router from "./router";
 import store from "./store";
@@ -6,10 +7,12 @@ import vuetify from "./plugins/vuetify";
 import { loadFonts } from "./plugins/webfontloader";
 import "./styles/variables.scss";
 import { registerAllPopups } from "./data/popups";
+import { useDebugStore } from "./stores/debugStore";
 
 loadFonts();
 
 const app = createApp(App);
+const pinia = createPinia();
 
 // Define the global method here, before mounting the app
 app.config.globalProperties.$formatNumber = (value) => {
@@ -45,13 +48,12 @@ app.config.warnHandler = function (msg, vm, trace) {
 // Register all popups
 registerAllPopups(store);
 
-app.use(router).use(store).use(vuetify).mount("#app");
+app.use(pinia).use(router).use(store).use(vuetify).mount("#app");
 
 document.addEventListener("keydown", function (event) {
 	// Check if '2' and 'P' are pressed together (key '2' and key 'p')
 	if (event.key === "p") {
 		console.log("Second Phase Unlocked");
-		// Load the secondPhaseSaveState preset
-		localStorage.setItem("gameState", store.state.secondPhaseSaveState); // this isn't working, I need to just call the action in the store itself and let it run there.
+		useDebugStore(pinia).loadSecondPhaseCheckpoint();
 	}
 });
