@@ -34,7 +34,8 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from "vuex";
+import { mapState, mapActions } from "pinia";
+import { useGameStore } from "@/store";
 import ViewFinder from "./ViewFinder.vue";
 import ShotTimeline from "./ShotTimeline.vue";
 
@@ -44,7 +45,7 @@ export default {
 		ShotTimeline,
 	},
 	computed: {
-		...mapGetters([
+		...mapState(useGameStore, [
 			"scriptTitle",
 			"filmingShots",
 			"filmingShotGoal",
@@ -54,7 +55,7 @@ export default {
 		]),
 	},
 	methods: {
-		...mapActions(["wrapCurrentShot", "showDevelopmentEndpoint"]),
+		...mapActions(useGameStore, ["wrapCurrentShot", "showDevelopmentEndpoint"]),
 		wrapShot({ score }) {
 			this.wrapCurrentShot(score);
 		},

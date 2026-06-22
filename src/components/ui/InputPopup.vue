@@ -49,6 +49,8 @@
 </template>
 
 <script>
+import { useGameStore } from "@/store";
+import { usePopupStore } from "@/store/popup";
 import PopupBase from "./PopupBase.vue";
 
 export default {
@@ -208,7 +210,7 @@ export default {
 
 			// Update state variable if inputTarget is provided
 			if (this.inputTarget && this.inputValue) {
-				this.$store.commit("UPDATE_STATE_VARIABLE", {
+				useGameStore().UPDATE_STATE_VARIABLE({
 					key: this.inputTarget,
 					value: this.inputValue,
 				});
@@ -221,7 +223,7 @@ export default {
 
 			// Show the next popup if specified
 			if (this.nextPopupId) {
-				this.$store.dispatch("popupManager/showPopup", {
+				usePopupStore().showPopup({
 					id: this.nextPopupId,
 				});
 			}

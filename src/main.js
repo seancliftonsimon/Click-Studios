@@ -2,7 +2,6 @@ import { createApp } from "vue";
 import { createPinia } from "pinia";
 import App from "./App.vue";
 import router from "./router";
-import store from "./store";
 import vuetify from "./plugins/vuetify";
 import { loadFonts } from "./plugins/webfontloader";
 import "./styles/variables.scss";
@@ -45,10 +44,13 @@ app.config.warnHandler = function (msg, vm, trace) {
 	console.warn("[Vue warn]: " + msg + trace);
 };
 
-// Register all popups
-registerAllPopups(store);
+// Pinia must be active before any store is used (popup registration, router guard)
+app.use(pinia);
 
-app.use(pinia).use(router).use(store).use(vuetify).mount("#app");
+// Register all popups
+registerAllPopups();
+
+app.use(router).use(vuetify).mount("#app");
 
 document.addEventListener("keydown", function (event) {
 	// Check if '2' and 'P' are pressed together (key '2' and key 'p')

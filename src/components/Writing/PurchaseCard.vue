@@ -36,7 +36,8 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapState } from "pinia";
+import { useGameStore } from "@/store";
 
 export default {
 	props: {
@@ -49,7 +50,7 @@ export default {
 	},
 	name: "PurchaseCard",
 	computed: {
-		...mapGetters({
+		...mapState(useGameStore, {
 			getProductCardDetails: "getProductCardDetails",
 			wordCount: "wordCount",
 		}),
@@ -83,7 +84,7 @@ export default {
 	methods: {
 		makeSale(cost, pay) {
 			if (this.canSell) {
-				this.$store.dispatch("sellProduct", {
+				useGameStore().sellProduct({
 					cardType: this.cardType,
 					cost,
 					pay,

@@ -74,7 +74,9 @@
 	</v-container>
 </template>
 <script>
-import { mapGetters, mapActions, mapState } from "vuex";
+import { mapState, mapActions } from "pinia";
+import { useGameStore } from "@/store";
+import { usePopupStore } from "@/store/popup";
 import PitchingComponent from "./PitchingComponent.vue";
 import InspirationShop from "./InspirationShop.vue";
 import HireWorkersCard from "./HireWorkersCard.vue";
@@ -96,7 +98,7 @@ export default {
 		};
 	},
 	computed: {
-		...mapGetters({
+		...mapState(useGameStore, {
 			getProductCardDetails: "getProductCardDetails",
 			wordCount: "wordCount",
 			preproDollarCount: "preproDollarCount",
@@ -116,7 +118,7 @@ export default {
 			lookGoal: "lookGoal",
 			styledLooksCount: "styledLooksCount",
 		}),
-		...mapState({
+		...mapState(useGameStore, {
 			componentVisibility: (state) => state.componentVisibility,
 			milestones: (state) => state.milestones,
 			currentInvestorTier: (state) => state.currentInvestorTier,
@@ -149,7 +151,7 @@ export default {
 		},
 	},
 	methods: {
-		...mapActions([
+		...mapActions(useGameStore, [
 			"spendInspiration",
 			"addInspiration",
 			"showToast",
@@ -208,25 +210,19 @@ export default {
 				// Make the hire workers card visible if it's not already
 				if (!this.componentVisibility.hireWorkersCard) {
 					console.log("Making hireWorkersCard visible");
-					this.$store.commit("TOGGLE_COMPONENT_VISIBILITY", "hireWorkersCard");
+					useGameStore().TOGGLE_COMPONENT_VISIBILITY("hireWorkersCard");
 				}
 
 				// Make the pitching component visible if it's not already
 				if (!this.componentVisibility.pitchingComponent) {
 					console.log("Making pitchingComponent visible");
-					this.$store.commit(
-						"TOGGLE_COMPONENT_VISIBILITY",
-						"pitchingComponent"
-					);
+					useGameStore().TOGGLE_COMPONENT_VISIBILITY("pitchingComponent");
 				}
 
 				// Make the searchers and pitchers card visible if it's not already
 				if (!this.componentVisibility.searchersPitchersCard) {
 					console.log("Making searchersPitchersCard visible");
-					this.$store.commit(
-						"TOGGLE_COMPONENT_VISIBILITY",
-						"searchersPitchersCard"
-					);
+					useGameStore().TOGGLE_COMPONENT_VISIBILITY("searchersPitchersCard");
 				}
 			}
 
@@ -235,7 +231,7 @@ export default {
 				console.log("First inspiration point milestone is achieved");
 				if (!this.componentVisibility.inspirationShop) {
 					console.log("Making inspirationShop visible (without popup)");
-					this.$store.commit("TOGGLE_COMPONENT_VISIBILITY", "inspirationShop");
+					useGameStore().TOGGLE_COMPONENT_VISIBILITY("inspirationShop");
 				}
 			}
 
@@ -245,7 +241,7 @@ export default {
 				!this.componentVisibility.pitchingComponent
 			) {
 				console.log("Making pitchingComponent visible (default)");
-				this.$store.commit("TOGGLE_COMPONENT_VISIBILITY", "pitchingComponent");
+				useGameStore().TOGGLE_COMPONENT_VISIBILITY("pitchingComponent");
 			}
 
 			console.log(
@@ -261,14 +257,14 @@ export default {
 	watch: {
 		totalProgress: {
 			handler(newVal) {
-				if (newVal === 100 && !this.$store.state.isFilmingUnlocked) {
+				if (newVal === 100 && !useGameStore().isFilmingUnlocked) {
 					// All preproduction tasks are complete, unlock filming phase
-					this.$store.commit("UPDATE_STATE_VARIABLE", {
+					useGameStore().UPDATE_STATE_VARIABLE({
 						key: "isFilmingUnlocked",
 						value: true,
 					});
 					// Show a popup to notify the player
-					this.$store.dispatch("popupManager/showPopup", {
+					usePopupStore().showPopup({
 						id: "achievement_filmingUnlocked",
 					});
 				}

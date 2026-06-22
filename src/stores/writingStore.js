@@ -1,39 +1,39 @@
 import { defineStore } from "pinia";
-import legacyStore from "@/store";
+import { useGameStore } from "@/store";
 
 export const useWritingStore = defineStore("writing", {
 	getters: {
 		wordCount() {
-			return legacyStore.state.wordCount;
+			return useGameStore().wordCount;
 		},
 		wordsPerSecond() {
-			return legacyStore.getters.wordsPerSecond;
+			return useGameStore().wordsPerSecond;
 		},
 		products() {
-			return legacyStore.state.products;
+			return useGameStore().products;
 		},
 		workers() {
-			return legacyStore.state.workers;
+			return useGameStore().workers;
 		},
 		currentWriteTool() {
-			return legacyStore.state.currentWriteTool;
+			return useGameStore().currentWriteTool;
 		},
 	},
 	actions: {
 		increaseWordCount(amount) {
-			return legacyStore.dispatch("increaseWordCount", amount);
+			return useGameStore().increaseWordCount(amount);
 		},
 		sellProduct(payload) {
-			return legacyStore.dispatch("sellProduct", payload);
+			return useGameStore().sellProduct(payload);
 		},
 		purchaseTool(payload) {
-			return legacyStore.dispatch("purchaseTool", payload);
+			return useGameStore().purchaseTool(payload);
 		},
 		hireWorker(payload) {
-			return legacyStore.dispatch("hireWorker", payload);
+			return useGameStore().hireWorker(payload);
 		},
 		expireWorkers() {
-			return legacyStore.dispatch("expireWorkers");
+			return useGameStore().expireWorkers();
 		},
 	},
 });

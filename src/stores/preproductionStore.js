@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import legacyStore from "@/store";
+import { useGameStore } from "@/store";
 import {
 	departmentProgressMax,
 	preproductionDepartments,
@@ -16,19 +16,19 @@ export const usePreproductionStore = defineStore("preproduction", {
 	}),
 	getters: {
 		departments() {
-			return legacyStore.state.departments;
+			return useGameStore().departments;
 		},
 		componentVisibility() {
-			return legacyStore.state.componentVisibility;
+			return useGameStore().componentVisibility;
 		},
 		preproDollarCount() {
-			return legacyStore.state.preproDollarCount;
+			return useGameStore().preproDollarCount;
 		},
 		unassignedEmployeeCount() {
-			return legacyStore.state.unassignedEmployeeCount;
+			return useGameStore().unassignedEmployeeCount;
 		},
 		currentInvestorTier() {
-			return legacyStore.state.currentInvestorTier;
+			return useGameStore().currentInvestorTier;
 		},
 		investorUpgradeCost() {
 			return investorTierUpgradeCosts[this.currentInvestorTier - 1] || 0;
@@ -45,14 +45,14 @@ export const usePreproductionStore = defineStore("preproduction", {
 			return this.departments[departmentId]?.employees || 0;
 		},
 		setDepartmentEmployees(departmentId, count) {
-			legacyStore.commit("SET_DEPARTMENT_EMPLOYEES", {
+			useGameStore().SET_DEPARTMENT_EMPLOYEES({
 				department: departmentId,
 				count: Math.max(0, count),
 			});
 		},
 		assignDepartmentEmployee(departmentId) {
 			if (this.unassignedEmployeeCount <= 0) return;
-			legacyStore.commit("ASSIGN_EMPLOYEE", 1);
+			useGameStore().ASSIGN_EMPLOYEE(1);
 			this.setDepartmentEmployees(
 				departmentId,
 				this.departmentEmployees(departmentId) + 1
@@ -60,7 +60,7 @@ export const usePreproductionStore = defineStore("preproduction", {
 		},
 		unassignDepartmentEmployee(departmentId) {
 			if (this.departmentEmployees(departmentId) <= 0) return;
-			legacyStore.commit("UNASSIGN_EMPLOYEE", 1);
+			useGameStore().UNASSIGN_EMPLOYEE(1);
 			this.setDepartmentEmployees(
 				departmentId,
 				this.departmentEmployees(departmentId) - 1
@@ -72,11 +72,11 @@ export const usePreproductionStore = defineStore("preproduction", {
 			}
 		},
 		hireDepartmentHead(departmentId) {
-			legacyStore.dispatch("hireDepartmentHead", {
+			useGameStore().hireDepartmentHead({
 				department: departmentId,
 				cost: preproductionBalance.departmentHeadCost,
 			});
-			legacyStore.commit("HIRE_EMPLOYEE", 1);
+			useGameStore().HIRE_EMPLOYEE(1);
 			this.assignDepartmentEmployee(departmentId);
 		},
 		upgradeInvestors() {
@@ -87,8 +87,8 @@ export const usePreproductionStore = defineStore("preproduction", {
 				return false;
 			}
 
-			legacyStore.commit("DECREASE_PREPRO_DOLLAR_AMOUNT", this.investorUpgradeCost);
-			legacyStore.commit("UPGRADE_INVESTOR_TIER");
+			useGameStore().DECREASE_PREPRO_DOLLAR_AMOUNT(this.investorUpgradeCost);
+			useGameStore().UPGRADE_INVESTOR_TIER();
 			return true;
 		},
 		initializeDepartmentProgress(departmentId, maxValues = departmentProgressMax) {
@@ -141,21 +141,21 @@ export const usePreproductionStore = defineStore("preproduction", {
 				0
 			);
 			const searcherWages =
-				legacyStore.state.searcherCount *
+				useGameStore().searcherCount *
 				preproductionBalance.workerWagePerSecond *
 				elapsedSeconds;
 			const pitcherWages =
-				legacyStore.state.pitcherCount *
+				useGameStore().pitcherCount *
 				preproductionBalance.workerWagePerSecond *
 				elapsedSeconds;
 			const totalWages = Math.floor(departmentWages + searcherWages + pitcherWages);
 
 			if (totalWages > 0) {
-				legacyStore.commit("DEDUCT_WORKER_WAGES", totalWages);
+				useGameStore().DEDUCT_WORKER_WAGES(totalWages);
 			}
 		},
 		addInspiration(amount = 1) {
-			legacyStore.commit("INCREASE_INSPIRATION", amount);
+			useGameStore().INCREASE_INSPIRATION(amount);
 		},
 	},
 });

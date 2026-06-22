@@ -37,11 +37,12 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapState } from "pinia";
+import { useGameStore } from "@/store";
 
 export default {
 	computed: {
-		...mapGetters({
+		...mapState(useGameStore, {
 			currentWorkerAmount: "currentWorkerAmount",
 			nextWritersRoomUpgrade: "nextWritersRoomUpgrade",
 			getWorkerDetails: "getWorkerDetails",
@@ -50,8 +51,8 @@ export default {
 			writersRoomUpgradeVisible: "writersRoomUpgradeVisible",
 		}),
 		workersDisplay() {
-			return this.$store.state.currentWorkers.map((workerEntry) => {
-				const workerDetails = this.$store.state.workers[workerEntry.workerType];
+			return useGameStore().currentWorkers.map((workerEntry) => {
+				const workerDetails = useGameStore().workers[workerEntry.workerType];
 				if (!workerDetails) {
 					console.error(
 						`Details not found for worker type: ${workerEntry.workerType}`
@@ -82,7 +83,7 @@ export default {
 		canAffordUpgrade() {
 			return (
 				this.nextWritersRoomUpgrade &&
-				this.$store.state.writingDollarCount >= this.nextWritersRoomUpgrade.cost
+				useGameStore().writingDollarCount >= this.nextWritersRoomUpgrade.cost
 			);
 		},
 		isVisible() {
@@ -100,7 +101,7 @@ export default {
 			}
 		},
 		upgradeWritersRoomCapacity() {
-			this.$store.dispatch("upgradeWritersRoom");
+			useGameStore().upgradeWritersRoom();
 		},
 	},
 };

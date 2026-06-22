@@ -1,30 +1,30 @@
 import { defineStore } from "pinia";
-import legacyStore from "@/store";
+import { useGameStore } from "@/store";
 
 export const useFilmingStore = defineStore("filming", {
 	getters: {
 		filmingShots() {
-			return legacyStore.getters.filmingShots;
+			return useGameStore().filmingShots;
 		},
 		currentFilmingShot() {
-			return legacyStore.getters.currentFilmingShot;
+			return useGameStore().currentFilmingShot;
 		},
 		filmedShotsCount() {
-			return legacyStore.getters.filmedShotsCount;
+			return useGameStore().filmedShotsCount;
 		},
 		filmingShotGoal() {
-			return legacyStore.getters.filmingShotGoal;
+			return useGameStore().filmingShotGoal;
 		},
 		averageFilmingScore() {
-			return legacyStore.getters.averageFilmingScore;
+			return useGameStore().averageFilmingScore;
 		},
 	},
 	actions: {
 		wrapCurrentShot(payload) {
-			return legacyStore.dispatch("wrapCurrentShot", payload);
+			return useGameStore().wrapCurrentShot(payload);
 		},
 		resetFilmingProgress() {
-			legacyStore.commit("RESET_FILMING_PROGRESS");
+			useGameStore().RESET_FILMING_PROGRESS();
 		},
 	},
 });

@@ -44,6 +44,7 @@
 </template>
 
 <script>
+import { usePopupStore } from "@/store/popup";
 import {
 	tutorialPopups,
 	achievementPopups,
@@ -79,12 +80,12 @@ export default {
 			);
 		},
 		showPopup(id) {
-			this.$store.dispatch("popupManager/showPopup", { id });
+			usePopupStore().showPopup({ id });
 		},
 		showPopupByKey() {
 			if (this.popupKey) {
 				// Use the standardized format with the namespaced action
-				this.$store.dispatch("popupManager/showPopup", { id: this.popupKey });
+				usePopupStore().showPopup({ id: this.popupKey });
 			}
 		},
 	},

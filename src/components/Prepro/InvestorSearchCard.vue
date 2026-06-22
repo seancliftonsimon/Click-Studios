@@ -32,7 +32,8 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapState } from "pinia";
+import { useGameStore } from "@/store";
 import { useGameClockStore } from "@/stores/gameClockStore";
 
 export default {
@@ -45,7 +46,7 @@ export default {
 		};
 	},
 	computed: {
-		...mapGetters({
+		...mapState(useGameStore, {
 			manualSearchAmount: "manualSearchAmount",
 			searchRange: "searchRange",
 			searcherCount: "searcherCount",

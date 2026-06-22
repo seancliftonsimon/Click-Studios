@@ -90,7 +90,8 @@
 
 <script>
 import PopupManager from "./components/ui/PopupManager.vue";
-import { mapGetters } from "vuex";
+import { mapState } from "pinia";
+import { useGameStore } from "@/store";
 import { popupService } from "./services";
 
 export default {
@@ -106,19 +107,19 @@ export default {
 	},
 	methods: {
 		saveGame() {
-			this.$store.commit("SAVE_STATE");
+			useGameStore().SAVE_STATE();
 			console.log("Game Saved");
 		},
 		loadGame() {
-			this.$store.commit("LOAD_STATE");
+			useGameStore().LOAD_STATE();
 			console.log("Game Loaded");
 		},
 		hideToast() {
-			this.$store.commit("SET_TOAST_VISIBLE", false);
+			useGameStore().SET_TOAST_VISIBLE(false);
 		},
 	},
 	computed: {
-		...mapGetters([
+		...mapState(useGameStore, [
 			"studioName",
 			"isPreproductionUnlocked",
 			"isFilmingUnlocked",
@@ -130,10 +131,10 @@ export default {
 		]),
 		toastVisible: {
 			get() {
-				return this.$store.getters.toastVisible;
+				return useGameStore().toastVisible;
 			},
 			set(value) {
-				this.$store.commit("SET_TOAST_VISIBLE", value);
+				useGameStore().SET_TOAST_VISIBLE(value);
 			},
 		},
 		titleFontSize() {
@@ -164,7 +165,7 @@ export default {
 	},
 	mounted() {
 		// Dispatch the action when the component mounts
-		this.$store.dispatch("updateWordCount");
+		useGameStore().updateWordCount();
 		popupService.showPopup("tutorial_welcome");
 		// XYZ this is where the beginner pop ups need to be reactivated
 	},

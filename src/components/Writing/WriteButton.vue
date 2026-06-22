@@ -21,19 +21,19 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
-import { mapActions } from "vuex";
+import { mapState, mapActions } from "pinia";
+import { useGameStore } from "@/store";
 
 export default {
 	methods: {
-		...mapActions(["increaseWordCount"]),
+		...mapActions(useGameStore, ["increaseWordCount"]),
 		handleClick() {
 			// Call the original increaseWordCount action
 			this.increaseWordCount();
 		},
 	},
 	computed: {
-		...mapGetters(["previousToolDetails"]),
+		...mapState(useGameStore, ["previousToolDetails"]),
 	},
 };
 </script>

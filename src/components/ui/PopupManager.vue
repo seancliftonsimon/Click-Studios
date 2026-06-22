@@ -73,7 +73,8 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from "vuex";
+import { mapState, mapActions } from "pinia";
+import { usePopupStore } from "@/store/popup";
 import InfoPopup from "./InfoPopup.vue";
 import ConfirmPopup from "./ConfirmPopup.vue";
 import InputPopup from "./InputPopup.vue";
@@ -91,7 +92,7 @@ export default {
 		};
 	},
 	computed: {
-		...mapGetters("popupManager", [
+		...mapState(usePopupStore, [
 			"currentPopup",
 			"hasActivePopups",
 			"popupQueueLength",
@@ -108,7 +109,7 @@ export default {
 		},
 	},
 	methods: {
-		...mapActions("popupManager", ["closePopup", "showNextPopup"]),
+		...mapActions(usePopupStore, ["closePopup", "showNextPopup"]),
 
 		handlePopupClosed() {
 			this.closePopup();

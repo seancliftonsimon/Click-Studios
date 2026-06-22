@@ -21,6 +21,7 @@
 </template>
 
 <script>
+import { usePopupStore } from "@/store/popup";
 import PopupBase from "./PopupBase.vue";
 
 export default {
@@ -96,7 +97,7 @@ export default {
 
 			// Show the next popup if specified
 			if (this.nextPopupId) {
-				this.$store.dispatch("popupManager/showPopup", {
+				usePopupStore().showPopup({
 					id: this.nextPopupId,
 				});
 			}

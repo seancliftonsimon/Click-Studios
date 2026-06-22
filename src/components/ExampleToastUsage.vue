@@ -14,6 +14,7 @@
 </template>
 
 <script>
+import { useGameStore } from "@/store";
 import { popupService } from "@/services";
 
 export default {
@@ -34,7 +35,7 @@ export default {
 
 		// Example using the store directly
 		showDirectToast() {
-			this.$store.dispatch("showToast", {
+			useGameStore().showToast({
 				message: "This is a toast with custom configuration",
 				type: "persistent", // or "temporary"
 			});

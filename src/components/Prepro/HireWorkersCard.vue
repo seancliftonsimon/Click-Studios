@@ -74,7 +74,8 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations, mapState } from "vuex";
+import { mapState, mapActions } from "pinia";
+import { useGameStore } from "@/store";
 
 export default {
 	data() {
@@ -86,14 +87,11 @@ export default {
 		};
 	},
 	methods: {
-		...mapMutations(["HIRE_EMPLOYEE"]),
+		...mapActions(useGameStore, ["HIRE_EMPLOYEE"]),
 		employeeHireClick() {
 			if (this.canAffordWorker) {
-				this.$store.commit(
-					"DECREASE_PREPRO_DOLLAR_AMOUNT",
-					this.displayWorkerCost
-				);
-				this.$store.commit("HIRE_EMPLOYEE", 1);
+				useGameStore().DECREASE_PREPRO_DOLLAR_AMOUNT(this.displayWorkerCost);
+				useGameStore().HIRE_EMPLOYEE(1);
 
 				// Update the true cost for the next worker
 				this.trueWorkerCost = this.trueWorkerCost * this.costMultiplier;
@@ -101,13 +99,13 @@ export default {
 		},
 	},
 	computed: {
-		...mapGetters({
+		...mapState(useGameStore, {
 			title: "scriptTitle",
 			preproDollarCount: "preproDollarCount",
 			employeeCount: "employeeCount",
 			unassignedEmployeeCount: "unassignedEmployeeCount",
 		}),
-		...mapState({
+		...mapState(useGameStore, {
 			componentVisibility: (state) => state.componentVisibility,
 		}),
 		isVisible() {

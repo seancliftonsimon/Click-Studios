@@ -1,28 +1,28 @@
 import { defineStore } from "pinia";
-import legacyStore from "@/store";
+import { useGameStore } from "@/store";
 
 export const useProjectStore = defineStore("project", {
 	getters: {
 		currentScript() {
-			return legacyStore.state.currentScript;
+			return useGameStore().currentScript;
 		},
 		roles() {
-			return legacyStore.state.currentScript?.roles || [];
+			return useGameStore().currentScript?.roles || [];
 		},
 		shots() {
-			return legacyStore.state.currentScript?.shots || [];
+			return useGameStore().currentScript?.shots || [];
 		},
 		sets() {
-			return legacyStore.state.currentScript?.sets || [];
+			return useGameStore().currentScript?.sets || [];
 		},
 		locations() {
-			return legacyStore.state.currentScript?.locations || [];
+			return useGameStore().currentScript?.locations || [];
 		},
 		costumes() {
-			return legacyStore.state.currentScript?.costumes || [];
+			return useGameStore().currentScript?.costumes || [];
 		},
 		looks() {
-			return legacyStore.state.currentScript?.looks || [];
+			return useGameStore().currentScript?.looks || [];
 		},
 	},
 	actions: {
@@ -35,7 +35,7 @@ export const useProjectStore = defineStore("project", {
 			);
 		},
 		completeDepartmentItem(departmentConfig, itemIndex) {
-			legacyStore.commit(departmentConfig.completeMutation, {
+			useGameStore()[departmentConfig.completeMutation]({
 				[departmentConfig.completePayloadKey]: itemIndex,
 			});
 		},

@@ -36,7 +36,8 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations } from "vuex";
+import { mapState, mapActions } from "pinia";
+import { useGameStore } from "@/store";
 import { getInvestorTier } from "@/data/investors";
 import { useGameClockStore } from "@/stores/gameClockStore";
 
@@ -48,7 +49,7 @@ export default {
 		};
 	},
 	computed: {
-		...mapGetters({
+		...mapState(useGameStore, {
 			smallInvestorNames: "smallInvestorNames",
 			smallInvestorPayRange: "smallInvestorPayRange",
 			currentInvestorTier: "currentInvestorTier",
@@ -96,7 +97,7 @@ export default {
 		},
 	},
 	methods: {
-		...mapMutations(["UPDATE_STATE_VARIABLE"]),
+		...mapActions(useGameStore, ["UPDATE_STATE_VARIABLE"]),
 		nextCard() {
 			this.UPDATE_STATE_VARIABLE({
 				key: "currentInvestor",

@@ -38,7 +38,8 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapState } from "pinia";
+import { useGameStore } from "@/store";
 import { useGameClockStore } from "@/stores/gameClockStore";
 import { useWritingStore } from "@/stores/writingStore";
 
@@ -71,7 +72,7 @@ export default {
 		};
 	},
 	computed: {
-		...mapState({
+		...mapState(useGameStore, {
 			productCards: (state) => state.products, // This specifically maps `state.cards` from your `productcards` module to `productcards` computed property
 			workersCards: (state) => state.workers, // Assuming `workers` is in the root state
 			writersRoomVisible: (state) => state.writersRoomVisible,

@@ -1,3 +1,4 @@
+import { usePopupStore } from "@/store/popup";
 // Standardized popup configuration format
 // Required fields:
 // - id: Unique identifier
@@ -308,7 +309,8 @@ export const popupKeyMapping = {
 };
 
 // Registration function to load all popup definitions
-export function registerAllPopups(store) {
+export function registerAllPopups() {
+	const popupStore = usePopupStore();
 	// Register all popup groups
 	const popupGroups = {
 		tutorial: tutorialPopups,
@@ -325,7 +327,7 @@ export function registerAllPopups(store) {
 	// eslint-disable-next-line no-unused-vars
 	Object.entries(popupGroups).forEach(([, popupGroup]) => {
 		// Register the group
-		store.dispatch("popupManager/registerPopupGroup", popupGroup);
+		popupStore.registerPopupGroup(popupGroup);
 	});
 
 	console.log("All popups registered successfully");

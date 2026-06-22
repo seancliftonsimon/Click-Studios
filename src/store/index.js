@@ -1,32 +1,14 @@
-/* eslint-disable */
-import { createStore } from "vuex";
+import { defineStore } from "pinia";
 
-// Import modules
-import popupManager from "./modules/popupManager";
-import progressManager from "./modules/progressManager";
-
-// Import popup configurations
-import {
-	tutorialPopups,
-	achievementPopups,
-	writersRoomPopups,
-	scriptPopups,
-	confirmationPopups,
-	featureUnlockPopups,
-	gamePhasePopups,
-	errorPopups,
-	popupKeyMapping,
-	registerAllPopups,
-} from "../data/popups";
+import { usePopupStore } from "./popup";
 
 let nextWorkerId = 1;
 
-const store = createStore({
-	modules: {
-		popupManager,
-		progressManager,
-	},
-	state: {
+// Core game store (migrated from Vuex). Former mutations and actions are both
+// Pinia actions; pure pass-through getters were dropped in favor of reading
+// state directly.
+export const useGameStore = defineStore("game", {
+	state: () => ({
 		// DYNAMIC VARIABLES BELOW
 
 		studioName: "Click Studios",
@@ -46,7 +28,6 @@ const store = createStore({
 		// Word Variables
 
 		wordCount: 0,
-		wordsPerSecond: 0,
 		totalWordCount: 0,
 
 		wordAccumulator: 0,
@@ -1537,41 +1518,23 @@ const store = createStore({
 			shortenSearches: 0,
 			betterPitches: 0,
 		},
-	},
+	}),
 	getters: {
-		wordCount: (state) => {
-			return state.wordCount;
-		},
 		wordsPerSecond: (state) => {
-			let scriptDoctorMultiplier = 1.0; // Start with a base multiplier
-			let baseWordsPerSecond = 0; // Base WPS without Script Doctor
+			let scriptDoctorMultiplier = 1.0;
+			let baseWordsPerSecond = 0;
 
 			Object.values(state.workers).forEach((worker) => {
 				if (worker.name === "Script Doctor" && worker.count > 0) {
-					// For each Script Doctor, multiply the current multiplier by 1.4
 					scriptDoctorMultiplier *= Math.pow(worker.effect, worker.count);
 				} else {
-					// Sum the WPS of other workers
 					baseWordsPerSecond += worker.count * worker.wps;
 				}
 			});
 
-			// Apply the Script Doctor multiplier to the base WPS
-			const adjustedWordsPerSecond =
-				baseWordsPerSecond * scriptDoctorMultiplier;
-
-			return adjustedWordsPerSecond;
-		},
-		writingDollarCount: (state) => {
-			return state.writingDollarCount;
+			return baseWordsPerSecond * scriptDoctorMultiplier;
 		},
 
-		preproDollarCount: (state) => {
-			return state.preproDollarCount;
-		},
-
-		//currentScript Getters for Prepro
-		// Script Details
 		scriptRoles: (state) => state.currentScript.roles,
 		actorGoal: (state) => state.currentScript.roles.length,
 		scriptShots: (state) => state.currentScript.shots,
@@ -1599,22 +1562,16 @@ const store = createStore({
 					status = "current";
 				}
 
-				return {
-					...shot,
-					id: index + 1,
-					status,
-					score: shot.shotScore,
-				};
+				return { ...shot, id: index + 1, status, score: shot.shotScore };
 			});
 		},
 		filmingShotGoal: (state) => state.currentScript?.shots?.length || 0,
 		filmedShotsCount: (state) =>
-			(state.currentScript?.shots || []).filter((shot) => shot.isFilmed)
-				.length,
+			(state.currentScript?.shots || []).filter((shot) => shot.isFilmed).length,
 		currentFilmingShotIndex: (state) =>
 			(state.currentScript?.shots || []).findIndex((shot) => !shot.isFilmed),
-		currentFilmingShot: (state, getters) => {
-			const index = getters.currentFilmingShotIndex;
+		currentFilmingShot(state) {
+			const index = this.currentFilmingShotIndex;
 			return index >= 0 ? state.currentScript.shots[index] : null;
 		},
 		averageFilmingScore: (state) => {
@@ -1624,23 +1581,17 @@ const store = createStore({
 			if (!filmedShots.length) {
 				return 0;
 			}
-
 			const totalScore = filmedShots.reduce(
 				(total, shot) => total + (shot.shotScore || 0),
 				0
 			);
 			return Math.round(totalScore / filmedShots.length);
 		},
-		currentDevelopmentEndpointReached: (state) =>
-			state.currentDevelopmentEndpointReached,
 
-		// Roles
 		totalRoles(state) {
-			// Check if currentScript and its roles array exist, then return its length
 			if (state.currentScript && Array.isArray(state.currentScript.roles)) {
 				return state.currentScript.roles.length;
 			}
-			// Default to 0 if currentScript or roles array is not properly defined
 			return 0;
 		},
 		completeRolesCount(state) {
@@ -1649,62 +1600,40 @@ const store = createStore({
 			}
 			return 0;
 		},
-		// Sets
 		builtSetsCount: (state) =>
 			state.currentScript.sets.filter((set) => set.isBuilt).length,
-
-		// Locations
 		scoutedLocationsCount: (state) =>
 			state.currentScript.locations.filter((location) => location.isScouted)
 				.length,
-
-		// Camera Shots
 		completeShotsCount: (state) =>
 			state.currentScript.shots.filter((shot) => shot.isPlanned).length,
-
-		// Looks
 		styledLooksCount: (state) =>
 			state.currentScript.looks.filter((look) => look.isDesigned).length,
-
-		// Costumes
 		madeCostumesCount: (state) =>
 			state.currentScript.costumes.filter((costume) => costume.isMade).length,
 
-		currentGenreDetails: (state) => {
-			return state.genres[state.currentGenre] || {};
-		},
-		currentToolDetails: (state) => {
-			return state.writeTools[state.currentWriteTool];
-		},
+		currentGenreDetails: (state) => state.genres[state.currentGenre] || {},
+		currentToolDetails: (state) => state.writeTools[state.currentWriteTool],
 		previousToolDetails: (state) => {
 			const toolKeys = Object.keys(state.writeTools);
 			const currentToolIndex = toolKeys.indexOf(state.currentWriteTool);
 			if (currentToolIndex <= 0) {
-				// If there is no previous tool, return null or another appropriate value
 				return null;
 			}
-			const previousToolIndex = currentToolIndex - 1;
-			return state.writeTools[toolKeys[previousToolIndex]];
+			return state.writeTools[toolKeys[currentToolIndex - 1]];
 		},
 
-		getProductCardDetails: (state) => (key) => {
-			return state.products[key];
-		},
-		getWorkerDetails: (state) => (key) => {
-			return state.workers[key];
-		},
-		currentWritersRoomCapacity: (state) => {
-			return state.writersRoomCapacities[state.currentCapacityIndex].capacity;
-		},
-		currentWorkerAmount: (state) => {
-			return state.currentWorkers.length;
-		},
+		getProductCardDetails: (state) => (key) => state.products[key],
+		getWorkerDetails: (state) => (key) => state.workers[key],
+		currentWritersRoomCapacity: (state) =>
+			state.writersRoomCapacities[state.currentCapacityIndex].capacity,
+		currentWorkerAmount: (state) => state.currentWorkers.length,
 		nextWritersRoomUpgrade: (state) => {
 			const nextIndex = state.currentCapacityIndex + 1;
 			if (nextIndex < state.writersRoomCapacities.length) {
 				return state.writersRoomCapacities[nextIndex];
 			}
-			return null; // Indicates there are no more upgrades available
+			return null;
 		},
 
 		currentPopupContent: (state) => {
@@ -1714,86 +1643,19 @@ const store = createStore({
 			return { title: "", emoji: "", text: "" };
 		},
 
-		// Phase Unlocks
-		isPreproductionUnlocked: (state) => state.isPreproductionUnlocked,
-		isFilmingUnlocked: (state) => state.isFilmingUnlocked,
-		isPostproductionUnlocked: (state) => state.isPostproductionUnlocked,
-		isMarketingUnlocked: (state) => state.isMarketingUnlocked,
-		isReleaseUnlocked: (state) => state.isReleaseUnlocked,
-		switchGenreVisible: (state) => state.switchGenreVisible,
-		popupVisible: (state) => state.popupVisible,
-		studioName: (state) => state.studioName,
-		scriptDescription: (state) => state.scriptDescription,
-
-		writersRoomUpgradeVisible: (state) => state.writersRoomUpgradeVisible,
-
-		// Pitching Getters
-		manualSearchAmount: (state) => state.manualSearchAmount,
 		searchRange: (state) => state.ranges.investorSearchAmount,
-		searchCount: (state) => state.searchCount,
-		searchesPerSecond: (state) => state.searchesPerSecond,
 		smallInvestorNames: (state) => state.pools.smallInvestors,
 		smallInvestorPayRange: (state) => state.ranges.smallInvestorPayAmount,
-		currentInvestor: (state) => state.currentInvestor,
-		currentInvestment: (state) => state.currentInvestment,
-		currentInvestorTier: (state) => state.currentInvestorTier,
-
-		manualPitchAmount: (state) => state.manualPitchAmount,
 		pitchRange: (state) => state.ranges.investorPitchAmount,
-		pitchesNeeded: (state) => state.pitchesNeeded,
-		pitchCount: (state) => state.pitchCount,
-		pitchesPerSecond: (state) => state.pitchesPerSecond,
 
-		// Employee Getters
-		employeeCount: (state) => state.employeeCount,
-		unassignedEmployeeCount: (state) => state.unassignedEmployeeCount,
-
-		searcherCount: (state) => state.searcherCount,
-		pitcherCount: (state) => state.pitcherCount,
-		searcherSpeed: (state) => state.searcherSpeed,
-		pitcherSpeed: (state) => state.pitcherSpeed,
-
-		inspiration: (state) => state.inspiration,
-
-		canAffordTool: (state) => (cost) => {
-			return state.writingDollarCount >= cost;
-		},
-
-		isToolVisible: (state) => (cost) => {
-			return cost !== 0 && state.writingToolCardVisible;
-		},
-
-		// Toast getters
-		toastMessage(state) {
-			return state.toastMessage;
-		},
-
-		toastVisible(state) {
-			return state.toastVisible;
-		},
-
-		toastType(state) {
-			return state.toastType;
-		},
-
-		// Auto-feature getters
-		autoSearchEnabled: (state) => state.autoSearchEnabled,
-		autoPitchEnabled: (state) => state.autoPitchEnabled,
-		autoCollectEnabled: (state) => state.autoCollectEnabled,
-		preproUpgradeLevels: (state) =>
-			state.preproUpgradeLevels || {
-				searchesPerClick: 0,
-				pitchesPerClick: 0,
-				workerSearchSpeed: 0,
-				workerPitchSpeed: 0,
-				shortenSearches: 0,
-				betterPitches: 0,
-			},
+		canAffordTool: (state) => (cost) => state.writingDollarCount >= cost,
+		isToolVisible: (state) => (cost) =>
+			cost !== 0 && state.writingToolCardVisible,
 	},
-	mutations: {
+	actions: {
 		// Mutation to save the state to localStorage
-		SAVE_STATE(state) {
-			const serializedState = JSON.stringify(state);
+		SAVE_STATE() {
+			const serializedState = JSON.stringify(this.$state);
 
 			// Start timing the save
 			const startTime = performance.now();
@@ -1812,12 +1674,15 @@ const store = createStore({
 			console.log(`Save took: ${saveDuration.toFixed(2)} milliseconds`);
 		},
 		// Mutation to load the state from localStorage
-		LOAD_STATE(state) {
+		LOAD_STATE() {
 			const serializedState = localStorage.getItem("gameState");
 			if (serializedState) {
 				const loadedState = JSON.parse(serializedState);
 				// Assign loaded values to the state variables
-				Object.assign(state, loadedState);
+				delete loadedState.popupManager;
+			delete loadedState.progressManager;
+			delete loadedState.wordsPerSecond;
+			this.$patch(loadedState);
 				// Log the file size of the loaded state
 				console.log(
 					`Loaded state size: ${new Blob([serializedState]).size} bytes`
@@ -1825,10 +1690,10 @@ const store = createStore({
 			}
 		},
 
-		UPDATE_STATE_VARIABLE(state, { key, value }) {
+		UPDATE_STATE_VARIABLE({ key, value }) {
 			// Logic here to travel down nested paths as indicated by the key string
 			const keys = key.split("."); // Split the key by periods
-			let obj = state;
+			let obj = this.$state;
 			for (let i = 0; i < keys.length - 1; i++) {
 				if (!obj[keys[i]]) return; // Exit if the path is invalid
 				obj = obj[keys[i]];
@@ -1838,27 +1703,27 @@ const store = createStore({
 			}
 		},
 
-		SET_NEXT_WRITE_TOOL(state, nextToolKey) {
-			state.currentWriteTool = nextToolKey;
+		SET_NEXT_WRITE_TOOL(nextToolKey) {
+			this.currentWriteTool = nextToolKey;
 		},
-		SET_CURRENT_GENRE(state, genre) {
-			state.currentGenre = genre;
+		SET_CURRENT_GENRE(genre) {
+			this.currentGenre = genre;
 		},
-		UPDATE_GENRE_PROGRESS(state, { genre, words }) {
-			let genreObject = state.genres[genre];
+		UPDATE_GENRE_PROGRESS({ genre, words }) {
+			let genreObject = this.genres[genre];
 			genreObject.wordsNeeded -= words;
 
 			// Continue to level up as long as there are excess words and not at max level
 			while (
 				genreObject.wordsNeeded <= 0 &&
-				genreObject.level < state.levelCaps.length
+				genreObject.level < this.levelCaps.length
 			) {
 				let excessWords = Math.abs(genreObject.wordsNeeded);
 				genreObject.level++;
 				// Check if next level exists, otherwise set wordsNeeded to 0
-				if (genreObject.level < state.levelCaps.length) {
+				if (genreObject.level < this.levelCaps.length) {
 					genreObject.wordsNeeded =
-						state.levelCaps[genreObject.level - 1] - excessWords;
+						this.levelCaps[genreObject.level - 1] - excessWords;
 				} else {
 					genreObject.wordsNeeded = 0;
 				}
@@ -1866,94 +1731,91 @@ const store = createStore({
 			}
 		},
 
-		SET_CURRENT_POPUP(state, popupKey) {
-			state.currentPopup = popupKey;
+		SET_CURRENT_POPUP(popupKey) {
+			this.currentPopup = popupKey;
 		},
 
-		SET_POPUP_VISIBLE(state, isVisible) {
-			state.popupVisible = isVisible;
+		SET_POPUP_VISIBLE(isVisible) {
+			this.popupVisible = isVisible;
 		},
 
 		// See if I can change the script thing so that it uses the set current popup system I'm trying to implement universally.
-		TOGGLE_DIALOG(state, show) {
-			state.showDialog = show;
+		TOGGLE_DIALOG(show) {
+			this.showDialog = show;
 		},
 		// DOES THIS NEED TO STAY? AM I USING IT ANYWHERE?
-		SET_ACTIVE_DIALOG(state, dialogName) {
-			state.activeDialog = dialogName;
+		SET_ACTIVE_DIALOG(dialogName) {
+			this.activeDialog = dialogName;
 		},
 
 		// Dollars and Words and Variables Such as Those
-		INCREASE_WORD_COUNT(state, amt) {
-			state.wordCount += amt;
+		INCREASE_WORD_COUNT(amt) {
+			this.wordCount += amt;
 		},
-		DECREASE_WORD_COUNT(state, cost) {
-			state.wordCount -= cost;
+		DECREASE_WORD_COUNT(cost) {
+			this.wordCount -= cost;
 		},
-		INCREASE_WRITING_DOLLAR_AMOUNT(state, pay) {
-			state.writingDollarCount += pay;
-			state.totalWritingDollarCount += pay;
+		INCREASE_WRITING_DOLLAR_AMOUNT(pay) {
+			this.writingDollarCount += pay;
+			this.totalWritingDollarCount += pay;
 		},
-		DECREASE_WRITING_DOLLAR_AMOUNT(state, cost) {
-			state.writingDollarCount -= cost;
+		DECREASE_WRITING_DOLLAR_AMOUNT(cost) {
+			this.writingDollarCount -= cost;
 		},
-		INCREASE_PREPRO_DOLLAR_AMOUNT(state, pay) {
-			state.preproDollarCount += pay;
+		INCREASE_PREPRO_DOLLAR_AMOUNT(pay) {
+			this.preproDollarCount += pay;
 		},
-		DECREASE_PREPRO_DOLLAR_AMOUNT(state, cost) {
-			state.preproDollarCount -= cost;
+		DECREASE_PREPRO_DOLLAR_AMOUNT(cost) {
+			this.preproDollarCount -= cost;
 		},
 
-		SET_WORDS_PER_CLICK(state, wordsPerClick) {
-			state.wordsPerSecond = wordsPerClick;
+		ADD_PLAYER_SCRIPT(script) {
+			this.uniqueScripts.push(script);
 		},
-		ADD_PLAYER_SCRIPT(state, script) {
-			state.uniqueScripts.push(script);
+		ADD_WORKER({ workerType, id }) {
+			this.currentWorkers.push({ workerType, id });
+			this.workers[workerType].count++;
+			this.workers[workerType].totalcount++;
 		},
-		ADD_WORKER(state, { workerType, id }) {
-			state.currentWorkers.push({ workerType, id });
-			state.workers[workerType].count++;
-			state.workers[workerType].totalcount++;
-		},
-		REMOVE_WORKER(state, { workerType, id }) {
-			state.currentWorkers = state.currentWorkers.filter(
+		REMOVE_WORKER({ workerType, id }) {
+			this.currentWorkers = this.currentWorkers.filter(
 				(worker) => worker.id !== id
 			);
-			state.workers[workerType].count--;
+			this.workers[workerType].count--;
 		},
-		UPGRADE_WRITERS_ROOM_CAPACITY(state) {
-			state.currentCapacityIndex += 1;
+		UPGRADE_WRITERS_ROOM_CAPACITY() {
+			this.currentCapacityIndex += 1;
 		},
 
 		// Mutation to mark a milestone as achieved
-		SET_MILESTONE_ACHIEVED(state, milestoneKey) {
-			state.milestones[milestoneKey] = true;
+		SET_MILESTONE_ACHIEVED(milestoneKey) {
+			this.milestones[milestoneKey] = true;
 		},
 
 		// Mutation to toggle component visibility
-		TOGGLE_COMPONENT_VISIBILITY(state, componentName) {
+		TOGGLE_COMPONENT_VISIBILITY(componentName) {
 			console.log(`Toggling visibility for component: ${componentName}`);
 
-			if (state.products[componentName]) {
-				state.products[componentName].visible =
-					!state.products[componentName].visible;
+			if (this.products[componentName]) {
+				this.products[componentName].visible =
+					!this.products[componentName].visible;
 				console.log(
-					`Product ${componentName} visibility set to: ${state.products[componentName].visible}`
+					`Product ${componentName} visibility set to: ${this.products[componentName].visible}`
 				);
-			} else if (state.workers[componentName]) {
-				state.workers[componentName].visible =
-					!state.workers[componentName].visible;
+			} else if (this.workers[componentName]) {
+				this.workers[componentName].visible =
+					!this.workers[componentName].visible;
 				console.log(
-					`Worker ${componentName} visibility set to: ${state.workers[componentName].visible}`
+					`Worker ${componentName} visibility set to: ${this.workers[componentName].visible}`
 				);
 			} else if (
-				state.componentVisibility &&
-				componentName in state.componentVisibility
+				this.componentVisibility &&
+				componentName in this.componentVisibility
 			) {
-				state.componentVisibility[componentName] =
-					!state.componentVisibility[componentName];
+				this.componentVisibility[componentName] =
+					!this.componentVisibility[componentName];
 				console.log(
-					`Component ${componentName} visibility set to: ${state.componentVisibility[componentName]}`
+					`Component ${componentName} visibility set to: ${this.componentVisibility[componentName]}`
 				);
 			} else {
 				console.warn(
@@ -1964,19 +1826,19 @@ const store = createStore({
 		},
 
 		// Mutation to add script to list
-		ADD_SCRIPT(state, script) {
+		ADD_SCRIPT(script) {
 			// Directly setting the currentScript with the provided script object
-			state.currentScript = script;
+			this.currentScript = script;
 			console.log(script);
 
 			// Utilizing the script description constructed in the action
-			state.scriptDescription = script.description;
-			state.roleDescription = script.roleDescription;
+			this.scriptDescription = script.description;
+			this.roleDescription = script.roleDescription;
 
 			// Update the script details popup in the popup registry
-			if (state.popupManager && state.popupManager.popupRegistry) {
-				state.popupManager.popupRegistry["script_details"] = {
-					...state.popupManager.popupRegistry["script_details"],
+			if (usePopupStore().popupRegistry) {
+				usePopupStore().popupRegistry["script_details"] = {
+					...usePopupStore().popupRegistry["script_details"],
 					title: script.title || "Script Details",
 					text: script.description,
 					emoji: "📒",
@@ -1992,25 +1854,25 @@ const store = createStore({
 
 		//Pitching Mutations
 
-		SET_SEARCH_COUNT(state, newValue) {
-			state.searchCount = newValue;
+		SET_SEARCH_COUNT(newValue) {
+			this.searchCount = newValue;
 		},
-		SET_PITCH_COUNT(state, newValue) {
-			state.pitchCount = newValue;
+		SET_PITCH_COUNT(newValue) {
+			this.pitchCount = newValue;
 		},
 
 		// Employee Mutations
 
-		HIRE_EMPLOYEE(state, amt) {
-			state.employeeCount += amt;
-			state.unassignedEmployeeCount += amt;
+		HIRE_EMPLOYEE(amt) {
+			this.employeeCount += amt;
+			this.unassignedEmployeeCount += amt;
 
 			// After hiring employees, check if we need to update milestones
 			// This will be called after each employee hire
-			this.commit("UPDATE_DEPARTMENT_HEADS_MILESTONE");
+			this.UPDATE_DEPARTMENT_HEADS_MILESTONE();
 		},
 
-		HIRE_DEPARTMENT_HEAD(state, { departmentId, employee, department, cost }) {
+		HIRE_DEPARTMENT_HEAD({ departmentId, employee, department, cost }) {
 			console.log("Hiring department head...", {
 				departmentId,
 				employee,
@@ -2020,11 +1882,11 @@ const store = createStore({
 
 			// Handle the case where we're passing departmentId and employee
 			if (departmentId && employee) {
-				const dept = state.departments[departmentId];
+				const dept = this.departments[departmentId];
 				if (dept) {
 					// Increment the employee count instead of pushing to an array
 					dept.employees += 1;
-					state.employeeCount++;
+					this.employeeCount++;
 					console.log(
 						`Incremented employee count for department ${departmentId}`
 					);
@@ -2032,8 +1894,8 @@ const store = createStore({
 			}
 			// Handle the case where we're passing department and cost
 			else if (department && cost !== undefined) {
-				state.preproDollarCount -= cost;
-				state.departments[department].isLocked = false;
+				this.preproDollarCount -= cost;
+				this.departments[department].isLocked = false;
 				console.log(
 					`Unlocked department ${department} and deducted ${cost} dollars`
 				);
@@ -2045,122 +1907,120 @@ const store = createStore({
 			// This will be handled in the next step by the caller
 		},
 
-		ASSIGN_EMPLOYEE(state, amt) {
-			state.unassignedEmployeeCount -= amt;
+		ASSIGN_EMPLOYEE(amt) {
+			this.unassignedEmployeeCount -= amt;
 		},
 
-		UNASSIGN_EMPLOYEE(state, amt) {
-			state.unassignedEmployeeCount += amt;
+		UNASSIGN_EMPLOYEE(amt) {
+			this.unassignedEmployeeCount += amt;
 		},
 
-		INCREASE_INSPIRATION(state, amt) {
-			state.inspiration += amt;
+		INCREASE_INSPIRATION(amt) {
+			this.inspiration += amt;
 
 			// Instead of directly committing the milestone update,
 			// dispatch the action that will handle both the milestone update and visibility toggle
-			if (state.inspiration > 0 && !state.milestones.firstInspirationPoint) {
+			if (this.inspiration > 0 && !this.milestones.firstInspirationPoint) {
 				// Use dispatch via the store instance since we're in a mutation
-				store.dispatch("checkInspirationMilestone");
+				this.checkInspirationMilestone();
 			}
 		},
 
-		DECREASE_INSPIRATION(state, cost) {
-			state.inspiration = Math.max(0, state.inspiration - cost);
+		DECREASE_INSPIRATION(cost) {
+			this.inspiration = Math.max(0, this.inspiration - cost);
 		},
 
-		ASSIGN_SEARCHER(state, amt) {
-			state.unassignedEmployeeCount -= amt;
-			state.searcherCount += amt;
+		ASSIGN_SEARCHER(amt) {
+			this.unassignedEmployeeCount -= amt;
+			this.searcherCount += amt;
 		},
 
-		UNASSIGN_SEARCHER(state, amt) {
-			state.unassignedEmployeeCount += amt;
-			state.searcherCount -= amt;
+		UNASSIGN_SEARCHER(amt) {
+			this.unassignedEmployeeCount += amt;
+			this.searcherCount -= amt;
 		},
 
-		ASSIGN_PITCHER(state, amt) {
-			state.unassignedEmployeeCount -= amt;
-			state.pitcherCount += amt;
+		ASSIGN_PITCHER(amt) {
+			this.unassignedEmployeeCount -= amt;
+			this.pitcherCount += amt;
 		},
 
-		UNASSIGN_PITCHER(state, amt) {
-			state.pitcherCount -= amt;
+		UNASSIGN_PITCHER(amt) {
+			this.pitcherCount -= amt;
 		},
 
-		SET_SEARCHER_PITCHER_SPEED(state, speed = 1) {
-			state.searcherSpeed = speed;
-			state.pitcherSpeed = speed;
+		SET_SEARCHER_PITCHER_SPEED(speed = 1) {
+			this.searcherSpeed = speed;
+			this.pitcherSpeed = speed;
 		},
 
 		// Prepro Resource Mutations
-		SET_ROLE_CAST(state, { roleIndex }) {
-			if (state.currentScript.roles[roleIndex]) {
-				state.currentScript.roles[roleIndex].isCast = true;
+		SET_ROLE_CAST({ roleIndex }) {
+			if (this.currentScript.roles[roleIndex]) {
+				this.currentScript.roles[roleIndex].isCast = true;
 			}
 		},
-		SET_SHOT_PLANNED(state, { shotIndex }) {
-			if (state.currentScript.shots[shotIndex]) {
-				state.currentScript.shots[shotIndex].isPlanned = true;
+		SET_SHOT_PLANNED({ shotIndex }) {
+			if (this.currentScript.shots[shotIndex]) {
+				this.currentScript.shots[shotIndex].isPlanned = true;
 			}
 		},
-		SET_SHOT_FILMED(state, { shotIndex, score }) {
-			if (state.currentScript.shots[shotIndex]) {
-				state.currentScript.shots[shotIndex].isFilmed = true;
-				state.currentScript.shots[shotIndex].shotScore = score;
+		SET_SHOT_FILMED({ shotIndex, score }) {
+			if (this.currentScript.shots[shotIndex]) {
+				this.currentScript.shots[shotIndex].isFilmed = true;
+				this.currentScript.shots[shotIndex].shotScore = score;
 			}
 		},
-		RESET_FILMING_PROGRESS(state) {
-			(state.currentScript.shots || []).forEach((shot) => {
+		RESET_FILMING_PROGRESS() {
+			(this.currentScript.shots || []).forEach((shot) => {
 				shot.isFilmed = false;
 				shot.shotScore = null;
 			});
-			state.currentDevelopmentEndpointReached = false;
+			this.currentDevelopmentEndpointReached = false;
 		},
-		SET_DEVELOPMENT_ENDPOINT_REACHED(state, value) {
-			state.currentDevelopmentEndpointReached = value;
+		SET_DEVELOPMENT_ENDPOINT_REACHED(value) {
+			this.currentDevelopmentEndpointReached = value;
 		},
-		SET_LOCATION_SCOUTED(state, { locationIndex }) {
-			if (state.currentScript.locations[locationIndex]) {
-				state.currentScript.locations[locationIndex].isScouted = true;
+		SET_LOCATION_SCOUTED({ locationIndex }) {
+			if (this.currentScript.locations[locationIndex]) {
+				this.currentScript.locations[locationIndex].isScouted = true;
 			}
 		},
-		SET_SET_BUILT(state, { setIndex }) {
-			if (state.currentScript.sets[setIndex]) {
-				state.currentScript.sets[setIndex].isBuilt = true;
+		SET_SET_BUILT({ setIndex }) {
+			if (this.currentScript.sets[setIndex]) {
+				this.currentScript.sets[setIndex].isBuilt = true;
 			}
 		},
-		SET_COSTUME_MADE(state, { costumeIndex }) {
-			if (state.currentScript.costumes[costumeIndex]) {
-				state.currentScript.costumes[costumeIndex].isMade = true;
+		SET_COSTUME_MADE({ costumeIndex }) {
+			if (this.currentScript.costumes[costumeIndex]) {
+				this.currentScript.costumes[costumeIndex].isMade = true;
 			}
 		},
-		SET_LOOK_DESIGNED(state, { lookIndex }) {
-			if (state.currentScript.looks[lookIndex]) {
-				state.currentScript.looks[lookIndex].isDesigned = true;
+		SET_LOOK_DESIGNED({ lookIndex }) {
+			if (this.currentScript.looks[lookIndex]) {
+				this.currentScript.looks[lookIndex].isDesigned = true;
 			}
 		},
 
-		SET_DEPARTMENT_EMPLOYEES(state, { department, count }) {
-			state.departments[department].employees = count;
+		SET_DEPARTMENT_EMPLOYEES({ department, count }) {
+			this.departments[department].employees = count;
 		},
 
-		SET_DEPARTMENT_LOCK(state, { department, isLocked }) {
-			state.departments[department].isLocked = isLocked;
+		SET_DEPARTMENT_LOCK({ department, isLocked }) {
+			this.departments[department].isLocked = isLocked;
 		},
-		DEDUCT_WORKER_WAGES(state, amount) {
-			state.preproDollarCount = Math.max(0, state.preproDollarCount - amount);
+		DEDUCT_WORKER_WAGES(amount) {
+			this.preproDollarCount = Math.max(0, this.preproDollarCount - amount);
 		},
-		UPDATE_WORKER_TIMES(
-			state,
-			{ id, workerType, hireTime, expectedRemovalTime, animationStartTime }
+		UPDATE_WORKER_TIMES({ id, workerType, hireTime, expectedRemovalTime, animationStartTime }
 		) {
 			// Initialize times object if it doesn't exist for this worker type
-			if (!state.workers[workerType].times) {
-				state.workers[workerType].times = {};
+			if (!this.workers[workerType].times) {
+				this.workers[workerType].times = {};
 			}
 
 			// Only update the specific worker type
-			state.workers[workerType].times[id] = {
+			this.workers[workerType].times[id] = {
 				hireTime,
 				expectedRemovalTime,
 				animationStartTime,
@@ -2168,27 +2028,27 @@ const store = createStore({
 		},
 
 		// Toast notification mutations
-		SET_TOAST_MESSAGE(state, message) {
-			state.toastMessage = message;
+		SET_TOAST_MESSAGE(message) {
+			this.toastMessage = message;
 		},
 
-		SET_TOAST_VISIBLE(state, isVisible) {
-			state.toastVisible = isVisible;
+		SET_TOAST_VISIBLE(isVisible) {
+			this.toastVisible = isVisible;
 		},
 
-		SET_TOAST_TYPE(state, type) {
-			state.toastType = type;
+		SET_TOAST_TYPE(type) {
+			this.toastType = type;
 		},
 
 		// Pre-production milestone mutations
-		UPDATE_DEPARTMENT_HEADS_MILESTONE(state) {
+		UPDATE_DEPARTMENT_HEADS_MILESTONE() {
 			// Check if at least two department heads have been hired
 			let departmentHeadCount = 0;
 
 			// Count department heads across all departments
 			// A department has a head if it's not locked
-			for (const deptKey in state.departments) {
-				const dept = state.departments[deptKey];
+			for (const deptKey in this.departments) {
+				const dept = this.departments[deptKey];
 				if (!dept.isLocked) {
 					departmentHeadCount++;
 				}
@@ -2196,161 +2056,158 @@ const store = createStore({
 
 			// Update milestone if two or more department heads are hired
 			// Only update if the milestone hasn't been achieved yet
-			if (departmentHeadCount >= 2 && !state.milestones.twoDepartmentHeads) {
-				state.milestones.twoDepartmentHeads = true;
+			if (departmentHeadCount >= 2 && !this.milestones.twoDepartmentHeads) {
+				this.milestones.twoDepartmentHeads = true;
 				console.log("Two department heads milestone achieved!");
 			}
 		},
 
-		UPDATE_INSPIRATION_MILESTONE(state) {
+		UPDATE_INSPIRATION_MILESTONE() {
 			// Check if player has earned their first inspiration point
-			if (state.inspiration > 0 && !state.milestones.firstInspirationPoint) {
-				state.milestones.firstInspirationPoint = true;
+			if (this.inspiration > 0 && !this.milestones.firstInspirationPoint) {
+				this.milestones.firstInspirationPoint = true;
 			}
 		},
 
 		// Mutations for investor tiers
-		UPGRADE_INVESTOR_TIER(state) {
-			if (state.currentInvestorTier < 5) {
-				state.currentInvestorTier++;
+		UPGRADE_INVESTOR_TIER() {
+			if (this.currentInvestorTier < 5) {
+				this.currentInvestorTier++;
 			}
 		},
 
 		// Decrease the pitch range to make pitching faster
-		DECREASE_PITCH_RANGE(state) {
+		DECREASE_PITCH_RANGE() {
 			// Decrease the upper and lower bounds by a percentage (e.g., 10%)
-			const currentRange = state.ranges.investorPitchAmount;
+			const currentRange = this.ranges.investorPitchAmount;
 			const lowerBound = Math.max(5, Math.floor(currentRange[0] * 0.9)); // Don't go below 5
 			const upperBound = Math.max(10, Math.floor(currentRange[1] * 0.9)); // Don't go below 10
 
-			state.ranges.investorPitchAmount = [lowerBound, upperBound];
+			this.ranges.investorPitchAmount = [lowerBound, upperBound];
 		},
 
 		// Increase the number of searches per manual click
-		INCREASE_MANUAL_SEARCH_AMOUNT(state, amount) {
-			state.manualSearchAmount += amount;
+		INCREASE_MANUAL_SEARCH_AMOUNT(amount) {
+			this.manualSearchAmount += amount;
 		},
 
 		// Increase the number of pitches per manual click
-		INCREASE_MANUAL_PITCH_AMOUNT(state, amount) {
-			state.manualPitchAmount += amount;
+		INCREASE_MANUAL_PITCH_AMOUNT(amount) {
+			this.manualPitchAmount += amount;
 		},
 
 		// Increase the search speed for workers
-		INCREASE_WORKER_SEARCH_SPEED(state, amount) {
-			state.searcherSpeed += amount;
+		INCREASE_WORKER_SEARCH_SPEED(amount) {
+			this.searcherSpeed += amount;
 		},
 
 		// Increase the pitch speed for workers
-		INCREASE_WORKER_PITCH_SPEED(state, amount) {
-			state.pitcherSpeed += amount;
+		INCREASE_WORKER_PITCH_SPEED(amount) {
+			this.pitcherSpeed += amount;
 		},
 
 		// Decrease the search range to make searching faster
-		DECREASE_SEARCH_RANGE(state) {
+		DECREASE_SEARCH_RANGE() {
 			// Decrease the upper and lower bounds by a percentage (e.g., 10%)
-			const currentRange = state.ranges.investorSearchAmount;
+			const currentRange = this.ranges.investorSearchAmount;
 			const lowerBound = Math.max(5, Math.floor(currentRange[0] * 0.9)); // Don't go below 5
 			const upperBound = Math.max(10, Math.floor(currentRange[1] * 0.9)); // Don't go below 10
 
-			state.ranges.investorSearchAmount = [lowerBound, upperBound];
+			this.ranges.investorSearchAmount = [lowerBound, upperBound];
 		},
 
-		INCREMENT_PREPRO_UPGRADE_LEVEL(state, upgradeKey) {
-			if (!state.preproUpgradeLevels) {
-				state.preproUpgradeLevels = {};
+		INCREMENT_PREPRO_UPGRADE_LEVEL(upgradeKey) {
+			if (!this.preproUpgradeLevels) {
+				this.preproUpgradeLevels = {};
 			}
 
-			state.preproUpgradeLevels[upgradeKey] =
-				(state.preproUpgradeLevels[upgradeKey] || 0) + 1;
+			this.preproUpgradeLevels[upgradeKey] =
+				(this.preproUpgradeLevels[upgradeKey] || 0) + 1;
 		},
 
 		// Auto-feature mutations
-		TOGGLE_AUTO_SEARCH(state) {
-			state.autoSearchEnabled = !state.autoSearchEnabled;
+		TOGGLE_AUTO_SEARCH() {
+			this.autoSearchEnabled = !this.autoSearchEnabled;
 		},
 
-		TOGGLE_AUTO_PITCH(state) {
-			state.autoPitchEnabled = !state.autoPitchEnabled;
+		TOGGLE_AUTO_PITCH() {
+			this.autoPitchEnabled = !this.autoPitchEnabled;
 		},
 
-		TOGGLE_AUTO_COLLECT(state) {
-			state.autoCollectEnabled = !state.autoCollectEnabled;
+		TOGGLE_AUTO_COLLECT() {
+			this.autoCollectEnabled = !this.autoCollectEnabled;
 		},
-	},
-	actions: {
-		addInspiration({ commit }, amount) {
-			commit("INCREASE_INSPIRATION", amount);
+
+		addInspiration(amount) {
+			this.INCREASE_INSPIRATION(amount);
 			// The milestone check is handled in the INCREASE_INSPIRATION mutation
 		},
 
-		wrapCurrentShot({ commit, getters, dispatch }, score) {
-			const shotIndex = getters.currentFilmingShotIndex;
+		wrapCurrentShot(score) {
+			const shotIndex = this.currentFilmingShotIndex;
 			if (shotIndex < 0) {
-				dispatch("showDevelopmentEndpoint");
+				this.showDevelopmentEndpoint();
 				return;
 			}
 
-			commit("SET_SHOT_FILMED", { shotIndex, score });
+			this.SET_SHOT_FILMED({ shotIndex, score });
 
-			if (getters.filmedShotsCount >= getters.filmingShotGoal) {
-				dispatch("showDevelopmentEndpoint");
+			if (this.filmedShotsCount >= this.filmingShotGoal) {
+				this.showDevelopmentEndpoint();
 			}
 		},
 
-		showDevelopmentEndpoint({ state, commit, dispatch }, { force = false } = {}) {
-			if (!force && state.currentDevelopmentEndpointReached) {
+		showDevelopmentEndpoint({ force = false } = {}) {
+			if (!force && this.currentDevelopmentEndpointReached) {
 				return;
 			}
 
-			commit("SET_DEVELOPMENT_ENDPOINT_REACHED", true);
-			dispatch(
-				"popupManager/showPopup",
+			this.SET_DEVELOPMENT_ENDPOINT_REACHED(true);
+			usePopupStore().showPopup(
 				{
 					id: "game_developmentComplete",
-				},
-				{ root: true }
+				}
 			);
 		},
 
-		increaseWordCount({ state, commit, dispatch, getters }) {
-			const previousToolDetails = getters.previousToolDetails;
+		increaseWordCount() {
+			const previousToolDetails = this.previousToolDetails;
 			if (previousToolDetails) {
 				const amt = previousToolDetails.wordsPerClick;
-				commit("INCREASE_WORD_COUNT", amt);
+				this.INCREASE_WORD_COUNT(amt);
 			} else {
 				// Handle the scenario where there is no previous tool
 				console.log("No previous tool available to increase word count.");
 			}
-			if (state.wordCount >= 50 && !state.milestones.fiftyWords) {
-				commit("UPDATE_STATE_VARIABLE", {
+			if (this.wordCount >= 50 && !this.milestones.fiftyWords) {
+				this.UPDATE_STATE_VARIABLE({
 					key: "writingToolCardVisible",
 					value: true,
 				});
-				commit("SET_MILESTONE_ACHIEVED", "fiftyWords");
-				dispatch("popupManager/showPopup", { id: "achievement_writingTool" });
+				this.SET_MILESTONE_ACHIEVED("fiftyWords");
+				usePopupStore().showPopup({ id: "achievement_writingTool" });
 			}
 		},
-		updateWordCount({ state, getters, commit }) {
-			if (!state.lastUpdate) {
-				state.lastUpdate = Date.now();
+		updateWordCount() {
+			if (!this.lastUpdate) {
+				this.lastUpdate = Date.now();
 			}
 
-			function step() {
+			const step = () => {
 				const now = Date.now();
-				const deltaTime = (now - state.lastUpdate) / 1000; // Time in seconds since last update
-				state.lastUpdate = now; // Update the lastUpdate time
+				const deltaTime = (now - this.lastUpdate) / 1000; // Time in seconds since last update
+				this.lastUpdate = now; // Update the lastUpdate time
 
-				const wordsPerSecond = getters.wordsPerSecond;
+				const wordsPerSecond = this.wordsPerSecond;
 				const wordsToAdd = wordsPerSecond * deltaTime; // Keep this fractional
 
 				// Use a proxy accumulator for fractional word counts
-				state.wordAccumulator += wordsToAdd;
+				this.wordAccumulator += wordsToAdd;
 
-				if (state.wordAccumulator >= 1) {
-					const wholeWords = Math.floor(state.wordAccumulator);
-					commit("INCREASE_WORD_COUNT", wholeWords);
-					state.wordAccumulator -= wholeWords; // Adjust accumulator by subtracting whole words added
+				if (this.wordAccumulator >= 1) {
+					const wholeWords = Math.floor(this.wordAccumulator);
+					this.INCREASE_WORD_COUNT(wholeWords);
+					this.wordAccumulator -= wholeWords; // Adjust accumulator by subtracting whole words added
 				}
 
 				requestAnimationFrame(step);
@@ -2358,27 +2215,27 @@ const store = createStore({
 
 			requestAnimationFrame(step);
 		},
-		changeGenre({ commit }, genre) {
-			commit("SET_CURRENT_GENRE", genre);
+		changeGenre(genre) {
+			this.SET_CURRENT_GENRE(genre);
 		},
 
-		sellProduct({ commit, state, dispatch }, { cardType, cost, pay }) {
+		sellProduct({ cardType, cost, pay }) {
 			// Decrease word count by cost
-			commit("DECREASE_WORD_COUNT", cost);
+			this.DECREASE_WORD_COUNT(cost);
 
 			// Update genre progress with the words spent
-			commit("UPDATE_GENRE_PROGRESS", {
-				genre: state.currentGenre,
+			this.UPDATE_GENRE_PROGRESS({
+				genre: this.currentGenre,
 				words: cost,
 			});
 
 			// Increase writing dollar amount by pay
-			commit("INCREASE_WRITING_DOLLAR_AMOUNT", pay);
+			this.INCREASE_WRITING_DOLLAR_AMOUNT(pay);
 
 			// Increment the product count
-			commit("UPDATE_STATE_VARIABLE", {
+			this.UPDATE_STATE_VARIABLE({
 				key: `products.${cardType}.count`,
-				value: state.products[cardType].count + 1,
+				value: this.products[cardType].count + 1,
 			});
 
 			console.log(`Sold ${cardType} for ${pay} dollars (cost: ${cost} words)`);
@@ -2386,276 +2243,260 @@ const store = createStore({
 			// Check if this is a shooting script being sold
 			if (cardType === "shootingScript") {
 				// If this is the first shooting script, mark the milestone as achieved
-				if (!state.milestones.firstShootingScript) {
+				if (!this.milestones.firstShootingScript) {
 					// Mark the milestone as achieved
-					commit("SET_MILESTONE_ACHIEVED", "firstShootingScript");
+					this.SET_MILESTONE_ACHIEVED("firstShootingScript");
 
 					// Unlock preproduction phase if not already unlocked
-					if (!state.isPreproductionUnlocked) {
-						commit("UPDATE_STATE_VARIABLE", {
+					if (!this.isPreproductionUnlocked) {
+						this.UPDATE_STATE_VARIABLE({
 							key: "isPreproductionUnlocked",
 							value: true,
 						});
 
 						// Show a toast notification to inform the user that preproduction is unlocked
-						dispatch("showPreproductionUnlockedToast");
+						this.showPreproductionUnlockedToast();
 					}
 				}
 
 				// Generate a new script with the current genre
-				dispatch("generateScript", {
-					genre: state.currentGenre,
+				this.generateScript({
+					genre: this.currentGenre,
 					skipPopup: true,
 				});
 
 				// Ensure the script_details popup is correctly set up with current script information
 				const scriptDetails =
-					state.popupManager.popupRegistry["script_details"];
-				dispatch(
-					"popupManager/registerPopup",
+					usePopupStore().popupRegistry["script_details"];
+				usePopupStore().registerPopup(
 					{
 						id: "script_details",
 						config: {
 							...scriptDetails,
-							title: state.currentScript.title || "Script Details",
-							text: state.scriptDescription,
+							title: this.currentScript.title || "Script Details",
+							text: this.scriptDescription,
 						},
-					},
-					{ root: true }
+					}
 				);
 
 				// Get the popup from the registry
 				const popup =
-					state.popupManager.popupRegistry["script_firstShootingScript"];
+					usePopupStore().popupRegistry["script_firstShootingScript"];
 
 				// Get the current genre and capitalize the first letter
-				const genre = state.currentGenre;
+				const genre = this.currentGenre;
 				const capitalizedGenre = genre.charAt(0).toUpperCase() + genre.slice(1);
 
 				// Show the popup with the genre replacement
-				dispatch(
-					"popupManager/showPopup",
+				usePopupStore().showPopup(
 					{
 						id: "script_firstShootingScript",
 						props: {
 							text: popup.text.replace("{genre}", capitalizedGenre),
 							onSubmit: (inputValue) => {
 								// Update the currentScript title with the input value
-								commit("UPDATE_STATE_VARIABLE", {
+								this.UPDATE_STATE_VARIABLE({
 									key: "currentScript.title",
 									value: inputValue,
 								});
 
 								// Update the script_details popup again with the new title
-								dispatch(
-									"popupManager/registerPopup",
+								usePopupStore().registerPopup(
 									{
 										id: "script_details",
 										config: {
-											...state.popupManager.popupRegistry["script_details"],
+											...usePopupStore().popupRegistry["script_details"],
 											title: inputValue || "Script Details",
-											text: state.scriptDescription,
+											text: this.scriptDescription,
 										},
-									},
-									{ root: true }
+									}
 								);
 							},
 						},
-					},
-					{ root: true }
+					}
 				);
 			} else {
 				// Check for product-based milestones
 				if (
 					cardType === "logline" &&
-					state.products.logline.count >= 5 &&
-					!state.milestones.fiveLoglines
+					this.products.logline.count >= 5 &&
+					!this.milestones.fiveLoglines
 				) {
 					// Mark the milestone as achieved
-					commit("SET_MILESTONE_ACHIEVED", "fiveLoglines");
+					this.SET_MILESTONE_ACHIEVED("fiveLoglines");
 
 					// Make the synopsis product visible
-					commit("UPDATE_STATE_VARIABLE", {
+					this.UPDATE_STATE_VARIABLE({
 						key: "products.synopsis.visible",
 						value: true,
 					});
 
 					// Show the unlock popup
-					dispatch(
-						"popupManager/showPopup",
-						{ id: "achievement_synopsis" },
-						{ root: true }
+					usePopupStore().showPopup(
+						{ id: "achievement_synopsis" }
 					);
 				}
 
 				if (
 					cardType === "synopsis" &&
-					state.products.synopsis.count >= 5 &&
-					!state.milestones.fiveSynopses
+					this.products.synopsis.count >= 5 &&
+					!this.milestones.fiveSynopses
 				) {
-					commit("SET_MILESTONE_ACHIEVED", "fiveSynopses");
-					commit("UPDATE_STATE_VARIABLE", {
+					this.SET_MILESTONE_ACHIEVED("fiveSynopses");
+					this.UPDATE_STATE_VARIABLE({
 						key: "products.outline.visible",
 						value: true,
 					});
-					dispatch(
-						"popupManager/showPopup",
-						{ id: "achievement_outline" },
-						{ root: true }
+					usePopupStore().showPopup(
+						{ id: "achievement_outline" }
 					);
 				}
 
 				if (
 					cardType === "outline" &&
-					state.products.outline.count >= 5 &&
-					!state.milestones.fiveOutlines
+					this.products.outline.count >= 5 &&
+					!this.milestones.fiveOutlines
 				) {
-					commit("SET_MILESTONE_ACHIEVED", "fiveOutlines");
-					commit("UPDATE_STATE_VARIABLE", {
+					this.SET_MILESTONE_ACHIEVED("fiveOutlines");
+					this.UPDATE_STATE_VARIABLE({
 						key: "products.treatment.visible",
 						value: true,
 					});
-					dispatch(
-						"popupManager/showPopup",
-						{ id: "achievement_treatment" },
-						{ root: true }
+					usePopupStore().showPopup(
+						{ id: "achievement_treatment" }
 					);
 				}
 
 				if (
 					cardType === "treatment" &&
-					state.products.treatment.count >= 5 &&
-					!state.milestones.fiveTreatments
+					this.products.treatment.count >= 5 &&
+					!this.milestones.fiveTreatments
 				) {
-					commit("SET_MILESTONE_ACHIEVED", "fiveTreatments");
-					commit("UPDATE_STATE_VARIABLE", {
+					this.SET_MILESTONE_ACHIEVED("fiveTreatments");
+					this.UPDATE_STATE_VARIABLE({
 						key: "products.draftScript.visible",
 						value: true,
 					});
-					dispatch(
-						"popupManager/showPopup",
-						{ id: "achievement_draftScript" },
-						{ root: true }
+					usePopupStore().showPopup(
+						{ id: "achievement_draftScript" }
 					);
 				}
 
 				if (
 					cardType === "draftScript" &&
-					state.products.draftScript.count >= 5 &&
-					!state.milestones.fiveDraftScripts
+					this.products.draftScript.count >= 5 &&
+					!this.milestones.fiveDraftScripts
 				) {
-					commit("SET_MILESTONE_ACHIEVED", "fiveDraftScripts");
-					commit("UPDATE_STATE_VARIABLE", {
+					this.SET_MILESTONE_ACHIEVED("fiveDraftScripts");
+					this.UPDATE_STATE_VARIABLE({
 						key: "products.shootingScript.visible",
 						value: true,
 					});
-					dispatch(
-						"popupManager/showPopup",
-						{ id: "achievement_shootingScript" },
-						{ root: true }
+					usePopupStore().showPopup(
+						{ id: "achievement_shootingScript" }
 					);
 				}
 			}
 
 			// Check for dollar-based milestones
-			dispatch("checkDollarMilestones");
+			this.checkDollarMilestones();
 		},
 
 		// ... existing code ...
 
 		// Add a new action to check for dollar-based unlocks
-		checkDollarMilestones({ state, commit, dispatch }) {
+		checkDollarMilestones() {
 			// Check for Writers Room unlock
-			if (state.writingDollarCount >= 60 && !state.milestones.sixtyDollars) {
-				commit("SET_MILESTONE_ACHIEVED", "sixtyDollars");
+			if (this.writingDollarCount >= 60 && !this.milestones.sixtyDollars) {
+				this.SET_MILESTONE_ACHIEVED("sixtyDollars");
 
 				// Unlock Writers Room
-				if (!state.writersRoomVisible) {
-					commit("UPDATE_STATE_VARIABLE", {
+				if (!this.writersRoomVisible) {
+					this.UPDATE_STATE_VARIABLE({
 						key: "writersRoomVisible",
 						value: true,
 					});
-					commit("UPDATE_STATE_VARIABLE", {
+					this.UPDATE_STATE_VARIABLE({
 						key: "workers.intern.visible",
 						value: true,
 					});
 
 					// Show the unlock popup
-					dispatch("popupManager/showPopup", { id: "writersRoom_unlock" });
+					usePopupStore().showPopup({ id: "writersRoom_unlock" });
 				}
 			}
 
 			// Check for junior writers unlock (after earning more money)
 			if (
-				state.totalWritingDollarCount >= 200 &&
-				!state.workers.junior.visible
+				this.totalWritingDollarCount >= 200 &&
+				!this.workers.junior.visible
 			) {
-				commit("UPDATE_STATE_VARIABLE", {
+				this.UPDATE_STATE_VARIABLE({
 					key: "workers.junior.visible",
 					value: true,
 				});
 
-				dispatch("popupManager/showPopup", { id: "writersRoom_juniorWriters" });
+				usePopupStore().showPopup({ id: "writersRoom_juniorWriters" });
 			}
 
 			// Check for screenwriters unlock
 			if (
-				state.totalWritingDollarCount >= 800 &&
-				!state.workers.screenwriter.visible
+				this.totalWritingDollarCount >= 800 &&
+				!this.workers.screenwriter.visible
 			) {
-				commit("UPDATE_STATE_VARIABLE", {
+				this.UPDATE_STATE_VARIABLE({
 					key: "workers.screenwriter.visible",
 					value: true,
 				});
 
-				dispatch("popupManager/showPopup", { id: "writersRoom_screenwriters" });
+				usePopupStore().showPopup({ id: "writersRoom_screenwriters" });
 			}
 
 			// Check for cowriters unlock
 			if (
-				state.totalWritingDollarCount >= 3000 &&
-				!state.workers.cowriters.visible
+				this.totalWritingDollarCount >= 3000 &&
+				!this.workers.cowriters.visible
 			) {
-				commit("UPDATE_STATE_VARIABLE", {
+				this.UPDATE_STATE_VARIABLE({
 					key: "workers.cowriters.visible",
 					value: true,
 				});
 
-				dispatch("popupManager/showPopup", { id: "writersRoom_cowriters" });
+				usePopupStore().showPopup({ id: "writersRoom_cowriters" });
 			}
 
 			// Check for script doctors unlock
 			if (
-				state.totalWritingDollarCount >= 10000 &&
-				!state.workers.scriptDoctor.visible
+				this.totalWritingDollarCount >= 10000 &&
+				!this.workers.scriptDoctor.visible
 			) {
-				commit("UPDATE_STATE_VARIABLE", {
+				this.UPDATE_STATE_VARIABLE({
 					key: "workers.scriptDoctor.visible",
 					value: true,
 				});
 
-				dispatch("popupManager/showPopup", { id: "writersRoom_scriptDoctors" });
+				usePopupStore().showPopup({ id: "writersRoom_scriptDoctors" });
 			}
 		},
 
-		hireWorker({ commit, state, dispatch, getters }, { cost, name }) {
+		hireWorker({ cost, name }) {
 			// Don't do anything if the user doesn't have enough writing dollars
-			if (state.writingDollarCount < cost) {
+			if (this.writingDollarCount < cost) {
 				console.log(
-					`Not enough writing dollars to hire worker. Need ${cost}, have ${state.writingDollarCount}.`
+					`Not enough writing dollars to hire worker. Need ${cost}, have ${this.writingDollarCount}.`
 				);
 				return;
 			}
 
 			// Deduct cost from writing dollars
-			commit("DECREASE_WRITING_DOLLAR_AMOUNT", cost);
+			this.DECREASE_WRITING_DOLLAR_AMOUNT(cost);
 
 			// Get the worker type's details
 			const workerType = name;
-			const worker = state.workers[workerType];
+			const worker = this.workers[workerType];
 
 			if (!worker) {
-				console.error(`Worker type "${workerType}" not found in state.workers`);
+				console.error(`Worker type "${workerType}" not found in this.workers`);
 				return;
 			}
 
@@ -2664,7 +2505,7 @@ const store = createStore({
 			const durationMs = duration * 60 * 1000; // Convert to milliseconds
 
 			// Check if we've already got max capacity
-			if (state.currentWorkers.length >= getters.currentWritersRoomCapacity) {
+			if (this.currentWorkers.length >= this.currentWritersRoomCapacity) {
 				console.log("Can't hire worker. Writers room at capacity.");
 				return;
 			}
@@ -2677,7 +2518,7 @@ const store = createStore({
 			const id = Date.now() + nextWorkerId++;
 
 			// Add worker to state
-			commit("ADD_WORKER", { workerType, id });
+			this.ADD_WORKER({ workerType, id });
 
 			// Set the exact time this worker was hired
 			const exactHireTime = Date.now();
@@ -2694,7 +2535,7 @@ const store = createStore({
 			);
 
 			// Store timing information for animation
-			commit("UPDATE_WORKER_TIMES", {
+			this.UPDATE_WORKER_TIMES({
 				id,
 				workerType,
 				hireTime: exactHireTime,
@@ -2707,98 +2548,98 @@ const store = createStore({
 			// Check for worker-based milestones
 			if (
 				workerType === "intern" &&
-				state.workers.intern.count >= 5 &&
-				!state.milestones.fiveInterns
+				this.workers.intern.count >= 5 &&
+				!this.milestones.fiveInterns
 			) {
-				commit("SET_MILESTONE_ACHIEVED", "fiveInterns");
+				this.SET_MILESTONE_ACHIEVED("fiveInterns");
 			}
 
 			if (
 				workerType === "junior" &&
-				state.workers.junior.count >= 5 &&
-				!state.milestones.fiveJuniors
+				this.workers.junior.count >= 5 &&
+				!this.milestones.fiveJuniors
 			) {
-				commit("SET_MILESTONE_ACHIEVED", "fiveJuniors");
+				this.SET_MILESTONE_ACHIEVED("fiveJuniors");
 			}
 
 			if (
 				workerType === "screenwriter" &&
-				state.workers.screenwriter.count >= 5 &&
-				!state.milestones.fiveScreenwriters
+				this.workers.screenwriter.count >= 5 &&
+				!this.milestones.fiveScreenwriters
 			) {
-				commit("SET_MILESTONE_ACHIEVED", "fiveScreenwriters");
+				this.SET_MILESTONE_ACHIEVED("fiveScreenwriters");
 			}
 
 			if (
 				workerType === "cowriters" &&
-				state.workers.cowriters.count >= 5 &&
-				!state.milestones.fiveCowriters
+				this.workers.cowriters.count >= 5 &&
+				!this.milestones.fiveCowriters
 			) {
-				commit("SET_MILESTONE_ACHIEVED", "fiveCowriters");
+				this.SET_MILESTONE_ACHIEVED("fiveCowriters");
 			}
 
 			// Check if we've reached the three workers milestone
-			if (state.currentWorkers.length >= 3 && !state.milestones.threeWorkers) {
-				commit("SET_MILESTONE_ACHIEVED", "threeWorkers");
+			if (this.currentWorkers.length >= 3 && !this.milestones.threeWorkers) {
+				this.SET_MILESTONE_ACHIEVED("threeWorkers");
 
 				// Make the writers room upgrade visible
-				commit("UPDATE_STATE_VARIABLE", {
+				this.UPDATE_STATE_VARIABLE({
 					key: "writersRoomUpgradeVisible",
 					value: true,
 				});
 
 				// Show the upgrade popup
-				dispatch("popupManager/showPopup", { id: "writersRoom_upgrade" });
+				usePopupStore().showPopup({ id: "writersRoom_upgrade" });
 			}
 		},
 
-		expireWorkers({ commit, state }) {
+		expireWorkers() {
 			const now = Date.now();
-			state.currentWorkers.forEach(({ workerType, id }) => {
-				const workerTimes = state.workers[workerType]?.times;
+			this.currentWorkers.forEach(({ workerType, id }) => {
+				const workerTimes = this.workers[workerType]?.times;
 				const expectedRemovalTime = workerTimes?.[id]?.expectedRemovalTime;
 
 				if (expectedRemovalTime && expectedRemovalTime <= now) {
-					commit("REMOVE_WORKER", { workerType, id });
+					this.REMOVE_WORKER({ workerType, id });
 					delete workerTimes[id];
 				}
 			});
 		},
 
-		upgradeWritersRoom({ commit, state, dispatch }) {
+		upgradeWritersRoom() {
 			// Get next capacity upgrade
-			const nextIndex = state.currentCapacityIndex + 1;
-			if (nextIndex < state.writersRoomCapacities.length) {
-				const upgrade = state.writersRoomCapacities[nextIndex];
+			const nextIndex = this.currentCapacityIndex + 1;
+			if (nextIndex < this.writersRoomCapacities.length) {
+				const upgrade = this.writersRoomCapacities[nextIndex];
 
 				// Deduct the cost
-				commit("DECREASE_WRITING_DOLLAR_AMOUNT", upgrade.cost);
+				this.DECREASE_WRITING_DOLLAR_AMOUNT(upgrade.cost);
 
 				// Upgrade capacity
-				commit("UPGRADE_WRITERS_ROOM_CAPACITY");
+				this.UPGRADE_WRITERS_ROOM_CAPACITY();
 
 				// Check for the second writers room upgrade milestone
-				if (nextIndex === 2 && !state.milestones.secondWritersRoomUpgrade) {
-					commit("SET_MILESTONE_ACHIEVED", "secondWritersRoomUpgrade");
+				if (nextIndex === 2 && !this.milestones.secondWritersRoomUpgrade) {
+					this.SET_MILESTONE_ACHIEVED("secondWritersRoomUpgrade");
 
 					// Only show the popup for the first capacity upgrade
-					dispatch("popupManager/showPopup", {
+					usePopupStore().showPopup({
 						id: "writersRoom_capacityUpgrade",
 					});
 				}
 			}
 		},
 
-		generateScript({ commit, state, dispatch }, options = {}) {
+		generateScript(options = {}) {
 			// Use the genre from options or fall back to the current genre
-			const genre = options.genre || state.currentGenre;
+			const genre = options.genre || this.currentGenre;
 			const title = options.title || "";
 
 			// Get ranges from state
-			const roleRange = state.ranges.roleAmount;
-			const shotRange = state.ranges.shotAmount;
-			const setRange = state.ranges.setAmount;
-			const locationRange = state.ranges.locationAmount;
+			const roleRange = this.ranges.roleAmount;
+			const shotRange = this.ranges.shotAmount;
+			const setRange = this.ranges.setAmount;
+			const locationRange = this.ranges.locationAmount;
 
 			// Calculate random counts based on ranges
 			const numberOfRoles =
@@ -2823,13 +2664,13 @@ const store = createStore({
 			const looks = [];
 
 			// Get content pools from state
-			const possibleRoles = state.genres[genre].roles;
-			const possibleShots = state.pools.shots;
-			const possibleSets = state.pools.sets;
-			const possibleLocations = state.pools.locations;
-			const possibleCostumes = state.pools.costumes;
-			const possibleLooks = state.pools.looks;
-			const scriptQuality = state.genres[genre].quality;
+			const possibleRoles = this.genres[genre].roles;
+			const possibleShots = this.pools.shots;
+			const possibleSets = this.pools.sets;
+			const possibleLocations = this.pools.locations;
+			const possibleCostumes = this.pools.costumes;
+			const possibleLooks = this.pools.looks;
+			const scriptQuality = this.genres[genre].quality;
 
 			// Assign roles randomly from the genre's roles pool
 			for (let i = 0; i < numberOfRoles; i++) {
@@ -2876,7 +2717,7 @@ const store = createStore({
 				const costumeIndex = Math.floor(
 					Math.random() * possibleCostumes.length
 				);
-				const costumeName = state.pools.costumes[costumeIndex];
+				const costumeName = this.pools.costumes[costumeIndex];
 
 				costumes.push({
 					name: costumeName,
@@ -2887,7 +2728,7 @@ const store = createStore({
 					const secondCostumeIndex = Math.floor(
 						Math.random() * possibleCostumes.length
 					);
-					const secondCostumeName = state.pools.costumes[secondCostumeIndex];
+					const secondCostumeName = this.pools.costumes[secondCostumeIndex];
 					costumes.push({
 						name: secondCostumeName,
 						role: roles[i].name,
@@ -2899,7 +2740,7 @@ const store = createStore({
 			// Generate looks for each role, with a chance of a second look
 			for (let i = 0; i < numberOfRoles; i++) {
 				const lookIndex = Math.floor(Math.random() * possibleLooks.length);
-				const lookName = state.pools.looks[lookIndex];
+				const lookName = this.pools.looks[lookIndex];
 
 				looks.push({
 					name: lookName,
@@ -2910,7 +2751,7 @@ const store = createStore({
 					const secondLookIndex = Math.floor(
 						Math.random() * possibleLooks.length
 					);
-					const secondLookName = state.pools.looks[secondLookIndex];
+					const secondLookName = this.pools.looks[secondLookIndex];
 					looks.push({
 						name: secondLookName,
 						role: roles[i].name,
@@ -2973,16 +2814,16 @@ ${looksList}`;
 			};
 
 			// Add the script to the store
-			commit("ADD_SCRIPT", script);
+			this.ADD_SCRIPT(script);
 
 			// The "script_new" popup has been removed from the game
 			// No popup will be shown when generating a script
 		},
 
-		deductWorkerWages({ commit, state }) {
+		deductWorkerWages() {
 			// Calculate total wages based on assigned workers in departments
 			const workerRate = 3; // Rate per worker per second
-			const departmentWages = Object.values(state.departments).reduce(
+			const departmentWages = Object.values(this.departments).reduce(
 				(total, dept) => {
 					return total + dept.employees * workerRate;
 				},
@@ -2990,168 +2831,164 @@ ${looksList}`;
 			);
 
 			// Add wages for searchers and pitchers
-			const searcherWages = state.searcherCount * workerRate;
-			const pitcherWages = state.pitcherCount * workerRate;
+			const searcherWages = this.searcherCount * workerRate;
+			const pitcherWages = this.pitcherCount * workerRate;
 			const totalWages = departmentWages + searcherWages + pitcherWages;
 
 			// Deduct wages if there are any workers
 			if (totalWages > 0) {
-				commit("DEDUCT_WORKER_WAGES", totalWages);
+				this.DEDUCT_WORKER_WAGES(totalWages);
 			}
 		},
 
-		purchaseTool({ commit, state, dispatch }, { cost, wordsPerClick }) {
+		purchaseTool({ cost, wordsPerClick }) {
 			// Check if the player can afford the tool
-			if (state.writingDollarCount >= cost) {
+			if (this.writingDollarCount >= cost) {
 				// Deduct the cost
-				commit("DECREASE_WRITING_DOLLAR_AMOUNT", cost);
+				this.DECREASE_WRITING_DOLLAR_AMOUNT(cost);
 
-				// Update the words per click
-				commit("SET_WORDS_PER_CLICK", wordsPerClick);
 
 				// Find the next tool in the sequence
-				const toolKeys = Object.keys(state.writeTools);
-				const currentToolIndex = toolKeys.indexOf(state.currentWriteTool);
+				const toolKeys = Object.keys(this.writeTools);
+				const currentToolIndex = toolKeys.indexOf(this.currentWriteTool);
 
 				if (currentToolIndex < toolKeys.length - 1) {
 					// Set the next tool as current
 					const nextToolKey = toolKeys[currentToolIndex + 1];
-					commit("SET_NEXT_WRITE_TOOL", nextToolKey);
+					this.SET_NEXT_WRITE_TOOL(nextToolKey);
 
 					// Show a popup for the first tool upgrade
 					if (currentToolIndex === 0) {
-						dispatch("popupManager/showPopup", {
+						usePopupStore().showPopup({
 							id: "achievement_writingTool",
 						});
 					}
 				}
 
 				// Check for word-based milestones
-				if (wordsPerClick >= 5 && !state.milestones.genreLevelTwo) {
-					commit("SET_MILESTONE_ACHIEVED", "genreLevelTwo");
+				if (wordsPerClick >= 5 && !this.milestones.genreLevelTwo) {
+					this.SET_MILESTONE_ACHIEVED("genreLevelTwo");
 
 					// Make the genre switch visible
-					commit("UPDATE_STATE_VARIABLE", {
+					this.UPDATE_STATE_VARIABLE({
 						key: "switchGenreVisible",
 						value: true,
 					});
 
 					// Show the genre unlock popup
-					dispatch("popupManager/showPopup", { id: "genre_unlock" });
+					usePopupStore().showPopup({ id: "genre_unlock" });
 				}
 			}
 		},
 
 		// Show a toast notification when preproduction is unlocked
-		showPreproductionUnlockedToast({ commit, dispatch }) {
+		showPreproductionUnlockedToast() {
 			// Show a persistent toast notification
-			dispatch("showToast", {
+			this.showToast({
 				message:
 					"Preproduction phase unlocked! Welcome to your first movie project!",
 				type: "persistent",
 			});
 
 			// Show a popup to explain the preproduction phase
-			dispatch(
-				"popupManager/showPopup",
+			usePopupStore().showPopup(
 				{
 					id: "game_preproductionUnlocked",
-				},
-				{ root: true }
+				}
 			);
 		},
 
 		// Show a toast notification via the store
-		showToast({ commit }, payload) {
+		showToast(payload) {
 			// Handle both string messages and object payloads
 			if (typeof payload === "string") {
-				commit("SET_TOAST_MESSAGE", payload);
-				commit("SET_TOAST_TYPE", "temporary");
-				commit("SET_TOAST_VISIBLE", true);
+				this.SET_TOAST_MESSAGE(payload);
+				this.SET_TOAST_TYPE("temporary");
+				this.SET_TOAST_VISIBLE(true);
 
 				// Auto-hide after 6 seconds for temporary toasts
 				setTimeout(() => {
-					commit("SET_TOAST_VISIBLE", false);
+					this.SET_TOAST_VISIBLE(false);
 				}, 6000);
 			} else {
 				const { message, type = "temporary" } = payload;
-				commit("SET_TOAST_MESSAGE", message);
-				commit("SET_TOAST_TYPE", type);
-				commit("SET_TOAST_VISIBLE", true);
+				this.SET_TOAST_MESSAGE(message);
+				this.SET_TOAST_TYPE(type);
+				this.SET_TOAST_VISIBLE(true);
 
 				// Auto-hide after 6 seconds for temporary toasts
 				if (type === "temporary") {
 					setTimeout(() => {
-						commit("SET_TOAST_VISIBLE", false);
+						this.SET_TOAST_VISIBLE(false);
 					}, 6000);
 				}
 			}
 		},
 
 		// Pre-production milestone actions
-		checkDepartmentHeadsMilestone({ commit, state, dispatch }) {
+		checkDepartmentHeadsMilestone() {
 			// First, check if the milestone is already achieved
-			const wasAlreadyAchieved = state.milestones.twoDepartmentHeads;
+			const wasAlreadyAchieved = this.milestones.twoDepartmentHeads;
 
 			// Update the milestone state
 			console.log("Checking department heads milestone...");
-			commit("UPDATE_DEPARTMENT_HEADS_MILESTONE");
+			this.UPDATE_DEPARTMENT_HEADS_MILESTONE();
 
 			// If milestone was just achieved (wasn't achieved before but is now), show the popup and make components visible
-			if (state.milestones.twoDepartmentHeads && !wasAlreadyAchieved) {
+			if (this.milestones.twoDepartmentHeads && !wasAlreadyAchieved) {
 				console.log(
 					"Two department heads milestone is achieved, showing popup and making components visible"
 				);
 				// Show the feature unlock popup
-				dispatch("showFeatureUnlock", {
+				this.showFeatureUnlock({
 					popupKey: "feature_hireWorkerUnlock",
 				});
 
 				// Make the hire workers card visible if it's not already
-				if (!state.componentVisibility.hireWorkersCard) {
+				if (!this.componentVisibility.hireWorkersCard) {
 					console.log("Making hireWorkersCard visible");
-					commit("TOGGLE_COMPONENT_VISIBILITY", "hireWorkersCard");
+					this.TOGGLE_COMPONENT_VISIBILITY("hireWorkersCard");
 				}
 
 				// Make the pitching component visible if it's not already
-				if (!state.componentVisibility.pitchingComponent) {
+				if (!this.componentVisibility.pitchingComponent) {
 					console.log("Making pitchingComponent visible");
-					commit("TOGGLE_COMPONENT_VISIBILITY", "pitchingComponent");
+					this.TOGGLE_COMPONENT_VISIBILITY("pitchingComponent");
 				}
 
 				// Make the searchers and pitchers card visible if it's not already
-				if (!state.componentVisibility.searchersPitchersCard) {
+				if (!this.componentVisibility.searchersPitchersCard) {
 					console.log("Making searchersPitchersCard visible");
-					commit("TOGGLE_COMPONENT_VISIBILITY", "searchersPitchersCard");
+					this.TOGGLE_COMPONENT_VISIBILITY("searchersPitchersCard");
 				}
 			}
 		},
 
-		checkInspirationMilestone({ commit, state, dispatch }) {
-			commit("UPDATE_INSPIRATION_MILESTONE");
+		checkInspirationMilestone() {
+			this.UPDATE_INSPIRATION_MILESTONE();
 
 			// If milestone was just achieved, show the popup
-			if (state.milestones.firstInspirationPoint) {
-				dispatch("showFeatureUnlock", {
+			if (this.milestones.firstInspirationPoint) {
+				this.showFeatureUnlock({
 					popupKey: "feature_inspirationShopUnlock",
 				});
 
 				// Make the inspiration shop visible if it's not already
-				if (!state.componentVisibility.inspirationShop) {
+				if (!this.componentVisibility.inspirationShop) {
 					console.log("Making inspirationShop visible");
-					commit("TOGGLE_COMPONENT_VISIBILITY", "inspirationShop");
+					this.TOGGLE_COMPONENT_VISIBILITY("inspirationShop");
 				}
 			}
 		},
 
-		showFeatureUnlock({ dispatch }, { popupKey }) {
+		showFeatureUnlock({ popupKey }) {
 			// Show a feature unlock popup
-			dispatch("popupManager/showPopup", { id: popupKey });
+			usePopupStore().showPopup({ id: popupKey });
 
 			// Also show a toast notification
-			const popupData = this.state.popups[popupKey];
+			const popupData = this.popups[popupKey];
 			if (popupData) {
-				dispatch("showToast", {
+				this.showToast({
 					message: `🔓 ${popupData.title} unlocked!`,
 					type: "success",
 				});
@@ -3159,21 +2996,21 @@ ${looksList}`;
 		},
 
 		// Action to hire a department head
-		hireDepartmentHead({ commit, dispatch }, payload) {
+		hireDepartmentHead(payload) {
 			console.log("hireDepartmentHead action called with payload:", payload);
 
 			// First, commit the mutation to update the department state
-			commit("HIRE_DEPARTMENT_HEAD", payload);
+			this.HIRE_DEPARTMENT_HEAD(payload);
 
 			// Then, check if we've reached the milestone for hiring department heads
-			dispatch("checkDepartmentHeadsMilestone");
+			this.checkDepartmentHeadsMilestone();
 		},
 
 		// Spend inspiration points
-		spendInspiration({ commit }, cost) {
-			commit("DECREASE_INSPIRATION", cost);
+		spendInspiration(cost) {
+			this.DECREASE_INSPIRATION(cost);
 		},
 	},
 });
 
-export default store;
+export default useGameStore;

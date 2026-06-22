@@ -36,7 +36,8 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapState } from "pinia";
+import { useGameStore } from "@/store";
 
 export default {
 	data() {
@@ -46,10 +47,10 @@ export default {
 	},
 	name: "WritingToolCard",
 	computed: {
-		...mapGetters({
+		...mapState(useGameStore, {
 			currentToolDetails: "currentToolDetails", // Adjust according to the correct namespace if needed
 		}),
-		...mapGetters(["canAffordTool", "isToolVisible"]),
+		...mapState(useGameStore, ["canAffordTool", "isToolVisible"]),
 		title() {
 			return this.currentToolDetails?.name || "No Tool Available";
 		},
@@ -73,7 +74,7 @@ export default {
 	methods: {
 		handlePurchase() {
 			const { cost, wordsPerClick } = this.currentToolDetails; // Assuming these are derived from your component's computed properties or props
-			this.$store.dispatch("purchaseTool", { cost, wordsPerClick });
+			useGameStore().purchaseTool({ cost, wordsPerClick });
 		},
 	},
 };

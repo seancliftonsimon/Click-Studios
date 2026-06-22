@@ -41,7 +41,8 @@
 </template>
 
 <script>
-import { mapGetters, mapState, mapMutations } from "vuex";
+import { mapState, mapActions } from "pinia";
+import { useGameStore } from "@/store";
 
 export default {
 	data() {
@@ -50,10 +51,10 @@ export default {
 		};
 	},
 	computed: {
-		...mapState({
+		...mapState(useGameStore, {
 			genres: (state) => state.genres,
 		}),
-		...mapGetters({
+		...mapState(useGameStore, {
 			currentGenreDetails: "currentGenreDetails",
 			switchGenreVisible: "switchGenreVisible",
 		}),
@@ -63,12 +64,12 @@ export default {
 
 		currentLevelCap() {
 			return this.currentGenreDetails.level > 0
-				? this.$store.state.levelCaps[this.currentGenreDetails.level - 1]
+				? useGameStore().levelCaps[this.currentGenreDetails.level - 1]
 				: 0;
 		},
 		nextLevelCap() {
-			return this.currentGenreDetails.level < this.$store.state.levelCaps.length
-				? this.$store.state.levelCaps[this.currentGenreDetails.level]
+			return this.currentGenreDetails.level < useGameStore().levelCaps.length
+				? useGameStore().levelCaps[this.currentGenreDetails.level]
 				: this.currentLevelCap;
 		},
 		wordsToNextLevel() {
@@ -90,7 +91,7 @@ export default {
 		},
 	},
 	methods: {
-		...mapMutations({
+		...mapActions(useGameStore, {
 			setCurrentGenre: "SET_CURRENT_GENRE",
 		}),
 		updateGenre(value) {

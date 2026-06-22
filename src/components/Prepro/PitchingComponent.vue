@@ -75,7 +75,8 @@
 </template>
 
 <script>
-import { mapGetters, mapState } from "vuex";
+import { mapState } from "pinia";
+import { useGameStore } from "@/store";
 
 import InvestorSearchCard from "./InvestorSearchCard.vue";
 import InvestorFoundCard from "./InvestorFoundCard.vue";
@@ -89,13 +90,13 @@ export default {
 		};
 	},
 	computed: {
-		...mapGetters({
+		...mapState(useGameStore, {
 			unassignedEmployeeCount: "unassignedEmployeeCount",
 			searcherCount: "searcherCount",
 			pitcherCount: "pitcherCount",
 			currentInvestorTier: "currentInvestorTier",
 		}),
-		...mapState({
+		...mapState(useGameStore, {
 			componentVisibility: (state) => state.componentVisibility,
 		}),
 		hasUnassignedEmployees() {
@@ -123,16 +124,16 @@ export default {
 			console.log(`${this.currentCard}`);
 		},
 		assignSearcher() {
-			this.$store.commit("ASSIGN_SEARCHER", 1);
+			useGameStore().ASSIGN_SEARCHER(1);
 		},
 		unassignSearcher() {
-			this.$store.commit("UNASSIGN_SEARCHER", 1);
+			useGameStore().UNASSIGN_SEARCHER(1);
 		},
 		assignPitcher() {
-			this.$store.commit("ASSIGN_PITCHER", 1);
+			useGameStore().ASSIGN_PITCHER(1);
 		},
 		unassignPitcher() {
-			this.$store.commit("UNASSIGN_PITCHER", 1);
+			useGameStore().UNASSIGN_PITCHER(1);
 		},
 	},
 };

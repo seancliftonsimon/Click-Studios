@@ -1,4 +1,5 @@
-import store from "@/store";
+import { useGameStore } from "@/store";
+import { usePopupStore } from "@/store/popup";
 import { popupKeyMapping } from "@/data/popups";
 
 /**
@@ -6,13 +7,6 @@ import { popupKeyMapping } from "@/data/popups";
  * Provides methods for displaying and managing popups
  */
 class PopupService {
-	/**
-	 * Constructor
-	 */
-	constructor() {
-		this.store = store;
-	}
-
 	/**
 	 * Show a popup by ID with optional props
 	 * @param {string} id - The ID of the popup to show
@@ -23,7 +17,7 @@ class PopupService {
 		// Check for legacy popup keys
 		const mappedId = popupKeyMapping[id] || id;
 
-		this.store.dispatch("popupManager/showPopup", {
+		usePopupStore().showPopup({
 			id: mappedId,
 			props,
 		});
@@ -39,7 +33,7 @@ class PopupService {
 		// Check for legacy popup keys
 		const mappedId = popupKeyMapping[id] || id;
 
-		this.store.dispatch("popupManager/queuePopup", {
+		usePopupStore().queuePopup({
 			id: mappedId,
 			props,
 		});
@@ -64,13 +58,13 @@ class PopupService {
 		const id = options.id || `dynamic_info_${Date.now()}`;
 
 		// Register the popup first
-		this.store.dispatch("popupManager/registerPopup", {
+		usePopupStore().registerPopup({
 			id,
 			config: popupConfig,
 		});
 
 		// Then show it
-		this.store.dispatch("popupManager/showPopup", {
+		usePopupStore().showPopup({
 			id,
 			props: {},
 		});
@@ -102,13 +96,13 @@ class PopupService {
 		const id = options.id || `dynamic_confirm_${Date.now()}`;
 
 		// Register the popup first
-		this.store.dispatch("popupManager/registerPopup", {
+		usePopupStore().registerPopup({
 			id,
 			config: popupConfig,
 		});
 
 		// Then show it
-		this.store.dispatch("popupManager/showPopup", {
+		usePopupStore().showPopup({
 			id,
 			props: {},
 		});
@@ -148,13 +142,13 @@ class PopupService {
 		const id = options.id || `dynamic_input_${Date.now()}`;
 
 		// Register the popup first
-		this.store.dispatch("popupManager/registerPopup", {
+		usePopupStore().registerPopup({
 			id,
 			config: popupConfig,
 		});
 
 		// Then show it
-		this.store.dispatch("popupManager/showPopup", {
+		usePopupStore().showPopup({
 			id,
 			props: {},
 		});
@@ -165,7 +159,7 @@ class PopupService {
 	 * @returns {void}
 	 */
 	closeCurrentPopup() {
-		this.store.dispatch("popupManager/closePopup");
+		usePopupStore().closePopup();
 	}
 
 	/**
@@ -173,7 +167,7 @@ class PopupService {
 	 * @returns {void}
 	 */
 	clearAllPopups() {
-		this.store.dispatch("popupManager/clearAllPopups");
+		usePopupStore().clearAllPopups();
 	}
 
 	/**
@@ -226,7 +220,7 @@ class PopupService {
 	 * @returns {void}
 	 */
 	showTemporaryToast(message) {
-		this.store.dispatch("showToast", {
+		useGameStore().showToast({
 			message,
 			type: "temporary",
 		});
@@ -238,7 +232,7 @@ class PopupService {
 	 * @returns {void}
 	 */
 	showPersistentToast(message) {
-		this.store.dispatch("showToast", {
+		useGameStore().showToast({
 			message,
 			type: "persistent",
 		});

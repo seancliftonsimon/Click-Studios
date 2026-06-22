@@ -24,7 +24,8 @@
 	</v-card>
 </template>
 <script>
-import { mapGetters } from "vuex";
+import { mapState } from "pinia";
+import { useGameStore } from "@/store";
 import { useGameClockStore } from "@/stores/gameClockStore";
 
 export default {
@@ -35,17 +36,14 @@ export default {
 		};
 	},
 	computed: {
-		...mapGetters(["currentInvestment", "autoCollectEnabled"]),
+		...mapState(useGameStore, ["currentInvestment", "autoCollectEnabled"]),
 		gameClockStore() {
 			return useGameClockStore();
 		},
 	},
 	methods: {
 		nextCard() {
-			this.$store.commit(
-				"INCREASE_PREPRO_DOLLAR_AMOUNT",
-				this.currentInvestment
-			);
+			useGameStore().INCREASE_PREPRO_DOLLAR_AMOUNT(this.currentInvestment);
 			console.log("increasing dollar amount by ");
 			console.log(this.currentInvestment);
 			this.$emit("nextCard");

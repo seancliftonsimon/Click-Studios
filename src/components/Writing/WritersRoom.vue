@@ -23,7 +23,8 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapState } from "pinia";
+import { useGameStore } from "@/store";
 import WorkerEmoji from "./WorkerEmoji.vue";
 
 export default {
@@ -31,14 +32,14 @@ export default {
 		WorkerEmoji,
 	},
 	computed: {
-		...mapGetters({
+		...mapState(useGameStore, {
 			getWorkerDetails: "getWorkerDetails",
 			workers: "workers",
 			currentCapacity: "currentWritersRoomCapacity",
 		}),
 		workersDisplay() {
-			return this.$store.state.currentWorkers.map((workerEntry) => {
-				const workerDetails = this.$store.state.workers[workerEntry.workerType];
+			return useGameStore().currentWorkers.map((workerEntry) => {
+				const workerDetails = useGameStore().workers[workerEntry.workerType];
 				if (!workerDetails) {
 					console.error(
 						`Details not found for worker type: ${workerEntry.workerType}`
@@ -62,7 +63,7 @@ export default {
 	},
 	methods: {
 		getWorkerTimes(worker) {
-			const workerDetails = this.$store.state.workers[worker.workerType];
+			const workerDetails = useGameStore().workers[worker.workerType];
 
 			// Default times in case we can't find them
 			const defaultTimes = {
@@ -87,7 +88,7 @@ export default {
 			};
 		},
 		isWorkerExpiring(worker) {
-			const workerDetails = this.$store.state.workers[worker.workerType];
+			const workerDetails = useGameStore().workers[worker.workerType];
 			if (!workerDetails || !workerDetails.times) return false;
 
 			// Get worker timing info from store
@@ -119,13 +120,13 @@ export default {
 		},
 		handleWorkerExpired(worker) {
 			// Remove the worker from the store when it expires
-			this.$store.commit("REMOVE_WORKER", {
+			useGameStore().REMOVE_WORKER({
 				workerType: worker.workerType,
 				id: worker.id,
 			});
 		},
 		getWorkerWps(worker) {
-			const workerDetails = this.$store.state.workers[worker.workerType];
+			const workerDetails = useGameStore().workers[worker.workerType];
 			return workerDetails ? workerDetails.wps : 0;
 		},
 	},

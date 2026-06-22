@@ -196,7 +196,8 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapState } from "pinia";
+import { useGameStore } from "@/store";
 import CastingBarStack from "./CastingBarStack.vue";
 import ShotPlanningBarStack from "./ShotPlanningBarStack.vue";
 import SetBuildingBarStack from "./SetBuildingBarStack.vue";
@@ -232,7 +233,7 @@ export default {
 		},
 	},
 	computed: {
-		...mapGetters({
+		...mapState(useGameStore, {
 			actorGoal: "actorGoal",
 			completeRolesCount: "completeRolesCount",
 			shotGoal: "shotGoal",

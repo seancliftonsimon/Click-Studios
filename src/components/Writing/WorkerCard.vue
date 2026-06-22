@@ -45,7 +45,8 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapState } from "pinia";
+import { useGameStore } from "@/store";
 
 export default {
 	props: {
@@ -53,7 +54,7 @@ export default {
 	},
 	name: "WorkerCard",
 	computed: {
-		...mapGetters({
+		...mapState(useGameStore, {
 			getWorkerDetails: "getWorkerDetails",
 			workers: "workers",
 			currentWritersRoomCapacity: "currentWritersRoomCapacity",
@@ -85,7 +86,7 @@ export default {
 			return this.workerDetails.duration ?? 0;
 		},
 		canAfford() {
-			return this.$store.state.writingDollarCount >= this.cost;
+			return useGameStore().writingDollarCount >= this.cost;
 		},
 		isWorkerVisible() {
 			return this.workerDetails.visible;
@@ -100,7 +101,7 @@ export default {
 	methods: {
 		makeHire(cost) {
 			if (this.canAfford) {
-				this.$store.dispatch("hireWorker", {
+				useGameStore().hireWorker({
 					cost,
 					name: this.workerType, // Pass the workerType directly instead of the display name
 				});

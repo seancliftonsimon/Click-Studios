@@ -9,11 +9,12 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapState } from "pinia";
+import { useGameStore } from "@/store";
 
 export default {
 	computed: {
-		...mapGetters({
+		...mapState(useGameStore, {
 			wordCount: "wordCount",
 			wordsPerSecond: "wordsPerSecond",
 		}),

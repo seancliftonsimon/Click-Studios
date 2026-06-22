@@ -1,21 +1,21 @@
 import { defineStore } from "pinia";
-import legacyStore from "@/store";
+import { useGameStore } from "@/store";
 
 export const usePlayerStore = defineStore("player", {
 	getters: {
 		studioName() {
-			return legacyStore.state.studioName;
+			return useGameStore().studioName;
 		},
 		writingDollarCount() {
-			return legacyStore.state.writingDollarCount;
+			return useGameStore().writingDollarCount;
 		},
 		preproDollarCount() {
-			return legacyStore.state.preproDollarCount;
+			return useGameStore().preproDollarCount;
 		},
 	},
 	actions: {
 		setStudioName(studioName) {
-			legacyStore.commit("UPDATE_STATE_VARIABLE", {
+			useGameStore().UPDATE_STATE_VARIABLE({
 				key: "studioName",
 				value: studioName,
 			});

@@ -1,22 +1,23 @@
 import { defineStore } from "pinia";
-import legacyStore from "@/store";
+import { useGameStore } from "@/store";
+import { usePopupStore } from "@/store/popup";
 
 export const useUiStore = defineStore("ui", {
 	getters: {
 		componentVisibility() {
-			return legacyStore.state.componentVisibility;
+			return useGameStore().componentVisibility;
 		},
 	},
 	actions: {
 		showToast(payload) {
-			return legacyStore.dispatch("showToast", payload);
+			return useGameStore().showToast(payload);
 		},
 		showPopup(id) {
-			return legacyStore.dispatch("popupManager/showPopup", { id });
+			return usePopupStore().showPopup({ id });
 		},
 		setComponentVisible(componentName, visible) {
-			if (legacyStore.state.componentVisibility[componentName] !== visible) {
-				legacyStore.commit("TOGGLE_COMPONENT_VISIBILITY", componentName);
+			if (useGameStore().componentVisibility[componentName] !== visible) {
+				useGameStore().TOGGLE_COMPONENT_VISIBILITY(componentName);
 			}
 		},
 	},

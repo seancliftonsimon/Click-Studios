@@ -150,12 +150,13 @@
 
 <script>
 // Import Vuex helpers for mapping state and actions
-import { mapGetters, mapActions, mapMutations } from "vuex";
+import { mapState, mapActions } from "pinia";
+import { useGameStore } from "@/store";
 
 export default {
 	computed: {
 		// Map Vuex getters to local computed properties
-		...mapGetters({
+		...mapState(useGameStore, {
 			playerInspiration: "inspiration",
 			unassignedEmployeeCount: "unassignedEmployeeCount",
 			manualSearchAmount: "manualSearchAmount",
@@ -196,7 +197,7 @@ export default {
 		},
 	},
 	methods: {
-		...mapMutations([
+		...mapActions(useGameStore, [
 			"INCREASE_MANUAL_SEARCH_AMOUNT",
 			"INCREASE_MANUAL_PITCH_AMOUNT",
 			"INCREASE_WORKER_SEARCH_SPEED",
@@ -208,7 +209,7 @@ export default {
 			"TOGGLE_AUTO_COLLECT",
 			"INCREMENT_PREPRO_UPGRADE_LEVEL",
 		]),
-		...mapActions(["spendInspiration", "showToast"]),
+		...mapActions(useGameStore, ["spendInspiration", "showToast"]),
 		calculateCost(activations, costArray) {
 			return activations < costArray.length ? costArray[activations] : Infinity;
 		},
