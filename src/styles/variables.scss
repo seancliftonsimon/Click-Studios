@@ -30,7 +30,7 @@ $border-radius-button: 8px; // For buttons
 $border-radius-progress: 8px; // For progress bars
 
 .v-application {
-	background: var(--cs-color-popcorn);
+	background: var(--cs-color-ticket);
 	color: var(--cs-color-ink);
 	font-family: var(--cs-font-body);
 	user-select: none;
@@ -50,9 +50,9 @@ $border-radius-progress: 8px; // For progress bars
 
 .phase-container {
 	background:
-		linear-gradient(90deg, rgba(147, 22, 33, 0.04) 1px, transparent 1px) 0 0 /
+		linear-gradient(90deg, rgba(147, 22, 33, 0.035) 1px, transparent 1px) 0 0 /
 			32px 32px,
-		var(--cs-color-popcorn) !important;
+		var(--cs-color-ticket) !important;
 	min-height: calc(100vh - 64px);
 }
 

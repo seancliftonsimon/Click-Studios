@@ -99,6 +99,9 @@
 			<v-main>
 				<PopupManager v-if="!isMockupRoute" />
 				<GuidedHintManager v-if="!isMockupRoute" />
+				<GreenlightConfigurator v-if="!isMockupRoute" />
+				<StudioLibrary v-if="!isMockupRoute" />
+				<GreenlightDebugPanel v-if="!isMockupRoute" />
 				<router-view />
 			</v-main>
 			</v-row>
@@ -108,6 +111,9 @@
 <script>
 import PopupManager from "./components/ui/PopupManager.vue";
 import GuidedHintManager from "./components/ui/GuidedHintManager.vue";
+import GreenlightConfigurator from "./components/Greenlight/GreenlightConfigurator.vue";
+import StudioLibrary from "./components/Greenlight/StudioLibrary.vue";
+import GreenlightDebugPanel from "./components/Debug/GreenlightDebugPanel.vue";
 import { mapState } from "pinia";
 import { useGameStore } from "@/store";
 import { useGuidanceStore } from "@/stores/guidanceStore";
@@ -120,6 +126,9 @@ export default {
 	components: {
 		PopupManager,
 		GuidedHintManager,
+		GreenlightConfigurator,
+		StudioLibrary,
+		GreenlightDebugPanel,
 	},
 	data() {
 		return {

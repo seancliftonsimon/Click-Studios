@@ -105,6 +105,7 @@ export function createSaveSnapshot({
 			currentScript: clone(state.currentScript),
 			currentDevelopmentEndpointReached:
 				state.currentDevelopmentEndpointReached,
+			projectUnlocks: clone(state.projectUnlocks),
 		},
 		preproduction: {
 			searchesNeeded: state.searchesNeeded,
@@ -411,6 +412,14 @@ function createGamePatch(save, currentState) {
 			"currentScript",
 			"currentDevelopmentEndpointReached",
 		]),
+		projectUnlocks: {
+			...clone(currentState.projectUnlocks),
+			...clone(project.projectUnlocks || {}),
+			roles: {
+				...clone(currentState.projectUnlocks?.roles),
+				...clone(project.projectUnlocks?.roles || {}),
+			},
+		},
 		...pickDefined(preproduction, [
 			"searchesNeeded",
 			"manualSearchAmount",

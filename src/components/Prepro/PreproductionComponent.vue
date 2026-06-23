@@ -51,7 +51,9 @@
 					</v-col>
 					<v-col cols="8">
 						<InspirationShop v-if="componentVisibility.inspirationShop" />
-						<v-card v-else class="center-content"><br /><br /></v-card>
+						<v-card v-else class="cs-panel-quiet center-content"
+							><br /><br
+						/></v-card>
 					</v-col>
 				</v-row>
 			</v-col>

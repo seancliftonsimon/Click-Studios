@@ -18,6 +18,12 @@ app.config.globalProperties.$formatNumber = (value) => {
 	return new Intl.NumberFormat("en-US").format(value);
 };
 
+// Pluralize a noun based on count: $plural(1, "word") -> "1 word".
+app.config.globalProperties.$plural = (count, noun, suffix = "s") => {
+	const formatted = new Intl.NumberFormat("en-US").format(count);
+	return `${formatted} ${noun}${count === 1 ? "" : suffix}`;
+};
+
 app.config.globalProperties.$formatNumberShort = (value) => {
 	// Numbers under 1,000
 	if (value < 1000) {

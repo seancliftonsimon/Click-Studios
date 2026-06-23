@@ -1,5 +1,5 @@
 <template>
-	<v-card>
+	<v-card class="cs-panel prepro-banner">
 		<v-container fluid class="px-8">
 			<v-row>
 				<v-col class="py-0" cols="12">
@@ -301,13 +301,17 @@ export default {
 </script>
 
 <style scoped>
+.prepro-banner {
+	padding: 8px 4px 16px;
+}
+
 .v-chip {
-	font-family: Roboto;
+	font-family: var(--cs-font-body);
 	font-size: 16px;
 }
 
 span {
-	font-family: Roboto;
+	font-family: var(--cs-font-body);
 	font-size: 16px;
 	text-transform: capitalize;
 }
@@ -317,6 +321,7 @@ span {
 	justify-content: center;
 	align-items: center;
 	gap: 8px;
+	font-family: var(--cs-font-display);
 }
 
 .sparkle {
@@ -338,11 +343,15 @@ span {
 
 .completed-chip {
 	color: white !important;
-	font-weight: 500;
+	font-weight: 600;
 }
 
+/* Incomplete items read as plain ticket stock; completing one fills it with
+   the department's color (selected = fill, per the design system). */
 .incomplete-chip {
-	color: rgba(0, 0, 0, 0.87) !important;
+	background: var(--cs-color-ticket) !important;
+	border: 1px solid var(--cs-color-line) !important;
+	color: var(--cs-color-ink) !important;
 }
 
 .v-chip.completed-chip {

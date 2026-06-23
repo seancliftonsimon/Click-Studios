@@ -10,6 +10,15 @@ import {
 	readRawSaveFromLocalStorage,
 	saveSnapshotToLocalStorage,
 } from "@/services/saveService";
+import {
+	rolePools,
+	setPool,
+	locationPool,
+	shotPool,
+	unlockedSlice,
+	maxTier,
+	getBudgetTier,
+} from "@/data/projectPools";
 
 let nextWorkerId = 1;
 
@@ -522,6 +531,25 @@ export const useGameStore = defineStore("game", {
 
 		// TODO: Change back to 0 after testing
 		inspiration: 10,
+
+		// Greenlight Configurator (project customization) ---------------------
+		// Transient UI state for the budget/role/set/location picker overlay.
+		greenlightVisible: false,
+		greenlightBudgetId: null,
+
+		// Studio Library overlay (browse unlocked roles/sets/locations).
+		libraryVisible: false,
+
+		// Per-category unlock tiers. Roles unlock per-genre; sets/locations/shots
+		// are shared across genres. Tier 0 = starter items only; each bump reveals
+		// more of the ordered pool. (Driven by test buttons for now; will later be
+		// driven by films released per genre.)
+		projectUnlocks: {
+			roles: { horror: 0, comedy: 0, drama: 0, action: 0 },
+			sets: 0,
+			locations: 0,
+			shots: 0,
+		},
 
 		// STATIC VARIABLES BELOW
 
@@ -1633,6 +1661,21 @@ export const useGameStore = defineStore("game", {
 		lookGoal: (state) => state.currentScript.looks.length,
 		scriptTitle: (state) => state.currentScript.title,
 		scriptGenre: (state) => state.currentScript.genre,
+
+		// Currently-unlocked customization options.
+		unlockedRolesForGenre: (state) => (genre) => {
+			const key = genre || state.currentGenre;
+			return unlockedSlice(
+				rolePools[key] || [],
+				state.projectUnlocks.roles[key] || 0
+			);
+		},
+		unlockedSets: (state) =>
+			unlockedSlice(setPool, state.projectUnlocks.sets),
+		unlockedLocations: (state) =>
+			unlockedSlice(locationPool, state.projectUnlocks.locations),
+		unlockedShots: (state) =>
+			unlockedSlice(shotPool, state.projectUnlocks.shots),
 
 		filmingShots: (state) => {
 			const shots = state.currentScript?.shots || [];
@@ -3166,6 +3209,154 @@ ${looksList}`;
 
 			// The "script_new" popup has been removed from the game
 			// No popup will be shown when generating a script
+		},
+
+		// --- Greenlight Configurator ---------------------------------------
+
+		// Open the budget/role/set/location picker overlay for a given budget.
+		openGreenlight(budgetId = "low") {
+			this.greenlightBudgetId = budgetId;
+			this.greenlightVisible = true;
+		},
+
+		closeGreenlight() {
+			this.greenlightVisible = false;
+		},
+
+		openLibrary() {
+			this.libraryVisible = true;
+		},
+
+		closeLibrary() {
+			this.libraryVisible = false;
+		},
+
+		// Reveal the next tier of options for a category. `genre` only applies to
+		// roles (defaults to the current genre); ignored for shared categories.
+		// The toast names the specific items that were just revealed.
+		unlockNextProjectTier({ category, genre } = {}) {
+			const isRoles = category === "roles";
+			const key = genre || this.currentGenre;
+			const pool = isRoles ? rolePools[key] || [] : { sets: setPool, locations: locationPool, shots: shotPool }[category];
+			if (!pool) return;
+
+			const noun = isRoles ? `${key} roles` : category;
+			const currentTier = isRoles
+				? this.projectUnlocks.roles[key] || 0
+				: this.projectUnlocks[category];
+
+			if (currentTier >= maxTier(pool)) {
+				this.showToast({
+					message: `Every ${isRoles ? `${key} role` : category.replace(/s$/, "")} is already unlocked.`,
+					type: "temporary",
+				});
+				return;
+			}
+
+			// Diff the unlocked slice before/after to name the new items.
+			const before = unlockedSlice(pool, currentTier);
+			const after = unlockedSlice(pool, currentTier + 1);
+			const revealed = after.slice(before.length);
+
+			if (isRoles) {
+				this.projectUnlocks.roles[key] = currentTier + 1;
+			} else {
+				this.projectUnlocks[category] = currentTier + 1;
+			}
+
+			const list = revealed.join(", ");
+			this.showToast({
+				message: revealed.length
+					? `🔓 New ${noun}: ${list}`
+					: `🔓 New ${noun} unlocked!`,
+				type: "temporary",
+			});
+		},
+
+		// Build the active project from the player's picks (replaces the random
+		// roll for greenlit projects). Sets/locations/roles come from selections;
+		// shots/costumes/looks are auto-derived from the budget + chosen roles.
+		confirmGreenlight({ title, genre, budgetId, roles, sets, locations } = {}) {
+			const finalGenre = genre || this.currentGenre;
+			const budget = getBudgetTier(budgetId) || getBudgetTier("low");
+			const scriptQuality = this.genres[finalGenre]?.quality ?? 1;
+
+			const roleObjs = (roles || []).map((name) => ({ name, isCast: false }));
+			const setObjs = (sets || []).map((name) => ({ name, isBuilt: false }));
+			const locationObjs = (locations || []).map((name) => ({
+				name,
+				isScouted: false,
+			}));
+
+			// Shots: auto-assigned from the unlocked shot pool, count from budget.
+			const availableShots = this.unlockedShots;
+			const shotObjs = [];
+			for (let i = 0; i < budget.counts.shots; i++) {
+				const name =
+					availableShots[i % availableShots.length] || "Medium";
+				shotObjs.push({
+					name,
+					isPlanned: false,
+					isFilmed: false,
+					shotScore: null,
+				});
+			}
+
+			// Costumes + looks: one of each per role, auto-assigned for now.
+			const costumeObjs = [];
+			const lookObjs = [];
+			roleObjs.forEach((role) => {
+				costumeObjs.push({
+					name: "Wardrobe",
+					role: role.name,
+					isMade: false,
+				});
+				lookObjs.push({
+					name: "Signature Look",
+					role: role.name,
+					isDesigned: false,
+				});
+			});
+
+			const rolesList = roleObjs.map((r) => r.name).join(", ");
+			const setsList = setObjs.map((s) => s.name).join(", ");
+			const locationsList = locationObjs.map((l) => l.name).join(", ");
+			const description = `✨ A ${scriptQuality.toFixed(
+				1
+			)} quality ${finalGenre} film ✨
+
+${budget.emoji} ${budget.name}
+
+🎭 ${roleObjs.length} ROLES:
+${rolesList}
+
+🏗️ ${setObjs.length} SETS:
+${setsList}
+
+📍 ${locationObjs.length} LOCATIONS:
+${locationsList}`;
+
+			const script = {
+				title: title || `New ${finalGenre} Film`,
+				genre: finalGenre,
+				budgetTier: budget.id,
+				roles: roleObjs,
+				shots: shotObjs,
+				sets: setObjs,
+				locations: locationObjs,
+				costumes: costumeObjs,
+				looks: lookObjs,
+				quality: scriptQuality,
+				roleDescription: `Roles: ${rolesList}`,
+				description,
+			};
+
+			this.ADD_SCRIPT(script);
+			this.closeGreenlight();
+			this.showToast({
+				message: `🎬 "${script.title}" is greenlit!`,
+				type: "temporary",
+			});
 		},
 
 		deductWorkerWages() {

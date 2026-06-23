@@ -19,7 +19,7 @@
 					<!-- Use text prop here -->
 					<v-card-text
 						class="wpc-text my-auto"
-						>{{ $formatNumber(wordsPerClick) }} words per click</v-card-text
+						>{{ $plural(wordsPerClick, "word") }} per click</v-card-text
 					>
 					<v-card-actions class="px-4 pb-4">
 						<v-btn

@@ -13,7 +13,7 @@
 				}}</span>
 				<br />
 				<span class="py-2"
-					>{{ $formatNumber(previousToolDetails.wordsPerClick) }} words per
+					>{{ $plural(previousToolDetails.wordsPerClick, "word") }} per
 					click</span
 				>
 			</v-col>
