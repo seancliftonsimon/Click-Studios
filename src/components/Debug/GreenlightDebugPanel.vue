@@ -68,12 +68,8 @@ export default {
 			if (this.visible) this.collapsed = false;
 		},
 		onKeydown(event) {
-			const target = event.target;
-			const isTyping =
-				target?.isContentEditable ||
-				["INPUT", "TEXTAREA", "SELECT"].includes(target?.tagName);
-			if (isTyping || event.metaKey || event.ctrlKey || event.altKey) return;
-			if (event.key === "`") {
+			if (event.metaKey || event.ctrlKey || event.altKey) return;
+			if (event.code === "Backquote" || event.key === "`" || event.key === "~") {
 				event.preventDefault();
 				this.toggleVisible();
 			}
