@@ -35,5 +35,8 @@ export const useWritingStore = defineStore("writing", {
 		expireWorkers() {
 			return useGameStore().expireWorkers();
 		},
+		processPayroll(now) {
+			return useGameStore().processPayroll(now);
+		},
 	},
 });

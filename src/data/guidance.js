@@ -111,13 +111,21 @@ export const guidanceSteps = {
 		title: "Screenwriters",
 		body: "Higher tiers write faster for longer.",
 	},
-	unlock_cowriters: {
-		id: "unlock_cowriters",
+	unlock_staff_writer: {
+		id: "unlock_staff_writer",
 		group: "unlock",
 		target: "writer-hire-card",
 		placement: "left",
-		title: "Cowriters",
-		body: "Your best writing team is now available.",
+		title: "Staff Writers",
+		body: "Contract staff stay on permanently — no re-hiring required.",
+	},
+	unlock_senior_staff: {
+		id: "unlock_senior_staff",
+		group: "unlock",
+		target: "writer-hire-card",
+		placement: "left",
+		title: "Senior Staff",
+		body: "Your fastest writers. Sign them to anchor your idle output.",
 	},
 	unlock_script_doctors: {
 		id: "unlock_script_doctors",

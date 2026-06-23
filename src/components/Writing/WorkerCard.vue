@@ -50,10 +50,7 @@
 		</v-row>
 		<v-row style="margin-top: -20px" class="pb-3">
 			<v-col class="text-center worker-text pl-3">
-				<template v-if="workerType === 'scriptDoctor'">
-					ALL WRITING X{{ effect }}
-				</template>
-				<template v-else>{{ $formatNumber(wps) }} WPS</template>
+				{{ $formatNumber(wps) }} WPS
 			</v-col>
 			<v-col class="text-center worker-text pr-3">
 				FOR {{ $formatNumber(duration) }} MINS

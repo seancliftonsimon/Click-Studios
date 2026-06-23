@@ -309,19 +309,10 @@ export const useGameStore = defineStore("game", {
 
 		// Workers
 		workers: {
-			scriptDoctor: {
-				name: "Script Doctor",
-				count: 0,
-				totalcount: 0,
-				cost: 24000,
-				wps: 0,
-				duration: 120,
-				emoji: "👩‍⚕️",
-				effect: 1.4,
-				visible: false,
-			},
+			// --- Freelancers (temporary, flat fee, manual re-hire) ---
 			intern: {
 				name: "Intern",
+				employment: "freelance",
 				count: 0,
 				totalcount: 0,
 				cost: 25,
@@ -331,7 +322,8 @@ export const useGameStore = defineStore("game", {
 				visible: false,
 			},
 			junior: {
-				name: "Junior",
+				name: "Junior Writer",
+				employment: "freelance",
 				count: 0,
 				totalcount: 0,
 				cost: 70,
@@ -341,7 +333,8 @@ export const useGameStore = defineStore("game", {
 				visible: false,
 			},
 			screenwriter: {
-				name: "Screenwriter",
+				name: "Freelance Screenwriter",
+				employment: "freelance",
 				count: 0,
 				totalcount: 0,
 				cost: 200,
@@ -350,18 +343,48 @@ export const useGameStore = defineStore("game", {
 				emoji: "🧑‍💼",
 				visible: false,
 			},
-			cowriters: {
-				name: "Cowriters",
+			// --- Contract staff (permanent, ramped signing fee, global payday) ---
+			staffWriter: {
+				name: "Staff Writer",
+				employment: "contract",
 				count: 0,
 				totalcount: 0,
-				cost: 1400,
+				signingBase: 350,
+				cost: 350,
+				salary: 40,
+				wps: 15,
+				emoji: "✍️",
+				visible: false,
+			},
+			seniorStaff: {
+				name: "Senior Staff",
+				employment: "contract",
+				count: 0,
+				totalcount: 0,
+				signingBase: 3000,
+				cost: 3000,
+				salary: 150,
 				wps: 70,
-				duration: 15,
 				emoji: "👥",
+				visible: false,
+			},
+			scriptDoctor: {
+				name: "Script Doctor",
+				employment: "contract",
+				count: 0,
+				totalcount: 0,
+				signingBase: 24000,
+				cost: 24000,
+				salary: 600,
+				wps: 0,
+				effect: 0.2,
+				emoji: "👩‍⚕️",
 				visible: false,
 			},
 		},
 		currentWorkers: [],
+		nextPayrollAt: null,
+		payrollWarned: false,
 
 		// Products
 		products: {
@@ -369,7 +392,7 @@ export const useGameStore = defineStore("game", {
 				title: "Logline",
 				emoji: "💡",
 				text: "Earn $6",
-				cost: 20,
+				cost: 15,
 				count: 0,
 				totalcount: 0,
 				currency: "words",
@@ -379,52 +402,52 @@ export const useGameStore = defineStore("game", {
 			synopsis: {
 				title: "Synopsis",
 				emoji: "💭",
-				text: "Earn $40",
+				text: "Earn $42",
 				cost: 120,
 				count: 0,
 				totalcount: 0,
 				currency: "words",
-				pay: 40,
+				pay: 42,
 				visible: false,
 			},
 			outline: {
 				title: "Outline",
 				emoji: "📋",
-				text: "Earn $220",
-				cost: 800,
+				text: "Earn $300",
+				cost: 700,
 				count: 0,
 				totalcount: 0,
 				currency: "words",
-				pay: 320,
+				pay: 300,
 				visible: false,
 			},
 			treatment: {
 				title: "Treatment",
 				emoji: "🗒️",
-				text: "Earn $1,200",
-				cost: 5000,
+				text: "Earn $2,000",
+				cost: 4000,
 				count: 0,
 				totalcount: 0,
 				currency: "words",
-				pay: 2200,
+				pay: 2000,
 				visible: false,
 			},
 			draftScript: {
 				title: "Draft Script",
 				emoji: "📑",
-				text: "Earn $3,000",
-				cost: 30000,
+				text: "Earn $13,000",
+				cost: 22000,
 				count: 0,
 				totalcount: 0,
 				currency: "words",
-				pay: 15000,
+				pay: 13000,
 				visible: false,
 			},
 			shootingScript: {
 				title: "Shooting Script",
 				emoji: "📒",
 				text: "Greenlight your project.",
-				cost: 1000000,
+				cost: 200000,
 				count: 0,
 				totalcount: 0,
 				currency: "words",
@@ -441,7 +464,8 @@ export const useGameStore = defineStore("game", {
 			"shootingScript",
 		],
 		currentWritingProductTierIndex: 0,
-		writerTierOrder: ["intern", "junior", "screenwriter", "cowriters"],
+		writerTierOrder: ["intern", "junior", "screenwriter"],
+		contractTierOrder: ["staffWriter", "seniorStaff", "scriptDoctor"],
 		currentWriterTierIndex: 0,
 		lastWritingProductUpgradeKey: "",
 		lastWriterTierUpgradeKey: "",
@@ -614,6 +638,12 @@ export const useGameStore = defineStore("game", {
 				emoji: "🤖",
 				wordsPerClick: 60,
 				cost: 2400,
+			},
+			renderfarm: {
+				name: "Render Farm",
+				emoji: "🖥️",
+				wordsPerClick: 350,
+				cost: 9000,
 			},
 			supercomputer: {
 				name: "Supercomputer",
@@ -1552,17 +1582,18 @@ export const useGameStore = defineStore("game", {
 	}),
 	getters: {
 		wordsPerSecond: (state) => {
-			let scriptDoctorMultiplier = 1.0;
+			let doctorCount = 0;
 			let baseWordsPerSecond = 0;
 
 			Object.values(state.workers).forEach((worker) => {
-				if (worker.name === "Script Doctor" && worker.count > 0) {
-					scriptDoctorMultiplier *= Math.pow(worker.effect, worker.count);
+				if (worker.name === "Script Doctor") {
+					doctorCount = worker.count;
 				} else {
 					baseWordsPerSecond += worker.count * worker.wps;
 				}
 			});
 
+			const scriptDoctorMultiplier = 1 + (state.workers.scriptDoctor?.effect ?? 0.2) * doctorCount;
 			return baseWordsPerSecond * scriptDoctorMultiplier;
 		},
 
@@ -1672,16 +1703,14 @@ export const useGameStore = defineStore("game", {
 			const mainWriterType =
 				state.writerTierOrder[state.currentWriterTierIndex] || "intern";
 
-				if (state.writerHireVisible && state.workers[mainWriterType]?.visible) {
-					cardTypes.push(mainWriterType);
-				}
-
-			if (state.workers.scriptDoctor?.visible) {
-				cardTypes.push("scriptDoctor");
+			if (state.writerHireVisible && state.workers[mainWriterType]?.visible) {
+				cardTypes.push(mainWriterType);
 			}
 
 			return cardTypes;
 		},
+		visibleContractCardTypes: (state) =>
+			state.contractTierOrder.filter((type) => state.workers[type]?.visible),
 		currentWritersRoomCapacity: (state) =>
 			state.writersRoomCapacities[state.currentCapacityIndex].capacity,
 		currentWorkerAmount: (state) => state.currentWorkers.length,
@@ -1820,14 +1849,11 @@ export const useGameStore = defineStore("game", {
 				this.writersRoomVisible ||
 				this.milestones.sixtyDollars;
 
-			const writerDollarIndex =
-				this.totalWritingDollarCount >= 3000
-					? 3
-					: this.totalWritingDollarCount >= 800
-						? 2
-						: this.totalWritingDollarCount >= 200
-							? 1
-							: 0;
+			const writerDollarIndex = this.milestones.fiveSynopses
+				? 2
+				: this.totalWritingDollarCount >= 200
+					? 1
+					: 0;
 			const visibleWriterIndex = this.writerTierOrder.reduce(
 				(highestIndex, workerType, index) => {
 					if (!this.workers[workerType]?.visible) {
@@ -1994,8 +2020,10 @@ export const useGameStore = defineStore("game", {
 		ADD_PLAYER_SCRIPT(script) {
 			this.uniqueScripts.push(script);
 		},
-		ADD_WORKER({ workerType, id }) {
-			this.currentWorkers.push({ workerType, id });
+		ADD_WORKER({ workerType, id, signedAt = null }) {
+			const entry = { workerType, id };
+			if (signedAt !== null) entry.signedAt = signedAt;
+			this.currentWorkers.push(entry);
 			this.workers[workerType].count++;
 			this.workers[workerType].totalcount++;
 		},
@@ -2606,9 +2634,9 @@ export const useGameStore = defineStore("game", {
 
 		// ... existing code ...
 
-			// Add a new action to check for dollar-based unlocks
+			// Check for dollar-based and product-milestone-based unlocks
 			checkDollarMilestones() {
-				// Check for writer hire unlock
+				// $60: unlock intern hiring (writers room)
 				if (this.writingDollarCount >= 60 && !this.milestones.sixtyDollars) {
 					this.SET_MILESTONE_ACHIEVED("sixtyDollars");
 
@@ -2623,64 +2651,44 @@ export const useGameStore = defineStore("game", {
 					}
 				}
 
-				// Check for junior writers unlock (after earning more money)
+				// $200: unlock Junior Writer
 				if (
 					this.totalWritingDollarCount >= 200 &&
 					this.currentWriterTierIndex < this.writerTierOrder.indexOf("junior")
 				) {
 					this.upgradeMainWriterTier("junior");
-
 					useGuidanceStore().triggerStep("unlock_junior_writers");
 				}
 
-				// Check for screenwriters unlock
+				// fiveSynopses milestone: unlock Freelance Screenwriter
 				if (
-					this.totalWritingDollarCount >= 800 &&
-					this.currentWriterTierIndex <
-						this.writerTierOrder.indexOf("screenwriter")
+					this.milestones.fiveSynopses &&
+					this.currentWriterTierIndex < this.writerTierOrder.indexOf("screenwriter")
 				) {
 					this.upgradeMainWriterTier("screenwriter");
-
 					useGuidanceStore().triggerStep("unlock_screenwriters");
 				}
 
-				// Check for cowriters unlock
-				if (
-					this.totalWritingDollarCount >= 3000 &&
-					this.currentWriterTierIndex < this.writerTierOrder.indexOf("cowriters")
-				) {
-					this.upgradeMainWriterTier("cowriters");
-
-					useGuidanceStore().triggerStep("unlock_cowriters");
+				// fiveOutlines milestone: unlock Staff Writer (contract zone opens)
+				if (this.milestones.fiveOutlines && !this.workers.staffWriter?.visible) {
+					this.workers.staffWriter.visible = true;
+					useGuidanceStore().triggerStep("unlock_staff_writer");
 				}
 
-			// Check for script doctors unlock
-				if (
-					this.totalWritingDollarCount >= 10000 &&
-					!this.workers.scriptDoctor.visible
-				) {
-					this.UPDATE_STATE_VARIABLE({
-						key: "workers.scriptDoctor.visible",
-						value: true,
-					});
-
-					useGuidanceStore().triggerStep("unlock_script_doctors");
+				// fiveTreatments milestone: unlock Senior Staff + Script Doctor
+				if (this.milestones.fiveTreatments) {
+					if (!this.workers.seniorStaff?.visible) {
+						this.workers.seniorStaff.visible = true;
+						useGuidanceStore().triggerStep("unlock_senior_staff");
+					}
+					if (!this.workers.scriptDoctor?.visible) {
+						this.workers.scriptDoctor.visible = true;
+						useGuidanceStore().triggerStep("unlock_script_doctors");
+					}
 				}
 			},
 
 		hireWorker({ cost, name }) {
-			// Don't do anything if the user doesn't have enough writing dollars
-			if (this.writingDollarCount < cost) {
-				console.log(
-					`Not enough writing dollars to hire worker. Need ${cost}, have ${this.writingDollarCount}.`
-				);
-				return;
-			}
-
-			// Deduct cost from writing dollars
-			this.DECREASE_WRITING_DOLLAR_AMOUNT(cost);
-
-			// Get the worker type's details
 			const workerType = name;
 			const worker = this.workers[workerType];
 
@@ -2689,114 +2697,189 @@ export const useGameStore = defineStore("game", {
 				return;
 			}
 
-			// Calculate worker duration
-			const duration = worker.duration; // Duration in minutes
-			const durationMs = duration * 60 * 1000; // Convert to milliseconds
+			if (this.writingDollarCount < cost) {
+				console.log(
+					`Not enough writing dollars to hire worker. Need ${cost}, have ${this.writingDollarCount}.`
+				);
+				return;
+			}
 
-			// Check if we've already got max capacity
 			if (this.currentWorkers.length >= this.currentWritersRoomCapacity) {
 				console.log("Can't hire worker. Writers room at capacity.");
 				return;
 			}
 
-			// Initialize the worker times array if it doesn't exist
-			if (!worker.times) {
-				worker.times = {};
-			}
+			if (worker.employment === "contract") {
+				// --- Contract path: permanent worker, ramped signing fee ---
+				this.DECREASE_WRITING_DOLLAR_AMOUNT(cost);
 
 				const id = Date.now() + nextWorkerId++;
+				const signedAt = Date.now();
 
-				// Add worker to state
-				this.ADD_WORKER({ workerType, id });
+				this.ADD_WORKER({ workerType, id, signedAt });
+
 				if (!this.writersRoomVisible) {
-					this.UPDATE_STATE_VARIABLE({
-						key: "writersRoomVisible",
-						value: true,
-					});
+					this.UPDATE_STATE_VARIABLE({ key: "writersRoomVisible", value: true });
 					useGuidanceStore().triggerStep("unlock_writers_room");
 				}
 
-				// Set the exact time this worker was hired
+				// Advance signing fee for next hire
+				const newTotalcount = this.workers[workerType].totalcount;
+				this.workers[workerType].cost = Math.round(
+					worker.signingBase * Math.pow(1.15, newTotalcount)
+				);
+
+				// Start global payroll clock on first contract hire
+				if (this.nextPayrollAt === null) {
+					this.nextPayrollAt = Date.now() + 5 * 60 * 1000;
+					this.payrollWarned = false;
+				}
+			} else {
+				// --- Freelance path: timed worker, flat fee ---
+				this.DECREASE_WRITING_DOLLAR_AMOUNT(cost);
+
+				const duration = worker.duration; // minutes
+				const durationMs = duration * 60 * 1000;
+
+				if (!worker.times) {
+					worker.times = {};
+				}
+
+				const id = Date.now() + nextWorkerId++;
+
+				this.ADD_WORKER({ workerType, id });
+
+				if (!this.writersRoomVisible) {
+					this.UPDATE_STATE_VARIABLE({ key: "writersRoomVisible", value: true });
+					useGuidanceStore().triggerStep("unlock_writers_room");
+				}
+
 				const exactHireTime = Date.now();
+				const animationBufferMs = 5000;
 
-			// Calculate animation buffer - animation will start 5 seconds before removal
-			const animationBufferMs = 5000; // 5 seconds for animation
-
-			console.log(
-				`Worker ${name} (ID: ${id}) hired at ${new Date(
-					exactHireTime
-				).toLocaleTimeString()} with duration ${duration} minutes. Animation will start ${
-					(durationMs - animationBufferMs) / 1000
-				}s before removal at exactly ${duration} minutes.`
-			);
-
-			// Store timing information for animation
-			this.UPDATE_WORKER_TIMES({
-				id,
-				workerType,
-				hireTime: exactHireTime,
-				// Start animation 5 seconds before worker removal
-				animationStartTime: exactHireTime + durationMs - animationBufferMs,
-				// Worker will be removed exactly at duration end
-				expectedRemovalTime: exactHireTime + durationMs,
-			});
-
-			// Check for worker-based milestones
-			if (
-				workerType === "intern" &&
-				this.workers.intern.count >= 5 &&
-				!this.milestones.fiveInterns
-			) {
-				this.SET_MILESTONE_ACHIEVED("fiveInterns");
-			}
-
-			if (
-				workerType === "junior" &&
-				this.workers.junior.count >= 5 &&
-				!this.milestones.fiveJuniors
-			) {
-				this.SET_MILESTONE_ACHIEVED("fiveJuniors");
-			}
-
-			if (
-				workerType === "screenwriter" &&
-				this.workers.screenwriter.count >= 5 &&
-				!this.milestones.fiveScreenwriters
-			) {
-				this.SET_MILESTONE_ACHIEVED("fiveScreenwriters");
-			}
-
-			if (
-				workerType === "cowriters" &&
-				this.workers.cowriters.count >= 5 &&
-				!this.milestones.fiveCowriters
-			) {
-				this.SET_MILESTONE_ACHIEVED("fiveCowriters");
-			}
-
-			// Check if we've reached the three workers milestone
-			if (this.currentWorkers.length >= 3 && !this.milestones.threeWorkers) {
-				this.SET_MILESTONE_ACHIEVED("threeWorkers");
-
-				// Make the writers room upgrade visible
-				this.UPDATE_STATE_VARIABLE({
-					key: "writersRoomUpgradeVisible",
-					value: true,
+				this.UPDATE_WORKER_TIMES({
+					id,
+					workerType,
+					hireTime: exactHireTime,
+					animationStartTime: exactHireTime + durationMs - animationBufferMs,
+					expectedRemovalTime: exactHireTime + durationMs,
 				});
 
-					useGuidanceStore().triggerStep("unlock_writers_room_upgrade");
+				// Freelance milestone tracking
+				if (workerType === "intern" && this.workers.intern.count >= 5 && !this.milestones.fiveInterns) {
+					this.SET_MILESTONE_ACHIEVED("fiveInterns");
+				}
+				if (workerType === "junior" && this.workers.junior.count >= 5 && !this.milestones.fiveJuniors) {
+					this.SET_MILESTONE_ACHIEVED("fiveJuniors");
+				}
+				if (workerType === "screenwriter" && this.workers.screenwriter.count >= 5 && !this.milestones.fiveScreenwriters) {
+					this.SET_MILESTONE_ACHIEVED("fiveScreenwriters");
+				}
+			}
+
+			// Shared: three-workers milestone triggers room upgrade visibility
+			if (this.currentWorkers.length >= 3 && !this.milestones.threeWorkers) {
+				this.SET_MILESTONE_ACHIEVED("threeWorkers");
+				this.UPDATE_STATE_VARIABLE({ key: "writersRoomUpgradeVisible", value: true });
+				useGuidanceStore().triggerStep("unlock_writers_room_upgrade");
 			}
 		},
 
 		expireWorkers() {
 			const now = Date.now();
 			this.currentWorkers.forEach(({ workerType, id }) => {
+				// Contract workers are permanent — only expire freelancers
+				if (this.workers[workerType]?.employment === "contract") return;
+
 				const workerTimes = this.workers[workerType]?.times;
 				const expectedRemovalTime = workerTimes?.[id]?.expectedRemovalTime;
 
 				if (expectedRemovalTime && expectedRemovalTime <= now) {
 					this.REMOVE_WORKER({ workerType, id });
 					delete workerTimes[id];
+				}
+			});
+		},
+
+		processPayroll(now = Date.now()) {
+			if (!this.nextPayrollAt) return;
+
+			const paydayMs = 5 * 60 * 1000;
+
+			// Warning: 30s before payday, if projected total exceeds balance
+			if (!this.payrollWarned && now >= this.nextPayrollAt - 30000) {
+				const eligible = this.currentWorkers.filter((w) => {
+					const def = this.workers[w.workerType];
+					return (
+						def?.employment === "contract" &&
+						(w.signedAt ?? now) <= this.nextPayrollAt - paydayMs
+					);
+				});
+				const totalDue = eligible.reduce(
+					(sum, w) => sum + (this.workers[w.workerType]?.salary ?? 0),
+					0
+				);
+				if (totalDue > this.writingDollarCount) {
+					this.showToast(
+						`Payroll due soon — need $${totalDue.toLocaleString()}, you have $${Math.floor(this.writingDollarCount).toLocaleString()}`,
+						"temporary"
+					);
+					this.payrollWarned = true;
+				}
+			}
+
+			if (now < this.nextPayrollAt) return;
+
+			// Collect eligible contracts (past their first free cycle)
+			const eligible = this.currentWorkers.filter((w) => {
+				const def = this.workers[w.workerType];
+				return (
+					def?.employment === "contract" &&
+					(w.signedAt ?? now) <= this.nextPayrollAt - paydayMs
+				);
+			});
+
+			// Sort highest salary first (lapse order)
+			const sorted = [...eligible].sort(
+				(a, b) =>
+					(this.workers[b.workerType]?.salary ?? 0) -
+					(this.workers[a.workerType]?.salary ?? 0)
+			);
+
+			let totalDue = sorted.reduce(
+				(sum, w) => sum + (this.workers[w.workerType]?.salary ?? 0),
+				0
+			);
+
+			// Lapse highest-salary contracts until affordable
+			while (totalDue > this.writingDollarCount && sorted.length > 0) {
+				const toLapse = sorted.shift();
+				const salary = this.workers[toLapse.workerType]?.salary ?? 0;
+				totalDue -= salary;
+				const workerName = this.workers[toLapse.workerType]?.name ?? toLapse.workerType;
+				this.REMOVE_WORKER({ workerType: toLapse.workerType, id: toLapse.id });
+				this.showToast(
+					`${workerName} contract lapsed — couldn't make payroll.`,
+					"temporary"
+				);
+			}
+
+			if (totalDue > 0) {
+				this.DECREASE_WRITING_DOLLAR_AMOUNT(totalDue);
+			}
+
+			this.nextPayrollAt += paydayMs;
+			this.payrollWarned = false;
+		},
+
+		recomputeContractCosts() {
+			// Re-derive signing fees from signingBase * 1.15^totalcount on save load
+			["staffWriter", "seniorStaff", "scriptDoctor"].forEach((type) => {
+				const worker = this.workers[type];
+				if (worker && worker.signingBase != null) {
+					worker.cost = Math.round(
+						worker.signingBase * Math.pow(1.15, worker.totalcount)
+					);
 				}
 			});
 		},

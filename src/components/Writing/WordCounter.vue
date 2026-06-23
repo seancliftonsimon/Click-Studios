@@ -125,15 +125,15 @@ export default {
 
 .resource-float {
 	font-family: "Roboto", sans-serif;
-	font-size: 0.95rem;
+	font-size: 1.45rem;
 	font-weight: 800;
 	pointer-events: none;
 	position: absolute;
-	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.75);
+	text-shadow: 0 1px 2px rgba(255, 255, 255, 0.9);
 	transform: translate(-50%, 0) rotate(var(--float-rotation, 0deg));
 	animation: resource-float-up 0.65s ease-out forwards;
 	white-space: nowrap;
-	z-index: 2;
+	z-index: 9999;
 }
 
 .word-float {

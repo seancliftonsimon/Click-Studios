@@ -20,7 +20,6 @@
 		</v-snackbar>
 
 		<v-row class="mb-0">
-			<img :src="bannerImage" alt="Prototype Banner" class="banner-image" />
 			<!-- Permanent Navigation Bar -->
 			<v-app-bar color="#931621" permanent class="game-app-bar">
 				<div class="image-container">
@@ -74,6 +73,7 @@
 						:disabled="releaseDisabled"
 					></v-list-item>
 				</v-container>
+				<span class="alpha-note">Very early alpha</span>
 				<div class="game-actions">
 					<v-btn size="small" @click="saveGame">Save</v-btn>
 					<v-btn size="small" @click="loadGame">Load</v-btn>
@@ -110,7 +110,6 @@ export default {
 	data() {
 		return {
 			ticketImage: require("@/assets/title-ticket.png"),
-			bannerImage: require("@/assets/SuperEarlyPrototypeBanner.png"),
 			autoSaveIntervalId: null,
 		};
 	},
@@ -288,14 +287,20 @@ export default {
 	height: 100%;
 }
 
-.banner-image {
-	position: fixed;
-	top: 0;
-	right: 0;
-	z-index: 1005;
-	width: auto;
-	height: 200px;
-	pointer-events: none;
+.alpha-note {
+	flex: 0 0 auto;
+	align-self: center;
+	margin-right: 12px;
+	padding: 2px 8px;
+	border: 1px solid rgba(255, 255, 255, 0.55);
+	border-radius: 4px;
+	font-family: "Voltaire", sans-serif;
+	font-size: 12px;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: white;
+	white-space: nowrap;
+	opacity: 0.85;
 }
 
 .phase-label {

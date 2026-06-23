@@ -1,4 +1,4 @@
-export const SAVE_VERSION = 1;
+export const SAVE_VERSION = 2;
 export const SAVE_STORAGE_KEY = "gameState";
 export const AUTO_SAVE_INTERVAL_MS = 30000;
 
@@ -91,6 +91,8 @@ export function createSaveSnapshot({
 			products: compactProgressMap(state.products, PRODUCT_PROGRESS_KEYS),
 			workers: compactProgressMap(state.workers, WORKER_PROGRESS_KEYS),
 			currentWorkers: clone(state.currentWorkers),
+			nextPayrollAt: state.nextPayrollAt ?? null,
+			payrollWarned: Boolean(state.payrollWarned),
 			currentWritingProductTierIndex: state.currentWritingProductTierIndex,
 			currentWriterTierIndex: state.currentWriterTierIndex,
 			lastWritingProductUpgradeKey: state.lastWritingProductUpgradeKey,
@@ -159,14 +161,46 @@ export function readRawSaveFromLocalStorage() {
 export function migrateSave(rawSave) {
 	if (!rawSave) return null;
 
-	if (rawSave.version === SAVE_VERSION) {
-		return normalizeVersionOneSave(rawSave);
+	// Run structural migrations before normalization
+	let save = rawSave;
+
+	if (!save.version || save.version < 2) {
+		save = migrateV1toV2(save);
 	}
 
-	return normalizeVersionOneSave(adaptLegacySave(rawSave));
+	if (save.version === SAVE_VERSION) {
+		return normalizeVersionTwoSave(save);
+	}
+
+	return normalizeVersionTwoSave(adaptLegacySave(save));
 }
 
-function normalizeVersionOneSave(save) {
+function migrateV1toV2(rawSave) {
+	const state = rawSave.writing || rawSave.game || rawSave.state || rawSave;
+	const workers = state.workers || {};
+
+	// Map old cowriters key → seniorStaff
+	if (workers.cowriters && !workers.seniorStaff) {
+		workers.seniorStaff = {
+			count: workers.cowriters.count ?? 0,
+			totalcount: workers.cowriters.totalcount ?? 0,
+			visible: workers.cowriters.visible ?? false,
+		};
+		delete workers.cowriters;
+	}
+
+	// Clear currentWorkers — treat all as expired to avoid orphaned timers
+	if (rawSave.writing) {
+		rawSave.writing.workers = workers;
+		rawSave.writing.currentWorkers = [];
+		rawSave.writing.nextPayrollAt = null;
+		rawSave.writing.payrollWarned = false;
+	}
+
+	return { ...rawSave, version: 2 };
+}
+
+function normalizeVersionTwoSave(save) {
 	return {
 		version: SAVE_VERSION,
 		savedAt: save.savedAt || new Date().toISOString(),
@@ -182,6 +216,8 @@ function normalizeVersionOneSave(save) {
 			products: save.writing?.products || {},
 			workers: save.writing?.workers || {},
 			currentWorkers: save.writing?.currentWorkers || [],
+			nextPayrollAt: save.writing?.nextPayrollAt ?? null,
+			payrollWarned: Boolean(save.writing?.payrollWarned),
 		},
 		project: save.project || {},
 		preproduction: {
@@ -294,6 +330,7 @@ export function hydrateSaveSnapshot(
 	const patch = createGamePatch(save, gameStore.$state || gameStore);
 	gameStore.$patch(patch);
 	gameStore.normalizeWritingTierState?.();
+	gameStore.recomputeContractCosts?.();
 
 	if (preproductionStore) {
 		preproductionStore.$patch({
@@ -365,6 +402,8 @@ function createGamePatch(save, currentState) {
 		products: overlayProgressMap(currentState.products, writing.products),
 		workers: overlayProgressMap(currentState.workers, writing.workers),
 		currentWorkers: clone(writing.currentWorkers),
+		nextPayrollAt: writing.nextPayrollAt ?? null,
+		payrollWarned: Boolean(writing.payrollWarned),
 		...pickDefined(project, [
 			"scriptDescription",
 			"roleDescription",
