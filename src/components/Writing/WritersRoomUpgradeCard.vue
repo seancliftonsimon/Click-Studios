@@ -1,5 +1,5 @@
 <template>
-	<v-card class="rounded-lg mt-2">
+		<v-card class="rounded-lg mt-2" data-guidance-target="writers-room-upgrade-card">
 		<v-row>
 			<v-col class="center-content">
 				<v-row class="my-auto">

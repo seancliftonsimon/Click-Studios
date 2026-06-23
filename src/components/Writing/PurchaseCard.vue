@@ -1,14 +1,26 @@
 <template>
 	<v-card
 		class="mx-auto mb-4"
+		:class="{ 'tier-upgrade-pulse': isUpgrading }"
 		shaped
 		elevation="2"
 		style="border-radius: 12px"
 		v-if="isProductVisible"
+		data-guidance-target="story-product-card"
 	>
 		<v-row justify="space-between" class="flex-nowrap">
 			<div style="font-size: 52px" class="ma-auto pa-3">{{ emoji }}</div>
-			<div class="product-name flex-grow-1">{{ title }}</div>
+			<div class="product-copy flex-grow-1">
+				<div class="tier-pips" :aria-label="tierLabel">
+					<span
+						v-for="pip in productTierTotal"
+						:key="pip"
+						class="tier-pip"
+						:class="{ 'tier-pip-active': pip <= productTierNumber }"
+					></span>
+				</div>
+				<div class="product-name">{{ title }}</div>
+			</div>
 			<div class="pr-3 pt-2 pb-2">
 				<v-col
 					class="d-flex flex-column justify-space-between my-1"
@@ -22,13 +34,12 @@
 							:ripple="false"
 							@click="makeSale(cost, pay)"
 						>
-							<!-- Use cost prop here -->
-							<span style="color: black; font-weight: medium"
-								>Use {{ $formatNumberShort(cost) }} words</span
-							>
+							<span style="color: black; font-weight: medium">
+								Use {{ $formatNumberShort(cost) }} words
+							</span>
 						</v-btn>
 					</v-card-actions>
-					<span class="product-pay mt-2"> PAYS ${{ $formatNumber(pay) }} </span>
+					<span class="product-pay mt-2">{{ saleResultLabel }}</span>
 				</v-col>
 			</div>
 		</v-row>
@@ -40,46 +51,80 @@ import { mapState } from "pinia";
 import { useGameStore } from "@/store";
 
 export default {
+	name: "PurchaseCard",
 	props: {
 		cardType: String,
 	},
 	data() {
 		return {
 			showBody: true,
+			isUpgrading: false,
+			upgradeAnimationTimeout: null,
 		};
 	},
-	name: "PurchaseCard",
 	computed: {
 		...mapState(useGameStore, {
 			getProductCardDetails: "getProductCardDetails",
+			writingProductTierOrder: "writingProductTierOrder",
 			wordCount: "wordCount",
 		}),
+		productDetails() {
+			return this.getProductCardDetails(this.cardType);
+		},
 		title() {
-			const details = this.getProductCardDetails(this.cardType);
-			return details ? details.title : "";
+			return this.productDetails ? this.productDetails.title : "";
 		},
 		emoji() {
-			const details = this.getProductCardDetails(this.cardType);
-			return details ? details.emoji : "";
+			return this.productDetails ? this.productDetails.emoji : "";
 		},
 		text() {
-			const details = this.getProductCardDetails(this.cardType);
-			return details ? details.text : "";
+			return this.productDetails ? this.productDetails.text : "";
 		},
 		cost() {
-			const details = this.getProductCardDetails(this.cardType);
-			return details ? details.cost : 0;
+			return this.productDetails ? this.productDetails.cost : 0;
 		},
 		pay() {
-			const details = this.getProductCardDetails(this.cardType);
-			return details ? details.pay : 0;
+			return this.productDetails ? this.productDetails.pay : 0;
 		},
 		canSell() {
-			return this.wordCount >= this.cost; // Use mapped "wordCount" directly
+			return this.wordCount >= this.cost;
 		},
 		isProductVisible() {
-			return this.getProductCardDetails(this.cardType).visible;
+			return Boolean(this.productDetails?.visible);
 		},
+		isCapstoneProduct() {
+			return this.cardType === "shootingScript";
+		},
+		productTierNumber() {
+			return this.writingProductTierOrder.indexOf(this.cardType) + 1;
+		},
+		productTierTotal() {
+			return this.writingProductTierOrder.length;
+		},
+		tierLabel() {
+			return `${this.title} is upgrade ${this.productTierNumber} of ${this.productTierTotal}`;
+		},
+		saleResultLabel() {
+			if (this.isCapstoneProduct) {
+				return `PAYS $${this.$formatNumber(
+					this.pay
+				)} + UNLOCKS PREPRODUCTION`;
+			}
+			return `PAYS $${this.$formatNumber(this.pay)}`;
+		},
+	},
+	watch: {
+		cardType() {
+			this.triggerUpgradeAnimation();
+		},
+	},
+	mounted() {
+		this.triggerUpgradeAnimation();
+	},
+	beforeUnmount() {
+		if (this.upgradeAnimationTimeout) {
+			window.clearTimeout(this.upgradeAnimationTimeout);
+		}
 	},
 	methods: {
 		makeSale(cost, pay) {
@@ -91,31 +136,82 @@ export default {
 				});
 			}
 		},
+		triggerUpgradeAnimation() {
+			if (this.upgradeAnimationTimeout) {
+				window.clearTimeout(this.upgradeAnimationTimeout);
+			}
+			this.isUpgrading = true;
+			this.upgradeAnimationTimeout = window.setTimeout(() => {
+				this.isUpgrading = false;
+				this.upgradeAnimationTimeout = null;
+			}, 700);
+		},
 	},
 };
 </script>
 
 <style>
 .product-name {
-	align-self: center;
-	font-family: Roboto;
+	font-family: Roboto, sans-serif;
 	font-size: 18px;
 	font-weight: 500;
 }
 
+.product-copy {
+	align-self: center;
+}
+
+.tier-pips {
+	display: flex;
+	gap: 4px;
+	margin-bottom: 5px;
+}
+
+.tier-pip {
+	border: 1px solid #931621;
+	border-radius: 999px;
+	height: 7px;
+	width: 7px;
+}
+
+.tier-pip-active {
+	background: #931621;
+}
+
 .product-pay {
 	align-self: center;
-	font-family: Roboto;
-	font-size: 1em;
-	font-weight: 500;
 	color: rgb(39, 193, 39);
+	font-family: Roboto, sans-serif;
+	font-size: 0.9em;
+	font-weight: 500;
 }
-/* Add transition styles for the slide effect */
+
+.tier-upgrade-pulse {
+	animation: tier-upgrade-pulse 0.7s ease-out;
+}
+
+@keyframes tier-upgrade-pulse {
+	0% {
+		box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.65);
+		transform: scale(0.98);
+	}
+	55% {
+		box-shadow: 0 0 0 8px rgba(255, 193, 7, 0.18);
+		transform: scale(1.02);
+	}
+	100% {
+		box-shadow: 0 0 0 0 rgba(255, 193, 7, 0);
+		transform: scale(1);
+	}
+}
+
 .slide-enter-active,
 .slide-leave-active {
 	transition: max-height 0.5s ease;
 }
-.slide-enter, .slide-leave-to /* .slide-leave-active in <2.1.8 */ {
+
+.slide-enter,
+.slide-leave-to {
 	max-height: 0;
 }
 </style>

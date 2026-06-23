@@ -4,9 +4,10 @@
 		:title="title"
 		:text="text"
 		:emoji="emoji"
-		:theme="theme"
-		:persistent="true"
-		:show-close-button="false"
+			:theme="theme"
+			:persistent="true"
+			:max-width="maxWidth"
+			:show-close-button="false"
 		@close="handleCancel"
 	>
 		<template #actions>
@@ -73,11 +74,15 @@ export default {
 			type: Function,
 			default: null,
 		},
-		onCancel: {
-			type: Function,
-			default: null,
+			onCancel: {
+				type: Function,
+				default: null,
+			},
+			maxWidth: {
+				type: [String, Number],
+				default: 500,
+			},
 		},
-	},
 	emits: ["update:modelValue", "confirmed", "cancelled"],
 	computed: {
 		isVisible: {

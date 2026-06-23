@@ -1,10 +1,11 @@
 <template>
 	<div style="width: 100%" align="center">
-		<v-btn
-			:ripple="false"
-			@mouseup="handleClick"
-			class="write-tool-button d-flex flex-column mx-auto"
-		>
+			<v-btn
+				:ripple="false"
+				@mouseup="handleClick"
+				class="write-tool-button d-flex flex-column mx-auto"
+				data-guidance-target="writing-tool-button"
+			>
 			<v-col>
 				<h3 class="py-2">{{ previousToolDetails.name }}</h3>
 				<span class="py-1" style="font-size: 4em">{{

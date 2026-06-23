@@ -1,9 +1,10 @@
 <template>
 	<v-card class="rounded-lg mt-5">
-		<v-container
-			class="writers-room rounded-lg my-3 mx-auto"
-			:style="{ backgroundColor: roomColor }"
-		>
+			<v-container
+				class="writers-room rounded-lg my-3 mx-auto"
+				:style="{ backgroundColor: roomColor }"
+				data-guidance-target="writers-room"
+			>
 			<div class="worker-grid">
 				<worker-emoji
 					v-for="worker in workersDisplay"

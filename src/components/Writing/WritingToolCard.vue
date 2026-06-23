@@ -1,7 +1,13 @@
 <!-- WritingToolCard -->
 
 <template>
-	<v-card rounded-s-xl elevation="2" v-if="isVisible" class="tool-card">
+		<v-card
+			rounded-s-xl
+			elevation="2"
+			v-if="isVisible"
+			class="tool-card"
+			data-guidance-target="writing-tool-upgrade-card"
+		>
 		<transition name="slide">
 			<v-row align="center">
 				<v-col cols="5" class="d-flex flex-column justify-center align-center">

@@ -1,6 +1,15 @@
 import { defineStore } from "pinia";
 
 import { usePopupStore } from "./popup";
+import { useGuidanceStore } from "@/stores/guidanceStore";
+import {
+	clearSaveFromLocalStorage,
+	createSaveSnapshot,
+	downloadSaveSnapshot,
+	hydrateSaveSnapshot,
+	readRawSaveFromLocalStorage,
+	saveSnapshotToLocalStorage,
+} from "@/services/saveService";
 
 let nextWorkerId = 1;
 
@@ -27,8 +36,12 @@ export const useGameStore = defineStore("game", {
 
 		// Word Variables
 
-		wordCount: 0,
-		totalWordCount: 0,
+			wordCount: 0,
+			totalWordCount: 0,
+			manualWordBurst: {
+				id: 0,
+				amount: 0,
+			},
 
 		wordAccumulator: 0,
 		lastUpdate: 0,
@@ -37,15 +50,20 @@ export const useGameStore = defineStore("game", {
 		currentWriteTool: "pen", // Default write tool available for purchase
 		writingToolCardVisible: false,
 
-		// Writers Room
-		writersRoomVisible: false,
-		currentCapacityIndex: 1, // Keeps track of the current capacity level
+			// Writers Room
+			writerHireVisible: false,
+			writersRoomVisible: false,
+			currentCapacityIndex: 1, // Keeps track of the current capacity level
 
 		writersRoomUpgradeVisible: false,
 
 		// Dollar Variables
-		writingDollarCount: 0,
-		totalWritingDollarCount: 0,
+			writingDollarCount: 0,
+			totalWritingDollarCount: 0,
+			writingDollarBurst: {
+				id: 0,
+				amount: 0,
+			},
 
 		preproDollarCount: 0,
 		totalPreproDollarCount: 0,
@@ -414,6 +432,19 @@ export const useGameStore = defineStore("game", {
 				visible: false,
 			},
 		},
+		writingProductTierOrder: [
+			"logline",
+			"synopsis",
+			"outline",
+			"treatment",
+			"draftScript",
+			"shootingScript",
+		],
+		currentWritingProductTierIndex: 0,
+		writerTierOrder: ["intern", "junior", "screenwriter", "cowriters"],
+		currentWriterTierIndex: 0,
+		lastWritingProductUpgradeKey: "",
+		lastWriterTierUpgradeKey: "",
 
 		currentScript: {
 			title: "",
@@ -1625,6 +1656,32 @@ export const useGameStore = defineStore("game", {
 
 		getProductCardDetails: (state) => (key) => state.products[key],
 		getWorkerDetails: (state) => (key) => state.workers[key],
+		currentWritingProductKey: (state) =>
+			state.writingProductTierOrder[state.currentWritingProductTierIndex] ||
+			"logline",
+		currentMainWriterType: (state) =>
+			state.writerTierOrder[state.currentWriterTierIndex] || "intern",
+		visibleProductCardTypes: (state) => {
+			const productKey =
+				state.writingProductTierOrder[state.currentWritingProductTierIndex] ||
+				"logline";
+			return state.products[productKey] ? [productKey] : [];
+		},
+		visibleWorkerCardTypes: (state) => {
+			const cardTypes = [];
+			const mainWriterType =
+				state.writerTierOrder[state.currentWriterTierIndex] || "intern";
+
+				if (state.writerHireVisible && state.workers[mainWriterType]?.visible) {
+					cardTypes.push(mainWriterType);
+				}
+
+			if (state.workers.scriptDoctor?.visible) {
+				cardTypes.push("scriptDoctor");
+			}
+
+			return cardTypes;
+		},
 		currentWritersRoomCapacity: (state) =>
 			state.writersRoomCapacities[state.currentCapacityIndex].capacity,
 		currentWorkerAmount: (state) => state.currentWorkers.length,
@@ -1653,41 +1710,194 @@ export const useGameStore = defineStore("game", {
 			cost !== 0 && state.writingToolCardVisible,
 	},
 	actions: {
-		// Mutation to save the state to localStorage
-		SAVE_STATE() {
-			const serializedState = JSON.stringify(this.$state);
-
-			// Start timing the save
+		// Save durable game state to localStorage, optionally downloading a backup.
+		SAVE_STATE({
+			guidanceStore = null,
+			preproductionStore = null,
+			download = false,
+			label = "Save",
+		} = {}) {
 			const startTime = performance.now();
+			const snapshot = createSaveSnapshot({
+				gameStore: this,
+				guidanceStore,
+				preproductionStore,
+			});
+			const serializedState = saveSnapshotToLocalStorage(snapshot);
+			const fileName = download ? downloadSaveSnapshot(snapshot) : "";
 
-			// Save to localStorage
-			localStorage.setItem("gameState", serializedState);
-
-			// End timing and calculate the duration
 			const endTime = performance.now();
 			const saveDuration = endTime - startTime;
 
-			// Log the file size and save duration
 			console.log(
-				`Saved state size: ${new Blob([serializedState]).size} bytes`
+				`${label} state size: ${new Blob([serializedState]).size} bytes`
 			);
-			console.log(`Save took: ${saveDuration.toFixed(2)} milliseconds`);
+			console.log(`${label} took: ${saveDuration.toFixed(2)} milliseconds`);
+
+			if (fileName) {
+				console.log(`Downloaded save file: ${fileName}`);
+			}
+
+			return {
+				snapshot,
+				serializedState,
+				fileName,
+				size: new Blob([serializedState]).size,
+				duration: saveDuration,
+			};
 		},
-		// Mutation to load the state from localStorage
-		LOAD_STATE() {
+		// Load durable game state from localStorage, including legacy full-store saves.
+		LOAD_STATE({ guidanceStore = null, preproductionStore = null } = {}) {
 			const serializedState = localStorage.getItem("gameState");
-			if (serializedState) {
-				const loadedState = JSON.parse(serializedState);
-				// Assign loaded values to the state variables
-				delete loadedState.popupManager;
-			delete loadedState.progressManager;
-			delete loadedState.wordsPerSecond;
-			this.$patch(loadedState);
-				// Log the file size of the loaded state
+			if (!serializedState) {
+				return false;
+			}
+
+			let loadedState = null;
+			try {
+				loadedState = readRawSaveFromLocalStorage();
+			} catch (error) {
+				console.warn("Unable to load saved game", error);
+				return false;
+			}
+			const didLoad = hydrateSaveSnapshot(loadedState, {
+				gameStore: this,
+				guidanceStore,
+				preproductionStore,
+			});
+
+			if (didLoad) {
 				console.log(
 					`Loaded state size: ${new Blob([serializedState]).size} bytes`
 				);
 			}
+
+			return didLoad;
+		},
+		RESET_STATE({ guidanceStore = null, preproductionStore = null } = {}) {
+			clearSaveFromLocalStorage();
+			this.$reset();
+			preproductionStore?.$reset();
+			guidanceStore?.resetGuidance?.();
+			console.log("Game reset to a new save state");
+		},
+
+		normalizeWritingTierState() {
+			const productMilestoneIndex = [
+				["fiveLoglines", "synopsis"],
+				["fiveSynopses", "outline"],
+				["fiveOutlines", "treatment"],
+				["fiveTreatments", "draftScript"],
+				["fiveDraftScripts", "shootingScript"],
+			].reduce((highestIndex, [milestoneKey, productKey]) => {
+				if (!this.milestones[milestoneKey]) {
+					return highestIndex;
+				}
+				return Math.max(
+					highestIndex,
+					this.writingProductTierOrder.indexOf(productKey)
+				);
+			}, 0);
+			const visibleProductIndex = this.writingProductTierOrder.reduce(
+				(highestIndex, productKey, index) => {
+					if (!this.products[productKey]?.visible) {
+						return highestIndex;
+					}
+					return Math.max(highestIndex, index);
+				},
+				0
+			);
+			const productIndex = Math.max(
+				Number.isInteger(this.currentWritingProductTierIndex)
+					? this.currentWritingProductTierIndex
+					: 0,
+				productMilestoneIndex,
+				visibleProductIndex
+			);
+			this.setWritingProductTierByIndex(productIndex);
+			this.writerHireVisible =
+				Boolean(this.writerHireVisible) ||
+				this.writersRoomVisible ||
+				this.milestones.sixtyDollars;
+
+			const writerDollarIndex =
+				this.totalWritingDollarCount >= 3000
+					? 3
+					: this.totalWritingDollarCount >= 800
+						? 2
+						: this.totalWritingDollarCount >= 200
+							? 1
+							: 0;
+			const visibleWriterIndex = this.writerTierOrder.reduce(
+				(highestIndex, workerType, index) => {
+					if (!this.workers[workerType]?.visible) {
+						return highestIndex;
+					}
+					return Math.max(highestIndex, index);
+				},
+				0
+			);
+			const writerIndex = Math.max(
+				Number.isInteger(this.currentWriterTierIndex)
+					? this.currentWriterTierIndex
+					: 0,
+				writerDollarIndex,
+				visibleWriterIndex
+			);
+			this.setMainWriterTierByIndex(writerIndex);
+		},
+
+		setWritingProductTierByIndex(index) {
+			const clampedIndex = Math.min(
+				Math.max(index, 0),
+				this.writingProductTierOrder.length - 1
+			);
+			this.currentWritingProductTierIndex = clampedIndex;
+			const currentProductKey =
+				this.writingProductTierOrder[this.currentWritingProductTierIndex];
+
+			this.writingProductTierOrder.forEach((productKey) => {
+				if (this.products[productKey]) {
+					this.products[productKey].visible = productKey === currentProductKey;
+				}
+			});
+		},
+
+		upgradeWritingProductTier(productKey) {
+			const nextIndex = this.writingProductTierOrder.indexOf(productKey);
+			if (nextIndex === -1) {
+				return;
+			}
+
+			this.setWritingProductTierByIndex(nextIndex);
+			this.lastWritingProductUpgradeKey = productKey;
+		},
+
+		setMainWriterTierByIndex(index) {
+			const clampedIndex = Math.min(
+				Math.max(index, 0),
+				this.writerTierOrder.length - 1
+			);
+			this.currentWriterTierIndex = clampedIndex;
+			const currentWorkerType =
+				this.writerTierOrder[this.currentWriterTierIndex];
+
+				this.writerTierOrder.forEach((workerType) => {
+					if (this.workers[workerType]) {
+						this.workers[workerType].visible =
+							this.writerHireVisible && workerType === currentWorkerType;
+					}
+				});
+		},
+
+		upgradeMainWriterTier(workerType) {
+			const nextIndex = this.writerTierOrder.indexOf(workerType);
+			if (nextIndex === -1) {
+				return;
+			}
+
+			this.setMainWriterTierByIndex(nextIndex);
+			this.lastWriterTierUpgradeKey = workerType;
 		},
 
 		UPDATE_STATE_VARIABLE({ key, value }) {
@@ -1748,17 +1958,29 @@ export const useGameStore = defineStore("game", {
 			this.activeDialog = dialogName;
 		},
 
-		// Dollars and Words and Variables Such as Those
-		INCREASE_WORD_COUNT(amt) {
-			this.wordCount += amt;
-		},
-		DECREASE_WORD_COUNT(cost) {
-			this.wordCount -= cost;
-		},
-		INCREASE_WRITING_DOLLAR_AMOUNT(pay) {
-			this.writingDollarCount += pay;
-			this.totalWritingDollarCount += pay;
-		},
+			// Dollars and Words and Variables Such as Those
+			INCREASE_WORD_COUNT(amt) {
+				this.wordCount += amt;
+			},
+			TRIGGER_MANUAL_WORD_BURST(amount) {
+				this.manualWordBurst = {
+					id: this.manualWordBurst.id + 1,
+					amount,
+				};
+			},
+			DECREASE_WORD_COUNT(cost) {
+				this.wordCount -= cost;
+			},
+			INCREASE_WRITING_DOLLAR_AMOUNT(pay) {
+				this.writingDollarCount += pay;
+				this.totalWritingDollarCount += pay;
+			},
+			TRIGGER_WRITING_DOLLAR_BURST(amount) {
+				this.writingDollarBurst = {
+					id: this.writingDollarBurst.id + 1,
+					amount,
+				};
+			},
 		DECREASE_WRITING_DOLLAR_AMOUNT(cost) {
 			this.writingDollarCount -= cost;
 		},
@@ -2170,24 +2392,20 @@ export const useGameStore = defineStore("game", {
 			);
 		},
 
-		increaseWordCount() {
-			const previousToolDetails = this.previousToolDetails;
-			if (previousToolDetails) {
-				const amt = previousToolDetails.wordsPerClick;
-				this.INCREASE_WORD_COUNT(amt);
-			} else {
-				// Handle the scenario where there is no previous tool
-				console.log("No previous tool available to increase word count.");
-			}
-			if (this.wordCount >= 50 && !this.milestones.fiftyWords) {
-				this.UPDATE_STATE_VARIABLE({
-					key: "writingToolCardVisible",
-					value: true,
-				});
-				this.SET_MILESTONE_ACHIEVED("fiftyWords");
-				usePopupStore().showPopup({ id: "achievement_writingTool" });
-			}
-		},
+			increaseWordCount() {
+				const previousToolDetails = this.previousToolDetails;
+				if (previousToolDetails) {
+					const amt = previousToolDetails.wordsPerClick;
+					this.INCREASE_WORD_COUNT(amt);
+					this.TRIGGER_MANUAL_WORD_BURST(amt);
+				} else {
+					// Handle the scenario where there is no previous tool
+					console.log("No previous tool available to increase word count.");
+				}
+				if (this.wordCount >= 20) {
+					useGuidanceStore().triggerStep("core_story_product");
+				}
+			},
 		updateWordCount() {
 			if (!this.lastUpdate) {
 				this.lastUpdate = Date.now();
@@ -2223,14 +2441,25 @@ export const useGameStore = defineStore("game", {
 			// Decrease word count by cost
 			this.DECREASE_WORD_COUNT(cost);
 
-			// Update genre progress with the words spent
-			this.UPDATE_GENRE_PROGRESS({
-				genre: this.currentGenre,
-				words: cost,
-			});
+				if (this.milestones.genreLevelTwo) {
+					this.UPDATE_GENRE_PROGRESS({
+						genre: this.currentGenre,
+						words: cost,
+					});
+				}
 
-			// Increase writing dollar amount by pay
-			this.INCREASE_WRITING_DOLLAR_AMOUNT(pay);
+				// Increase writing dollar amount by pay
+				this.INCREASE_WRITING_DOLLAR_AMOUNT(pay);
+				this.TRIGGER_WRITING_DOLLAR_BURST(pay);
+
+				if (!this.writingToolCardVisible) {
+					this.UPDATE_STATE_VARIABLE({
+						key: "writingToolCardVisible",
+						value: true,
+					});
+					this.SET_MILESTONE_ACHIEVED("fiftyWords");
+					useGuidanceStore().triggerStep("core_tool_upgrade");
+				}
 
 			// Increment the product count
 			this.UPDATE_STATE_VARIABLE({
@@ -2325,16 +2554,9 @@ export const useGameStore = defineStore("game", {
 					// Mark the milestone as achieved
 					this.SET_MILESTONE_ACHIEVED("fiveLoglines");
 
-					// Make the synopsis product visible
-					this.UPDATE_STATE_VARIABLE({
-						key: "products.synopsis.visible",
-						value: true,
-					});
+					this.upgradeWritingProductTier("synopsis");
 
-					// Show the unlock popup
-					usePopupStore().showPopup(
-						{ id: "achievement_synopsis" }
-					);
+						useGuidanceStore().triggerStep("unlock_synopsis");
 				}
 
 				if (
@@ -2342,14 +2564,9 @@ export const useGameStore = defineStore("game", {
 					this.products.synopsis.count >= 5 &&
 					!this.milestones.fiveSynopses
 				) {
-					this.SET_MILESTONE_ACHIEVED("fiveSynopses");
-					this.UPDATE_STATE_VARIABLE({
-						key: "products.outline.visible",
-						value: true,
-					});
-					usePopupStore().showPopup(
-						{ id: "achievement_outline" }
-					);
+						this.SET_MILESTONE_ACHIEVED("fiveSynopses");
+						this.upgradeWritingProductTier("outline");
+						useGuidanceStore().triggerStep("unlock_outline");
 				}
 
 				if (
@@ -2357,14 +2574,9 @@ export const useGameStore = defineStore("game", {
 					this.products.outline.count >= 5 &&
 					!this.milestones.fiveOutlines
 				) {
-					this.SET_MILESTONE_ACHIEVED("fiveOutlines");
-					this.UPDATE_STATE_VARIABLE({
-						key: "products.treatment.visible",
-						value: true,
-					});
-					usePopupStore().showPopup(
-						{ id: "achievement_treatment" }
-					);
+						this.SET_MILESTONE_ACHIEVED("fiveOutlines");
+						this.upgradeWritingProductTier("treatment");
+						useGuidanceStore().triggerStep("unlock_treatment");
 				}
 
 				if (
@@ -2372,14 +2584,9 @@ export const useGameStore = defineStore("game", {
 					this.products.treatment.count >= 5 &&
 					!this.milestones.fiveTreatments
 				) {
-					this.SET_MILESTONE_ACHIEVED("fiveTreatments");
-					this.UPDATE_STATE_VARIABLE({
-						key: "products.draftScript.visible",
-						value: true,
-					});
-					usePopupStore().showPopup(
-						{ id: "achievement_draftScript" }
-					);
+						this.SET_MILESTONE_ACHIEVED("fiveTreatments");
+						this.upgradeWritingProductTier("draftScript");
+						useGuidanceStore().triggerStep("unlock_draft_script");
 				}
 
 				if (
@@ -2387,14 +2594,9 @@ export const useGameStore = defineStore("game", {
 					this.products.draftScript.count >= 5 &&
 					!this.milestones.fiveDraftScripts
 				) {
-					this.SET_MILESTONE_ACHIEVED("fiveDraftScripts");
-					this.UPDATE_STATE_VARIABLE({
-						key: "products.shootingScript.visible",
-						value: true,
-					});
-					usePopupStore().showPopup(
-						{ id: "achievement_shootingScript" }
-					);
+						this.SET_MILESTONE_ACHIEVED("fiveDraftScripts");
+						this.upgradeWritingProductTier("shootingScript");
+						useGuidanceStore().triggerStep("unlock_shooting_script");
 				}
 			}
 
@@ -2404,80 +2606,67 @@ export const useGameStore = defineStore("game", {
 
 		// ... existing code ...
 
-		// Add a new action to check for dollar-based unlocks
-		checkDollarMilestones() {
-			// Check for Writers Room unlock
-			if (this.writingDollarCount >= 60 && !this.milestones.sixtyDollars) {
-				this.SET_MILESTONE_ACHIEVED("sixtyDollars");
+			// Add a new action to check for dollar-based unlocks
+			checkDollarMilestones() {
+				// Check for writer hire unlock
+				if (this.writingDollarCount >= 60 && !this.milestones.sixtyDollars) {
+					this.SET_MILESTONE_ACHIEVED("sixtyDollars");
 
-				// Unlock Writers Room
-				if (!this.writersRoomVisible) {
-					this.UPDATE_STATE_VARIABLE({
-						key: "writersRoomVisible",
-						value: true,
-					});
-					this.UPDATE_STATE_VARIABLE({
-						key: "workers.intern.visible",
-						value: true,
-					});
+					if (!this.writerHireVisible) {
+						this.UPDATE_STATE_VARIABLE({
+							key: "writerHireVisible",
+							value: true,
+						});
+						this.upgradeMainWriterTier("intern");
 
-					// Show the unlock popup
-					usePopupStore().showPopup({ id: "writersRoom_unlock" });
+						useGuidanceStore().triggerStep("unlock_writer_hire");
+					}
 				}
-			}
 
-			// Check for junior writers unlock (after earning more money)
-			if (
-				this.totalWritingDollarCount >= 200 &&
-				!this.workers.junior.visible
-			) {
-				this.UPDATE_STATE_VARIABLE({
-					key: "workers.junior.visible",
-					value: true,
-				});
+				// Check for junior writers unlock (after earning more money)
+				if (
+					this.totalWritingDollarCount >= 200 &&
+					this.currentWriterTierIndex < this.writerTierOrder.indexOf("junior")
+				) {
+					this.upgradeMainWriterTier("junior");
 
-				usePopupStore().showPopup({ id: "writersRoom_juniorWriters" });
-			}
+					useGuidanceStore().triggerStep("unlock_junior_writers");
+				}
 
-			// Check for screenwriters unlock
-			if (
-				this.totalWritingDollarCount >= 800 &&
-				!this.workers.screenwriter.visible
-			) {
-				this.UPDATE_STATE_VARIABLE({
-					key: "workers.screenwriter.visible",
-					value: true,
-				});
+				// Check for screenwriters unlock
+				if (
+					this.totalWritingDollarCount >= 800 &&
+					this.currentWriterTierIndex <
+						this.writerTierOrder.indexOf("screenwriter")
+				) {
+					this.upgradeMainWriterTier("screenwriter");
 
-				usePopupStore().showPopup({ id: "writersRoom_screenwriters" });
-			}
+					useGuidanceStore().triggerStep("unlock_screenwriters");
+				}
 
-			// Check for cowriters unlock
-			if (
-				this.totalWritingDollarCount >= 3000 &&
-				!this.workers.cowriters.visible
-			) {
-				this.UPDATE_STATE_VARIABLE({
-					key: "workers.cowriters.visible",
-					value: true,
-				});
+				// Check for cowriters unlock
+				if (
+					this.totalWritingDollarCount >= 3000 &&
+					this.currentWriterTierIndex < this.writerTierOrder.indexOf("cowriters")
+				) {
+					this.upgradeMainWriterTier("cowriters");
 
-				usePopupStore().showPopup({ id: "writersRoom_cowriters" });
-			}
+					useGuidanceStore().triggerStep("unlock_cowriters");
+				}
 
 			// Check for script doctors unlock
-			if (
-				this.totalWritingDollarCount >= 10000 &&
-				!this.workers.scriptDoctor.visible
-			) {
-				this.UPDATE_STATE_VARIABLE({
-					key: "workers.scriptDoctor.visible",
-					value: true,
-				});
+				if (
+					this.totalWritingDollarCount >= 10000 &&
+					!this.workers.scriptDoctor.visible
+				) {
+					this.UPDATE_STATE_VARIABLE({
+						key: "workers.scriptDoctor.visible",
+						value: true,
+					});
 
-				usePopupStore().showPopup({ id: "writersRoom_scriptDoctors" });
-			}
-		},
+					useGuidanceStore().triggerStep("unlock_script_doctors");
+				}
+			},
 
 		hireWorker({ cost, name }) {
 			// Don't do anything if the user doesn't have enough writing dollars
@@ -2515,13 +2704,20 @@ export const useGameStore = defineStore("game", {
 				worker.times = {};
 			}
 
-			const id = Date.now() + nextWorkerId++;
+				const id = Date.now() + nextWorkerId++;
 
-			// Add worker to state
-			this.ADD_WORKER({ workerType, id });
+				// Add worker to state
+				this.ADD_WORKER({ workerType, id });
+				if (!this.writersRoomVisible) {
+					this.UPDATE_STATE_VARIABLE({
+						key: "writersRoomVisible",
+						value: true,
+					});
+					useGuidanceStore().triggerStep("unlock_writers_room");
+				}
 
-			// Set the exact time this worker was hired
-			const exactHireTime = Date.now();
+				// Set the exact time this worker was hired
+				const exactHireTime = Date.now();
 
 			// Calculate animation buffer - animation will start 5 seconds before removal
 			const animationBufferMs = 5000; // 5 seconds for animation
@@ -2588,8 +2784,7 @@ export const useGameStore = defineStore("game", {
 					value: true,
 				});
 
-				// Show the upgrade popup
-				usePopupStore().showPopup({ id: "writersRoom_upgrade" });
+					useGuidanceStore().triggerStep("unlock_writers_room_upgrade");
 			}
 		},
 
@@ -2622,10 +2817,7 @@ export const useGameStore = defineStore("game", {
 				if (nextIndex === 2 && !this.milestones.secondWritersRoomUpgrade) {
 					this.SET_MILESTONE_ACHIEVED("secondWritersRoomUpgrade");
 
-					// Only show the popup for the first capacity upgrade
-					usePopupStore().showPopup({
-						id: "writersRoom_capacityUpgrade",
-					});
+						useGuidanceStore().triggerStep("unlock_writers_room_upgrade");
 				}
 			}
 		},
@@ -2857,13 +3049,7 @@ ${looksList}`;
 					const nextToolKey = toolKeys[currentToolIndex + 1];
 					this.SET_NEXT_WRITE_TOOL(nextToolKey);
 
-					// Show a popup for the first tool upgrade
-					if (currentToolIndex === 0) {
-						usePopupStore().showPopup({
-							id: "achievement_writingTool",
-						});
 					}
-				}
 
 				// Check for word-based milestones
 				if (wordsPerClick >= 5 && !this.milestones.genreLevelTwo) {
@@ -2875,28 +3061,22 @@ ${looksList}`;
 						value: true,
 					});
 
-					// Show the genre unlock popup
-					usePopupStore().showPopup({ id: "genre_unlock" });
-				}
+						useGuidanceStore().triggerStep("unlock_genre_progress");
+					}
 			}
 		},
 
 		// Show a toast notification when preproduction is unlocked
-		showPreproductionUnlockedToast() {
-			// Show a persistent toast notification
-			this.showToast({
-				message:
-					"Preproduction phase unlocked! Welcome to your first movie project!",
-				type: "persistent",
-			});
+			showPreproductionUnlockedToast() {
+				// Show a persistent toast notification
+				this.showToast({
+					message:
+						"Preproduction phase unlocked! Welcome to your first movie project!",
+					type: "persistent",
+				});
 
-			// Show a popup to explain the preproduction phase
-			usePopupStore().showPopup(
-				{
-					id: "game_preproductionUnlocked",
-				}
-			);
-		},
+				useGuidanceStore().triggerStep("unlock_preproduction");
+			},
 
 		// Show a toast notification via the store
 		showToast(payload) {
@@ -2981,19 +3161,15 @@ ${looksList}`;
 			}
 		},
 
-		showFeatureUnlock({ popupKey }) {
-			// Show a feature unlock popup
-			usePopupStore().showPopup({ id: popupKey });
-
-			// Also show a toast notification
-			const popupData = this.popups[popupKey];
-			if (popupData) {
-				this.showToast({
-					message: `🔓 ${popupData.title} unlocked!`,
-					type: "success",
-				});
-			}
-		},
+			showFeatureUnlock({ popupKey }) {
+				const popupData = usePopupStore().popupRegistry[popupKey];
+				if (popupData) {
+					this.showToast({
+						message: `${popupData.title} unlocked!`,
+						type: "success",
+					});
+				}
+			},
 
 		// Action to hire a department head
 		hireDepartmentHead(payload) {

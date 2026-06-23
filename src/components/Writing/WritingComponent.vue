@@ -5,8 +5,8 @@
 		<v-row>
 			<v-col cols="3">
 				<PurchaseCard
-					v-for="(card, index) in cardsArray"
-					:key="index"
+					v-for="card in cardsArray"
+					:key="card.cardType"
 					:cardType="card.cardType"
 				/>
 			</v-col>
@@ -19,7 +19,7 @@
 					<WriteButton cols="6" />
 					<WritingToolCard cols="6" />
 				</div>
-				<GenreCard />
+					<GenreCard v-if="genreProgressVisible" />
 				<WritersRoom v-if="writersRoomVisible" />
 				<WritersRoomUpgradeCard v-if="writersRoomVisible" />
 			</v-col>
@@ -27,8 +27,8 @@
 				<!-- <div v-if="writersRoomVisible"> -->
 				<div>
 					<WorkerCard
-						v-for="(worker, index) in workersArray"
-						:key="index"
+						v-for="worker in workersArray"
+						:key="worker.workerType"
 						:workerType="worker.workerType"
 					/>
 				</div>
@@ -73,22 +73,25 @@ export default {
 	},
 	computed: {
 		...mapState(useGameStore, {
-			productCards: (state) => state.products, // This specifically maps `state.cards` from your `productcards` module to `productcards` computed property
-			workersCards: (state) => state.workers, // Assuming `workers` is in the root state
-			writersRoomVisible: (state) => state.writersRoomVisible,
+				getProductCardDetails: "getProductCardDetails",
+				getWorkerDetails: "getWorkerDetails",
+				visibleProductCardTypes: "visibleProductCardTypes",
+				visibleWorkerCardTypes: "visibleWorkerCardTypes",
+				genreProgressVisible: (state) => state.switchGenreVisible,
+				writersRoomVisible: (state) => state.writersRoomVisible,
 			writersRoomUpgradeCardVisible: (state) =>
 				state.writersRoomUpgradeCardVisible,
 		}),
 		cardsArray() {
-			return Object.entries(this.productCards).map(([key, value]) => ({
-				cardType: key,
-				...value,
+			return this.visibleProductCardTypes.map((cardType) => ({
+				cardType,
+				...this.getProductCardDetails(cardType),
 			}));
 		},
 		workersArray() {
-			return Object.entries(this.workersCards).map(([key, value]) => ({
-				workerType: key,
-				...value,
+			return this.visibleWorkerCardTypes.map((workerType) => ({
+				workerType,
+				...this.getWorkerDetails(workerType),
 			}));
 		},
 		gameClockStore() {

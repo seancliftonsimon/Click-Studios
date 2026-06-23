@@ -40,6 +40,7 @@
 					<!-- Preproduction -->
 					<v-list-item
 						:to="{ name: 'preproduction' }"
+						data-guidance-target="preproduction-nav"
 						:title="
 							preproductionDisabled ? '🔒 Preproduction' : 'Preproduction'
 						"
@@ -48,6 +49,7 @@
 
 					<v-list-item
 						:to="{ name: 'filming' }"
+						data-guidance-target="filming-nav"
 						:title="filmingDisabled ? '🔒 Filming' : 'Filming'"
 						:disabled="filmingDisabled"
 					></v-list-item>
@@ -75,6 +77,7 @@
 					<v-row>
 						<v-btn @click="saveGame">Save Game</v-btn>
 						<v-btn @click="loadGame">Load Game</v-btn>
+						<v-btn color="error" @click="resetGame">Reset Game</v-btn>
 					</v-row>
 				</v-container>
 			</v-app-bar>
@@ -82,40 +85,107 @@
 			<!-- Main Area -->
 			<v-main>
 				<PopupManager />
+				<GuidedHintManager />
 				<router-view />
 			</v-main>
-		</v-row>
-	</v-app>
+			</v-row>
+		</v-app>
 </template>
 
 <script>
 import PopupManager from "./components/ui/PopupManager.vue";
+import GuidedHintManager from "./components/ui/GuidedHintManager.vue";
 import { mapState } from "pinia";
 import { useGameStore } from "@/store";
+import { useGuidanceStore } from "@/stores/guidanceStore";
+import { usePreproductionStore } from "@/stores/preproductionStore";
+import { AUTO_SAVE_INTERVAL_MS } from "@/services/saveService";
 import { popupService } from "./services";
 
 export default {
 	name: "App",
 	components: {
 		PopupManager,
+		GuidedHintManager,
 	},
 	data() {
 		return {
 			ticketImage: require("@/assets/title-ticket.png"),
 			bannerImage: require("@/assets/SuperEarlyPrototypeBanner.png"),
+			autoSaveIntervalId: null,
 		};
 	},
 	methods: {
+		saveContext() {
+			return {
+				guidanceStore: useGuidanceStore(),
+				preproductionStore: usePreproductionStore(),
+			};
+		},
 		saveGame() {
-			useGameStore().SAVE_STATE();
+			useGameStore().SAVE_STATE({
+				...this.saveContext(),
+				download: true,
+			});
 			console.log("Game Saved");
 		},
 		loadGame() {
-			useGameStore().LOAD_STATE();
+			useGameStore().LOAD_STATE(this.saveContext());
 			console.log("Game Loaded");
+		},
+		resetGame() {
+			if (
+				!window.confirm(
+					"Reset your game and delete the local save? This cannot be undone."
+				)
+			) {
+				return;
+			}
+
+			popupService.clearAllPopups();
+			useGameStore().RESET_STATE(this.saveContext());
+			this.showWelcomeIfNeeded();
+		},
+		autoSaveGame() {
+			useGameStore().SAVE_STATE({
+				...this.saveContext(),
+				label: "Autosave",
+			});
+		},
+		startAutoSave() {
+			if (this.autoSaveIntervalId) return;
+
+			this.autoSaveIntervalId = window.setInterval(
+				this.autoSaveGame,
+				AUTO_SAVE_INTERVAL_MS
+			);
+			window.addEventListener("beforeunload", this.autoSaveGame);
+		},
+		stopAutoSave() {
+			if (this.autoSaveIntervalId) {
+				window.clearInterval(this.autoSaveIntervalId);
+				this.autoSaveIntervalId = null;
+			}
+			window.removeEventListener("beforeunload", this.autoSaveGame);
 		},
 		hideToast() {
 			useGameStore().SET_TOAST_VISIBLE(false);
+		},
+		showWelcomeIfNeeded() {
+			const guidanceStore = useGuidanceStore();
+			guidanceStore.hydrate();
+
+			if (guidanceStore.welcomeCompleted) {
+				guidanceStore.startCoreTutorial();
+				return;
+			}
+
+			popupService.showPopup("tutorial_welcome", {
+				onSubmit: () => {
+					guidanceStore.markWelcomeComplete();
+					guidanceStore.startCoreTutorial();
+				},
+			});
 		},
 	},
 	computed: {
@@ -166,8 +236,11 @@ export default {
 	mounted() {
 		// Dispatch the action when the component mounts
 		useGameStore().updateWordCount();
-		popupService.showPopup("tutorial_welcome");
-		// XYZ this is where the beginner pop ups need to be reactivated
+		this.showWelcomeIfNeeded();
+		this.startAutoSave();
+	},
+	beforeUnmount() {
+		this.stopAutoSave();
 	},
 };
 </script>

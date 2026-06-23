@@ -4,10 +4,11 @@
 		:title="title"
 		:text="text"
 		:emoji="emoji"
-		:theme="theme"
-		:persistent="persistent"
-		:show-close-button="false"
-		@close="handleCancel"
+			:theme="theme"
+			:persistent="persistent"
+			:max-width="maxWidth"
+			:show-close-button="false"
+			@close="handleCancel"
 	>
 		<template #content>
 			<p v-if="text" class="popup-text mb-4">{{ text }}</p>
@@ -146,11 +147,15 @@ export default {
 			type: Function,
 			default: null,
 		},
-		nextPopupId: {
-			type: String,
-			default: null,
+			nextPopupId: {
+				type: String,
+				default: null,
+			},
+			maxWidth: {
+				type: [String, Number],
+				default: 560,
+			},
 		},
-	},
 	emits: ["update:modelValue", "submitted", "cancelled"],
 	data() {
 		return {

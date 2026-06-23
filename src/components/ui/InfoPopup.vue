@@ -5,9 +5,10 @@
 		:text="text"
 		:emoji="emoji"
 		:theme="theme"
-		:persistent="persistent"
-		:close-button-text="buttonText"
-		:close-button-color="buttonColor"
+			:persistent="persistent"
+			:max-width="maxWidth"
+			:close-button-text="buttonText"
+			:close-button-color="buttonColor"
 		@close="handleClose"
 	>
 		<template v-if="$slots.content" #content>
@@ -69,11 +70,15 @@ export default {
 			type: Function,
 			default: null,
 		},
-		nextPopupId: {
-			type: String,
-			default: null,
+			nextPopupId: {
+				type: String,
+				default: null,
+			},
+			maxWidth: {
+				type: [String, Number],
+				default: 500,
+			},
 		},
-	},
 	emits: ["update:modelValue", "closed"],
 	computed: {
 		isVisible: {

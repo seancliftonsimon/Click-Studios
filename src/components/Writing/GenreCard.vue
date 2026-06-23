@@ -1,5 +1,5 @@
 <template>
-	<v-card class="mt-4">
+		<v-card class="mt-4" data-guidance-target="genre-card">
 		<v-row>
 			<v-col cols="4">
 				<v-row align="center" class="my-1" justify="space-around">

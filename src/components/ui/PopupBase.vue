@@ -10,10 +10,11 @@
 		@keydown.esc="handleEscKey"
 		@click:outside="handleOutsideClick"
 	>
-		<v-card class="popup-card" :class="[`popup-theme-${theme}`]">
-			<v-card-title
-				class="popup-title text-h5 d-flex align-center justify-center text-center"
-			>
+			<v-card class="popup-card" :class="[`popup-theme-${theme}`]">
+				<div v-if="theme === 'premiere'" class="premiere-strip"></div>
+				<v-card-title
+					class="popup-title text-h5 d-flex align-center justify-center text-center"
+				>
 				<span v-if="emoji" class="popup-emoji me-2">{{ emoji }}</span>
 				{{ title }}
 			</v-card-title>
@@ -124,18 +125,19 @@ export default {
 </script>
 
 <style scoped>
-.popup-card {
-	border-radius: 12px;
-	overflow: hidden;
-	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-}
+	.popup-card {
+		border-radius: 8px;
+		overflow: hidden;
+		box-shadow: 0 24px 80px rgba(30, 15, 18, 0.28);
+	}
 
-.popup-title {
-	padding: 20px 24px 10px;
-	font-weight: 600;
-	text-align: center;
-	width: 100%;
-}
+	.popup-title {
+		color: #2d1c20;
+		padding: 24px 28px 8px;
+		font-weight: 800;
+		text-align: center;
+		width: 100%;
+	}
 
 .popup-emoji {
 	font-size: 1.5em;
@@ -144,34 +146,40 @@ export default {
 	text-align: center;
 }
 
-.popup-content {
-	padding: 0 24px 20px;
-	text-align: center;
-}
+	.popup-content {
+		padding: 0 28px 22px;
+		text-align: center;
+	}
 
-.popup-text {
-	white-space: pre-line;
-	font-size: 1.1em;
-	line-height: 1.5;
-	text-align: center;
-}
+	.popup-text {
+		white-space: pre-line;
+		color: #4b3a3d;
+		font-size: 1rem;
+		line-height: 1.4;
+		text-align: center;
+	}
 
-.popup-actions {
-	padding: 0 24px 20px;
-}
+	.popup-actions {
+		padding: 0 28px 24px;
+	}
 
 /* Theme variations */
 .popup-theme-default {
 	background-color: #ffffff;
 }
 
-.popup-theme-tutorial {
-	background-color: #e3f2fd;
-}
+	.popup-theme-tutorial {
+		background-color: #fffaf1;
+	}
 
-.popup-theme-achievement {
-	background-color: #f9fbe7;
-}
+	.popup-theme-achievement {
+		background-color: #fffaf1;
+	}
+
+	.popup-theme-premiere {
+		background: linear-gradient(180deg, #fff7e8 0%, #ffffff 52%, #fffaf1 100%);
+		border: 1px solid rgba(147, 22, 33, 0.16);
+	}
 
 .popup-theme-error {
 	background-color: #ffebee;
@@ -181,9 +189,20 @@ export default {
 	background-color: #e8f5e9;
 }
 
-.popup-theme-warning {
-	background-color: #fff8e1;
-}
+	.popup-theme-warning {
+		background-color: #fff8e1;
+	}
+
+	.premiere-strip {
+		background: repeating-linear-gradient(
+			90deg,
+			#931621 0,
+			#931621 22px,
+			#f9b233 22px,
+			#f9b233 34px
+		);
+		height: 8px;
+	}
 
 /* Accessibility focus styles */
 .popup-card:focus {

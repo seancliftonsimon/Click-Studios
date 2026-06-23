@@ -1,14 +1,34 @@
 <template>
 	<v-card
 		class="mx-auto mb-4"
-		:class="{ 'script-doctor': workerType === 'scriptDoctor' }"
+		:class="{
+			'script-doctor': workerType === 'scriptDoctor',
+			'tier-upgrade-pulse': isUpgrading,
+		}"
 		shaped
 		elevation="2"
 		style="border-radius: 16px"
 		v-if="isWorkerVisible"
+		:data-guidance-target="guidanceTarget"
 	>
 		<v-row no-gutters>
-			<v-card-title class="worker-title py-1">{{ name }}</v-card-title>
+			<v-card-title class="worker-title py-1">
+				<div>
+					<div
+						v-if="workerType !== 'scriptDoctor'"
+						class="tier-pips"
+						:aria-label="tierLabel"
+					>
+						<span
+							v-for="pip in writerTierTotal"
+							:key="pip"
+							class="tier-pip"
+							:class="{ 'tier-pip-active': pip <= writerTierNumber }"
+						></span>
+					</div>
+					<div>{{ name }}</div>
+				</div>
+			</v-card-title>
 		</v-row>
 		<v-row style="margin-top: -20px" no-gutters>
 			<v-col cols="5" class="d-flex justify-center align-center">
@@ -23,7 +43,6 @@
 						:disabled="!(canAfford && isUnderCapacity)"
 						@click="makeHire(cost)"
 					>
-						<!-- Use cost prop here -->
 						<span>Hire for ${{ $formatNumber(cost) }}</span>
 					</v-btn>
 				</v-card-actions>
@@ -31,11 +50,10 @@
 		</v-row>
 		<v-row style="margin-top: -20px" class="pb-3">
 			<v-col class="text-center worker-text pl-3">
-				<!-- Conditional Rendering for Script Doctors -->
 				<template v-if="workerType === 'scriptDoctor'">
 					ALL WRITING X{{ effect }}
 				</template>
-				<template v-else> {{ $formatNumber(wps) }} WPS </template>
+				<template v-else>{{ $formatNumber(wps) }} WPS</template>
 			</v-col>
 			<v-col class="text-center worker-text pr-3">
 				FOR {{ $formatNumber(duration) }} MINS
@@ -49,20 +67,25 @@ import { mapState } from "pinia";
 import { useGameStore } from "@/store";
 
 export default {
+	name: "WorkerCard",
 	props: {
 		workerType: String,
 	},
-	name: "WorkerCard",
+	data() {
+		return {
+			isUpgrading: false,
+			upgradeAnimationTimeout: null,
+		};
+	},
 	computed: {
 		...mapState(useGameStore, {
 			getWorkerDetails: "getWorkerDetails",
-			workers: "workers",
+			writerTierOrder: "writerTierOrder",
 			currentWritersRoomCapacity: "currentWritersRoomCapacity",
 			currentWorkerAmount: "currentWorkerAmount",
 		}),
 		workerDetails() {
-			// Unified computed property to fetch worker details once
-			return this.getWorkerDetails(this.workerType);
+			return this.getWorkerDetails(this.workerType) || {};
 		},
 		name() {
 			return this.workerDetails.name ?? "";
@@ -72,9 +95,6 @@ export default {
 		},
 		effect() {
 			return this.workerDetails.effect ?? 1;
-		},
-		text() {
-			return this.workerDetails.text ?? "";
 		},
 		cost() {
 			return this.workerDetails.cost ?? 0;
@@ -89,7 +109,7 @@ export default {
 			return useGameStore().writingDollarCount >= this.cost;
 		},
 		isWorkerVisible() {
-			return this.workerDetails.visible;
+			return Boolean(this.workerDetails?.visible);
 		},
 		isUnderCapacity() {
 			return (
@@ -97,15 +117,52 @@ export default {
 				this.currentWritersRoomCapacity > 0
 			);
 		},
+		writerTierNumber() {
+			return this.writerTierOrder.indexOf(this.workerType) + 1;
+		},
+		writerTierTotal() {
+			return this.writerTierOrder.length;
+		},
+		tierLabel() {
+			return `${this.name} is upgrade ${this.writerTierNumber} of ${this.writerTierTotal}`;
+		},
+		guidanceTarget() {
+			return this.workerType === "scriptDoctor"
+				? "script-doctor-card"
+				: "writer-hire-card";
+		},
+	},
+	watch: {
+		workerType() {
+			this.triggerUpgradeAnimation();
+		},
+	},
+	mounted() {
+		this.triggerUpgradeAnimation();
+	},
+	beforeUnmount() {
+		if (this.upgradeAnimationTimeout) {
+			window.clearTimeout(this.upgradeAnimationTimeout);
+		}
 	},
 	methods: {
 		makeHire(cost) {
-			if (this.canAfford) {
+			if (this.canAfford && this.isUnderCapacity) {
 				useGameStore().hireWorker({
 					cost,
-					name: this.workerType, // Pass the workerType directly instead of the display name
+					name: this.workerType,
 				});
 			}
+		},
+		triggerUpgradeAnimation() {
+			if (this.upgradeAnimationTimeout) {
+				window.clearTimeout(this.upgradeAnimationTimeout);
+			}
+			this.isUpgrading = true;
+			this.upgradeAnimationTimeout = window.setTimeout(() => {
+				this.isUpgrading = false;
+				this.upgradeAnimationTimeout = null;
+			}, 700);
 		},
 	},
 };
@@ -116,25 +173,62 @@ export default {
 	background-color: hsl(34, 100%, 89%);
 }
 
-/* Add transition styles for the slide effect */
 .slide-enter-active,
 .slide-leave-active {
 	transition: max-height 0.5s ease;
 }
-.slide-enter, .slide-leave-to /* .slide-leave-active in <2.1.8 */ {
+
+.slide-enter,
+.slide-leave-to {
 	max-height: 0;
 }
 
 .worker-title {
 	align-self: center;
-	font-family: "Roboto";
+	font-family: "Roboto", sans-serif;
 	font-size: 18px;
 	font-weight: 500;
 }
 
+.tier-pips {
+	display: flex;
+	gap: 4px;
+	margin-bottom: 5px;
+}
+
+.tier-pip {
+	border: 1px solid #931621;
+	border-radius: 999px;
+	height: 7px;
+	width: 7px;
+}
+
+.tier-pip-active {
+	background: #931621;
+}
+
 .worker-text {
-	font-family: "Roboto";
 	color: #931621;
+	font-family: "Roboto", sans-serif;
 	font-weight: 500;
+}
+
+.tier-upgrade-pulse {
+	animation: tier-upgrade-pulse 0.7s ease-out;
+}
+
+@keyframes tier-upgrade-pulse {
+	0% {
+		box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.65);
+		transform: scale(0.98);
+	}
+	55% {
+		box-shadow: 0 0 0 8px rgba(255, 193, 7, 0.18);
+		transform: scale(1.02);
+	}
+	100% {
+		box-shadow: 0 0 0 0 rgba(255, 193, 7, 0);
+		transform: scale(1);
+	}
 }
 </style>

@@ -76,7 +76,7 @@
 <script>
 import { mapState, mapActions } from "pinia";
 import { useGameStore } from "@/store";
-import { usePopupStore } from "@/store/popup";
+import { useGuidanceStore } from "@/stores/guidanceStore";
 import PitchingComponent from "./PitchingComponent.vue";
 import InspirationShop from "./InspirationShop.vue";
 import HireWorkersCard from "./HireWorkersCard.vue";
@@ -263,12 +263,9 @@ export default {
 						key: "isFilmingUnlocked",
 						value: true,
 					});
-					// Show a popup to notify the player
-					usePopupStore().showPopup({
-						id: "achievement_filmingUnlocked",
-					});
-				}
-			},
+						useGuidanceStore().triggerStep("unlock_filming");
+					}
+				},
 			immediate: true,
 		},
 	},

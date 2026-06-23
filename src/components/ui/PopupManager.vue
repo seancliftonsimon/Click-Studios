@@ -13,11 +13,12 @@
 			:emoji="currentPopup.config.emoji"
 			:theme="currentPopup.config.theme || globalSettings.defaultTheme"
 			:button-text="currentPopup.config.buttonText"
-			:button-color="currentPopup.config.buttonColor"
-			:persistent="currentPopup.config.persistent"
-			:next-popup-id="currentPopup.config.nextPopup"
-			@closed="handlePopupClosed"
-		/>
+				:button-color="currentPopup.config.buttonColor"
+				:persistent="currentPopup.config.persistent"
+				:max-width="currentPopup.config.maxWidth"
+				:next-popup-id="currentPopup.config.nextPopup"
+				@closed="handlePopupClosed"
+			/>
 
 		<!-- Confirm Popup -->
 		<confirm-popup
@@ -33,11 +34,12 @@
 			:theme="currentPopup.config.theme || globalSettings.defaultTheme"
 			:confirm-text="currentPopup.config.confirmText"
 			:cancel-text="currentPopup.config.cancelText"
-			:confirm-color="currentPopup.config.confirmColor"
-			:cancel-color="currentPopup.config.cancelColor"
-			@confirmed="handleConfirmed"
-			@cancelled="handleCancelled"
-		/>
+				:confirm-color="currentPopup.config.confirmColor"
+				:cancel-color="currentPopup.config.cancelColor"
+				:max-width="currentPopup.config.maxWidth"
+				@confirmed="handleConfirmed"
+				@cancelled="handleCancelled"
+			/>
 
 		<!-- Input Popup -->
 		<input-popup
@@ -63,11 +65,12 @@
 			"
 			:submit-color="currentPopup.config.submitColor"
 			:show-cancel-button="currentPopup.config.showCancelButton"
-			:cancel-text="currentPopup.config.cancelText"
-			:cancel-color="currentPopup.config.cancelColor"
-			:next-popup-id="currentPopup.config.nextPopup"
-			@submitted="handleInputSubmitted"
-			@cancelled="handleCancelled"
+				:cancel-text="currentPopup.config.cancelText"
+				:cancel-color="currentPopup.config.cancelColor"
+				:max-width="currentPopup.config.maxWidth"
+				:next-popup-id="currentPopup.config.nextPopup"
+				@submitted="handleInputSubmitted"
+				@cancelled="handleCancelled"
 		/>
 	</div>
 </template>

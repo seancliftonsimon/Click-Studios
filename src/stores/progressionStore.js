@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { useGameStore } from "@/store";
-import { usePopupStore } from "@/store/popup";
+import { useGuidanceStore } from "@/stores/guidanceStore";
 
 export const useProgressionStore = defineStore("progression", {
 	getters: {
@@ -19,13 +19,11 @@ export const useProgressionStore = defineStore("progression", {
 			return useGameStore().checkInspirationMilestone();
 		},
 		unlockFilming() {
-			useGameStore().UPDATE_STATE_VARIABLE({
-				key: "isFilmingUnlocked",
-				value: true,
-			});
-			return usePopupStore().showPopup({
-				id: "achievement_filmingUnlocked",
-			});
-		},
+				useGameStore().UPDATE_STATE_VARIABLE({
+					key: "isFilmingUnlocked",
+					value: true,
+				});
+				return useGuidanceStore().triggerStep("unlock_filming");
+			},
 	},
 });
