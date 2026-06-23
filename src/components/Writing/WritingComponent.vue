@@ -11,9 +11,9 @@
 				/>
 			</v-col>
 			<v-col cols="6">
-				<div class="d-flex">
-					<DollarCounter />
-					<WordCounter />
+				<div class="resource-counter-row">
+					<DollarCounter class="money-counter-panel" />
+					<WordCounter class="word-counter-panel" />
 				</div>
 				<div class="d-flex mt-5">
 					<WriteButton cols="6" />
@@ -126,5 +126,22 @@ export default {
 	padding-right: 5%;
 	padding-top: 2.5%;
 	height: 100%;
+}
+
+.resource-counter-row {
+	align-items: stretch;
+	display: flex;
+	gap: 12px;
+	width: 100%;
+}
+
+.money-counter-panel {
+	flex: 0 1 32%;
+	min-width: 120px;
+}
+
+.word-counter-panel {
+	flex: 1 1 68%;
+	min-width: 260px;
 }
 </style>

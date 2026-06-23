@@ -7,11 +7,12 @@
 	>
 		<span class="word-display">{{ $formatNumber(wordCount) }} words</span>
 		<span
-			v-if="floatingAmount"
-			:key="floatingKey"
+			v-for="float in floatingBursts"
+			:key="float.id"
 			class="resource-float word-float"
+			:style="float.style"
 		>
-			+{{ $formatNumber(floatingAmount) }}
+			+{{ $formatNumber(float.amount) }}
 		</span>
 		<span class="wps-display"
 			>+{{ $formatNumber(wordsPerSecond) }} words per second</span
@@ -27,8 +28,9 @@ export default {
 	data() {
 		return {
 			isPopping: false,
-			floatingAmount: 0,
-			floatingKey: 0,
+			floatingBursts: [],
+			nextFloatId: 1,
+			floatTimeouts: [],
 			popTimeout: null,
 		};
 	},
@@ -49,8 +51,7 @@ export default {
 				window.clearTimeout(this.popTimeout);
 			}
 
-			this.floatingAmount = this.manualWordBurst.amount;
-			this.floatingKey += 1;
+			this.addFloatingBurst(this.manualWordBurst.amount);
 			this.isPopping = false;
 
 			this.$nextTick(() => {
@@ -59,15 +60,53 @@ export default {
 
 			this.popTimeout = window.setTimeout(() => {
 				this.isPopping = false;
-				this.floatingAmount = 0;
 				this.popTimeout = null;
 			}, 650);
+		},
+	},
+	methods: {
+		addFloatingBurst(amount) {
+			const id = this.nextFloatId++;
+			const x = this.randomBetween(35, 65);
+			const startY = this.randomBetween(-24, -8);
+			const drift = this.randomBetween(-18, 18);
+			const rise = this.randomBetween(38, 58);
+			const rotation = this.randomBetween(-8, 8);
+
+			this.floatingBursts.push({
+				id,
+				amount,
+				style: {
+					left: `${x}%`,
+					top: `${startY}px`,
+					"--float-drift": `${drift}px`,
+					"--float-rise": `${rise}px`,
+					"--float-rotation": `${rotation}deg`,
+				},
+			});
+
+			const timeoutId = window.setTimeout(() => {
+				this.floatingBursts = this.floatingBursts.filter(
+					(float) => float.id !== id
+				);
+				this.floatTimeouts = this.floatTimeouts.filter(
+					(timeout) => timeout !== timeoutId
+				);
+			}, 760);
+
+			this.floatTimeouts.push(timeoutId);
+		},
+		randomBetween(min, max) {
+			return Math.round(min + Math.random() * (max - min));
 		},
 	},
 	beforeUnmount() {
 		if (this.popTimeout) {
 			window.clearTimeout(this.popTimeout);
 		}
+		this.floatTimeouts.forEach((timeoutId) => {
+			window.clearTimeout(timeoutId);
+		});
 	},
 };
 </script>
@@ -88,12 +127,13 @@ export default {
 	font-family: "Roboto", sans-serif;
 	font-size: 0.95rem;
 	font-weight: 800;
-	left: 50%;
 	pointer-events: none;
 	position: absolute;
-	top: 16px;
-	transform: translateX(-50%);
+	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.75);
+	transform: translate(-50%, 0) rotate(var(--float-rotation, 0deg));
 	animation: resource-float-up 0.65s ease-out forwards;
+	white-space: nowrap;
+	z-index: 2;
 }
 
 .word-float {
@@ -102,16 +142,19 @@ export default {
 
 .word-display {
 	font-family: "Roboto", sans-serif;
-	font-size: 22px;
+	font-size: 21px;
 	color: #931621;
 	font-weight: 600;
+	line-height: 1.1;
 	text-align: center;
+	white-space: nowrap;
 }
 
 .wps-display {
 	font-family: "Roboto";
-	font-size: 18px;
+	font-size: 16px;
 	font-weight: 400;
+	white-space: nowrap;
 }
 
 .center-content {
@@ -138,14 +181,21 @@ export default {
 @keyframes resource-float-up {
 	0% {
 		opacity: 0;
-		transform: translate(-50%, 8px) scale(0.9);
+		transform: translate(-50%, 8px) rotate(var(--float-rotation, 0deg))
+			scale(0.9);
 	}
 	20% {
 		opacity: 1;
 	}
 	100% {
 		opacity: 0;
-		transform: translate(-50%, -28px) scale(1.08);
+		transform:
+			translate(
+				calc(-50% + var(--float-drift, 0px)),
+				calc(-1 * var(--float-rise, 42px))
+			)
+			rotate(var(--float-rotation, 0deg))
+			scale(1.08);
 	}
 }
 </style>

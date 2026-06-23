@@ -97,8 +97,9 @@ export default {
 .dollar-counter {
 	color: #4caf50;
 	font-family: Roboto, sans-serif;
-	font-size: 22px;
+	font-size: 20px;
 	font-weight: 600;
+	white-space: nowrap;
 }
 
 .center-content {
@@ -106,6 +107,7 @@ export default {
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
+	min-width: 0;
 	width: 100%;
 }
 

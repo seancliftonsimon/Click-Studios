@@ -22,7 +22,7 @@
 		<v-row class="mb-0">
 			<img :src="bannerImage" alt="Prototype Banner" class="banner-image" />
 			<!-- Permanent Navigation Bar -->
-			<v-app-bar color="#931621" permanent>
+			<v-app-bar color="#931621" permanent class="game-app-bar">
 				<div class="image-container">
 					<img :src="ticketImage" alt="Click Studios" class="ticket-image" />
 					<span
@@ -73,13 +73,12 @@
 						:title="releaseDisabled ? '🔒 Release' : 'Release'"
 						:disabled="releaseDisabled"
 					></v-list-item>
-
-					<v-row>
-						<v-btn @click="saveGame">Save Game</v-btn>
-						<v-btn @click="loadGame">Load Game</v-btn>
-						<v-btn color="error" @click="resetGame">Reset Game</v-btn>
-					</v-row>
 				</v-container>
+				<div class="game-actions">
+					<v-btn size="small" @click="saveGame">Save</v-btn>
+					<v-btn size="small" @click="loadGame">Load</v-btn>
+					<v-btn size="small" color="error" @click="resetGame">Reset</v-btn>
+				</div>
 			</v-app-bar>
 
 			<!-- Main Area -->
@@ -279,9 +278,11 @@ export default {
 }
 
 .image-container {
+	flex: 0 0 240px;
 	position: relative;
 	text-align: center;
 	height: 100%;
+	min-width: 190px;
 }
 .ticket-image {
 	height: 100%;
@@ -298,15 +299,36 @@ export default {
 }
 
 .phase-label {
+	align-items: center;
 	font-family: "Voltaire", sans-serif;
 	font-size: 18px;
 	color: white;
 	text-align: center;
 	display: flex;
+	flex: 1 1 auto;
+	gap: 4px;
 	height: 75%;
 	flex-direction: row;
-	justify-content: space-around;
+	justify-content: flex-start;
+	min-width: 0;
+	overflow: hidden;
+	padding-left: 8px;
+	padding-right: 8px;
 }
+
+.game-actions {
+	align-items: center;
+	display: flex;
+	flex: 0 0 auto;
+	gap: 6px;
+	padding-right: 14px;
+}
+
+.game-actions .v-btn {
+	font-family: "Voltaire", sans-serif;
+	min-width: 54px;
+}
+
 .title-text {
 	font-family: "Voltaire", sans-serif;
 	position: absolute;
@@ -320,10 +342,14 @@ export default {
 
 .v-list-item {
 	display: flex;
+	flex: 0 1 auto;
 	align-self: center;
+	min-width: fit-content;
+	padding-left: 8px;
+	padding-right: 8px;
 }
 .v-list-item-title {
-	font-size: 1.2em;
+	font-size: 1.05em;
 	overflow: visible;
 	white-space: nowrap;
 }
