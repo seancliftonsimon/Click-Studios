@@ -264,6 +264,9 @@ Status: `[ ]` Not started
 
 Create a consistent visual language so players understand actions, costs, progress, completion, locked states, and phase changes.
 
+Chosen direction: Ticket Booth UI. See
+`src/docs/ticket-booth-design-system.md`.
+
 ### Recommended Tokens
 
 Palette based on existing notes:
@@ -275,6 +278,13 @@ Palette based on existing notes:
 - Neutral Gray: `#cfcfcf`
 - Black: `#0f0f0f`
 - White: `#ffffff`
+
+Typography:
+
+- Use `Voltaire` for display/signage moments such as page titles, section titles,
+  and short nav labels.
+- Use `Roboto`/system sans for body text, movie names, compact stats, list rows,
+  modal copy, and smaller button text so dense UI stays readable.
 
 Component language:
 
@@ -290,10 +300,15 @@ Component language:
 ### Acceptance Checks
 
 - `[ ]` Vuetify theme exposes the app palette.
+- `[ ]` Shared CSS tokens define Ticket Booth colors, typography, radius, shadow,
+  and motion.
+- `[ ]` Display text uses `Voltaire`; body/dense UI text uses `Roboto`/system sans.
 - `[ ]` Cards use one standard radius unless intentionally distinct.
 - `[ ]` Buttons use shared variants/classes instead of local hard-coded colors.
 - `[ ]` Inline styles are removed from high-traffic components.
 - `[ ]` Writing, preproduction, and filming screens share a recognizable layout grammar.
+- `[ ]` Popup, button, row, segmented-control, progress, and modal primitives match
+  the Ticket Booth component language.
 - `[ ]` `npm run lint` passes.
 - `[ ]` `npm run build` passes.
 - `[ ]` Browser smoke test confirms no clipped/overlapping controls at desktop width.

@@ -43,6 +43,15 @@
 				</v-col>
 			</div>
 		</v-row>
+		<v-row
+			v-if="nextProductTierReady"
+			justify="center"
+			class="advance-row ma-0 pb-3 px-3"
+		>
+			<v-btn class="advance-btn" block :ripple="false" @click="advance">
+				Advance to {{ nextProductTitle }} →
+			</v-btn>
+		</v-row>
 	</v-card>
 </template>
 
@@ -67,7 +76,15 @@ export default {
 			getProductCardDetails: "getProductCardDetails",
 			writingProductTierOrder: "writingProductTierOrder",
 			wordCount: "wordCount",
+			nextProductTierReady: "nextProductTierReady",
+			nextProductTierKey: "nextProductTierKey",
 		}),
+		nextProductTitle() {
+			const details = this.nextProductTierKey
+				? this.getProductCardDetails(this.nextProductTierKey)
+				: null;
+			return details ? details.title : "";
+		},
 		productDetails() {
 			return this.getProductCardDetails(this.cardType);
 		},
@@ -136,6 +153,9 @@ export default {
 				});
 			}
 		},
+		advance() {
+			useGameStore().advanceWritingProductTier();
+		},
 		triggerUpgradeAnimation() {
 			if (this.upgradeAnimationTimeout) {
 				window.clearTimeout(this.upgradeAnimationTimeout);
@@ -184,6 +204,14 @@ export default {
 	font-family: Roboto, sans-serif;
 	font-size: 0.9em;
 	font-weight: 500;
+}
+
+.advance-btn {
+	background-color: #931621 !important;
+	color: #fff5bf !important;
+	font-weight: 500;
+	letter-spacing: 0.3px;
+	text-transform: none;
 }
 
 .tier-upgrade-pulse {

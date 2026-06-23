@@ -238,7 +238,7 @@ Possible banner direction:
 - Early UI should focus attention on the writing button, word count, logline card, money count, and first upgrade.
 - Cards that are technically available but conceptually unexplained should stay hidden or visually quiet until their tutorial moment.
 - Tutorial hints should use consistent placement, tone, and controls so players learn how to interact with guidance.
-- Avoid eyebrow labels in guidance and card UI. Prefer clear visual patterns, short titles, direct verbs, iconography, progress, and motion over small uppercase labels.
+- Avoid eyebrow labels, kicker text, or little subtitles above main titles in guidance and card UI. Prefer fewer words in fewer places, with clear visual patterns, short titles, direct verbs, iconography, progress, color, shape, and motion doing as much teaching as possible.
 - Resource counters should teach through feedback where possible. Manual writing clicks should visibly feed the word counter; sales should visibly feed the money counter.
 
 ## Unlock Progress Concepts

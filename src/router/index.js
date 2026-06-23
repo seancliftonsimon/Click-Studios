@@ -10,6 +10,7 @@ import MarketingComponent from "@/components/Marketing/MarketingComponent.vue";
 import ReleaseComponent from "@/components/Release/ReleaseComponent.vue";
 import PopupTester from "@/components/ui/PopupTester.vue";
 import ExampleToastUsage from "@/components/ExampleToastUsage.vue";
+import LeaderboardDesignMock from "@/components/Mockups/LeaderboardDesignMock.vue";
 
 const routes = [
 	{
@@ -65,6 +66,12 @@ const routes = [
 		path: "/toast-examples",
 		name: "toastExamples",
 		component: ExampleToastUsage,
+	},
+	{
+		path: "/mockups/leaderboard",
+		name: "leaderboardDesignMock",
+		component: LeaderboardDesignMock,
+		meta: { mockup: true },
 	},
 ];
 

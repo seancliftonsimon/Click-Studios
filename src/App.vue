@@ -83,8 +83,8 @@
 
 			<!-- Main Area -->
 			<v-main>
-				<PopupManager />
-				<GuidedHintManager />
+				<PopupManager v-if="!isMockupRoute" />
+				<GuidedHintManager v-if="!isMockupRoute" />
 				<router-view />
 			</v-main>
 			</v-row>
@@ -230,11 +230,18 @@ export default {
 		releaseDisabled() {
 			return !this.isReleaseUnlocked;
 		},
+		isMockupRoute() {
+			return this.$route.meta.mockup === true;
+		},
 	},
 	mounted() {
 		// Dispatch the action when the component mounts
 		useGameStore().updateWordCount();
-		this.showWelcomeIfNeeded();
+		this.$router.isReady().then(() => {
+			if (!this.isMockupRoute) {
+				this.showWelcomeIfNeeded();
+			}
+		});
 		this.startAutoSave();
 	},
 	beforeUnmount() {

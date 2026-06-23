@@ -26,6 +26,8 @@
 - Save/load schema cleanup.
 - Guided tutorial / contextual hint system for the early writing loop. See
   `src/docs/onboarding-and-player-guidance.md`.
+- Ticket Booth design-system pass. See
+  `src/docs/ticket-booth-design-system.md`.
 - Writer room empty-seat clarity, juicier unlock reveals, sale flavor toasts,
   and writer expiration poof animations. See `src/docs/onboarding-and-player-guidance.md`.
 - Continue moving ownership from the core `useGameStore` into focused domain stores.

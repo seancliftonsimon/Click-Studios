@@ -47,7 +47,7 @@ export const useGameStore = defineStore("game", {
 		lastUpdate: 0,
 
 		// Writing Tool
-		currentWriteTool: "pen", // Default write tool available for purchase
+		currentWriteTool: "ballpointPen", // Default write tool available for purchase
 		writingToolCardVisible: false,
 
 			// Writers Room
@@ -464,6 +464,10 @@ export const useGameStore = defineStore("game", {
 			"shootingScript",
 		],
 		currentWritingProductTierIndex: 0,
+		// Highest product tier the player is allowed to advance to. Advancement is
+		// player-paced (Part 2.3): selling 5 of a tier raises this, but the active
+		// card only switches when the player chooses to advance.
+		unlockedProductTierIndex: 0,
 		writerTierOrder: ["intern", "junior", "screenwriter"],
 		contractTierOrder: ["staffWriter", "seniorStaff", "scriptDoctor"],
 		currentWriterTierIndex: 0,
@@ -611,45 +615,63 @@ export const useGameStore = defineStore("game", {
 		writeTools: {
 			pencil: {
 				name: "Pencil",
-				emoji: "✍️",
+				emoji: "✏️",
 				wordsPerClick: 1,
 				cost: 0,
 			},
-			pen: {
-				name: "Pen",
+			ballpointPen: {
+				name: "Ballpoint Pen",
 				emoji: "🖊️",
 				wordsPerClick: 2,
-				cost: 18,
+				cost: 12,
+			},
+			fountainPen: {
+				name: "Fountain Pen",
+				emoji: "🖋️",
+				wordsPerClick: 4,
+				cost: 40,
 			},
 			typewriter: {
 				name: "Typewriter",
 				emoji: "📃",
-				wordsPerClick: 8,
-				cost: 200,
+				wordsPerClick: 7,
+				cost: 110,
+			},
+			electricTypewriter: {
+				name: "Electric Typewriter",
+				emoji: "🖥️",
+				wordsPerClick: 14,
+				cost: 280,
 			},
 			wordprocessor: {
 				name: "Word Processor",
-				emoji: "⌨️",
-				wordsPerClick: 16,
-				cost: 800,
+				emoji: "💻",
+				wordsPerClick: 28,
+				cost: 650,
 			},
-			aimodel: {
-				name: "AI Model",
-				emoji: "🤖",
-				wordsPerClick: 60,
+			mechanicalKeyboard: {
+				name: "Mechanical Keyboard",
+				emoji: "⌨️",
+				wordsPerClick: 80,
 				cost: 2400,
 			},
-			renderfarm: {
-				name: "Render Farm",
-				emoji: "🖥️",
-				wordsPerClick: 350,
-				cost: 9000,
+			printingPress: {
+				name: "Printing Press",
+				emoji: "🗞️",
+				wordsPerClick: 300,
+				cost: 10000,
 			},
-			supercomputer: {
-				name: "Supercomputer",
-				emoji: "🌐",
-				wordsPerClick: 2000,
-				cost: 26000,
+			industrialPrinter: {
+				name: "Industrial Printer",
+				emoji: "🖨️",
+				wordsPerClick: 1200,
+				cost: 45000,
+			},
+			printingPlant: {
+				name: "Printing Plant",
+				emoji: "🏭",
+				wordsPerClick: 4500,
+				cost: 160000,
 			},
 			end: {
 				name: "End",
@@ -1690,6 +1712,13 @@ export const useGameStore = defineStore("game", {
 		currentWritingProductKey: (state) =>
 			state.writingProductTierOrder[state.currentWritingProductTierIndex] ||
 			"logline",
+		// Player-paced advancement (Part 2.3): true once the next tier is unlocked
+		// but the player has not yet chosen to advance to it.
+		nextProductTierReady: (state) =>
+			state.unlockedProductTierIndex > state.currentWritingProductTierIndex,
+		nextProductTierKey: (state) =>
+			state.writingProductTierOrder[state.currentWritingProductTierIndex + 1] ||
+			null,
 		currentMainWriterType: (state) =>
 			state.writerTierOrder[state.currentWriterTierIndex] || "intern",
 		visibleProductCardTypes: (state) => {
@@ -1836,14 +1865,34 @@ export const useGameStore = defineStore("game", {
 				},
 				0
 			);
-			const productIndex = Math.max(
-				Number.isInteger(this.currentWritingProductTierIndex)
-					? this.currentWritingProductTierIndex
-					: 0,
-				productMilestoneIndex,
-				visibleProductIndex
+			const savedProductIndex = Number.isInteger(
+				this.currentWritingProductTierIndex
+			)
+				? this.currentWritingProductTierIndex
+				: 0;
+			// Active tier stays where the player left it; the unlocked ceiling is
+			// derived from milestones (player-paced advancement, Part 2.3).
+			const activeProductIndex = Math.max(savedProductIndex, visibleProductIndex);
+			this.unlockedProductTierIndex = Math.max(
+				this.unlockedProductTierIndex || 0,
+				activeProductIndex,
+				productMilestoneIndex
 			);
-			this.setWritingProductTierByIndex(productIndex);
+			this.setWritingProductTierByIndex(activeProductIndex);
+
+			// Remap legacy tool keys so an older save never points at a missing tool.
+			const toolKeyRemap = {
+				pen: "ballpointPen",
+				aimodel: "mechanicalKeyboard",
+				renderfarm: "printingPress",
+				supercomputer: "industrialPrinter",
+			};
+			if (toolKeyRemap[this.currentWriteTool]) {
+				this.currentWriteTool = toolKeyRemap[this.currentWriteTool];
+			}
+			if (!this.writeTools[this.currentWriteTool]) {
+				this.currentWriteTool = "ballpointPen";
+			}
 			this.writerHireVisible =
 				Boolean(this.writerHireVisible) ||
 				this.writersRoomVisible ||
@@ -1897,6 +1946,30 @@ export const useGameStore = defineStore("game", {
 
 			this.setWritingProductTierByIndex(nextIndex);
 			this.lastWritingProductUpgradeKey = productKey;
+		},
+
+		// Raise the unlocked ceiling by one tier without switching the active card.
+		// Called when the player sells the 5th of the current tier (Part 2.3).
+		unlockNextProductTier() {
+			const maxIndex = this.writingProductTierOrder.length - 1;
+			this.unlockedProductTierIndex = Math.min(
+				Math.max(
+					this.unlockedProductTierIndex,
+					this.currentWritingProductTierIndex + 1
+				),
+				maxIndex
+			);
+		},
+
+		// Player-triggered: graduate to the next unlocked tier (Part 2.3).
+		advanceWritingProductTier() {
+			if (this.unlockedProductTierIndex <= this.currentWritingProductTierIndex) {
+				return;
+			}
+			const nextIndex = this.currentWritingProductTierIndex + 1;
+			this.setWritingProductTierByIndex(nextIndex);
+			this.lastWritingProductUpgradeKey =
+				this.writingProductTierOrder[nextIndex];
 		},
 
 		setMainWriterTierByIndex(index) {
@@ -2582,7 +2655,7 @@ export const useGameStore = defineStore("game", {
 					// Mark the milestone as achieved
 					this.SET_MILESTONE_ACHIEVED("fiveLoglines");
 
-					this.upgradeWritingProductTier("synopsis");
+					this.unlockNextProductTier();
 
 						useGuidanceStore().triggerStep("unlock_synopsis");
 				}
@@ -2593,7 +2666,7 @@ export const useGameStore = defineStore("game", {
 					!this.milestones.fiveSynopses
 				) {
 						this.SET_MILESTONE_ACHIEVED("fiveSynopses");
-						this.upgradeWritingProductTier("outline");
+						this.unlockNextProductTier();
 						useGuidanceStore().triggerStep("unlock_outline");
 				}
 
@@ -2603,7 +2676,7 @@ export const useGameStore = defineStore("game", {
 					!this.milestones.fiveOutlines
 				) {
 						this.SET_MILESTONE_ACHIEVED("fiveOutlines");
-						this.upgradeWritingProductTier("treatment");
+						this.unlockNextProductTier();
 						useGuidanceStore().triggerStep("unlock_treatment");
 				}
 
@@ -2613,7 +2686,7 @@ export const useGameStore = defineStore("game", {
 					!this.milestones.fiveTreatments
 				) {
 						this.SET_MILESTONE_ACHIEVED("fiveTreatments");
-						this.upgradeWritingProductTier("draftScript");
+						this.unlockNextProductTier();
 						useGuidanceStore().triggerStep("unlock_draft_script");
 				}
 
@@ -2623,7 +2696,7 @@ export const useGameStore = defineStore("game", {
 					!this.milestones.fiveDraftScripts
 				) {
 						this.SET_MILESTONE_ACHIEVED("fiveDraftScripts");
-						this.upgradeWritingProductTier("shootingScript");
+						this.unlockNextProductTier();
 						useGuidanceStore().triggerStep("unlock_shooting_script");
 				}
 			}

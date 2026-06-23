@@ -1,6 +1,6 @@
 # Writing Phase Balance & Economy Overhaul — Implementation Plan
 
-Last updated: 2026-06-22
+Last updated: 2026-06-23
 Status: **Finalized — all decisions locked, ready to implement.**
 
 This plan rebalances the **Writing** phase so the player unlocks something on a
@@ -24,13 +24,16 @@ system.
 | Script Doctor seats | **Shares the Writers Room seat cap** with everyone else |
 | Script Doctor terms | $24,000 signing (x1.15/head) + $600/payday salary |
 | Roster names | Intern · Junior Writer · Freelance Screenwriter · Staff Writer · Senior Staff · Script Doctor |
+| Writing tool ladder | **Set B — 10 throughput-themed tools** (Pencil → Printing Plant); no AI/render/supercomputer |
+| Tier advancement | **Player-paced** — selling 5 unlocks the next tier as a choice; the current product stays sellable; advance when ready |
+| Anti-valley approach | **Static tool sequencing** (price tracks pay, power tracks cost) + player-paced advance — **no** dynamic click floor, **no** per-sale skill wps |
 
 ## Scope
 
 **In scope (this plan):**
 
 - Writing product ladder retune (word costs + pay).
-- Writing tool ladder (fill the dead zone).
+- Writing tool ladder (throughput-themed Set B) + the static anti-valley loop.
 - Worker model redesign: Freelancers (temp) + Staff (contract/payroll).
 - Script Doctor changed from compounding to diminishing multiplier.
 - Shooting Script finale set to 200,000 words.
@@ -51,6 +54,10 @@ Tune against these guardrails, not just raw numbers:
 - **Click to bootstrap, idle to scale.** Manual clicking carries roughly the first
   2-3 minutes, then becomes a top-up. Any step longer than ~90s should be
   idle/automation time, not click time.
+- **Uniform, legible challenge.** The challenge numbers are fixed and identical for
+  every player. No dynamic guardrails the player could feel (no auto-scaling click
+  value, no hidden per-sale wps). The legible answer to a rising click count is
+  always "buy the next tool," and that tool is always affordable.
 - **Gentle ratios.** ~5-7x between product tiers; no lone 33x cliff.
 - **Cadence:** first unlock < 30s, early unlocks every ~60-90s, mid-game every
   2-4 min. Whole Writing phase ~20-30 min for a first-time player.
@@ -61,9 +68,11 @@ Tune against these guardrails, not just raw numbers:
 
 ## Part 1 — Product ladder retune
 
-Keep the existing cadence rule (**sell 5 of a tier to unlock the next**). Hold a
-steady ~6x word-cost ratio and remove the old 33x cliff to the shooting script.
-Pay rises so each tier feels like a raise.
+Selling 5 of a tier **unlocks** the next one — but advancement is now
+**player-paced** (Part 2.3), not automatic: the current product stays sellable so
+the player can bank for the next tool before graduating. Word costs hold a steady
+~6x ratio and remove the old 33x cliff to the shooting script; pay rises so each
+tier feels like a raise.
 
 | Tier | Word cost (old -> new) | Pay (old -> new) | `text` label |
 | --- | --- | --- | --- |
@@ -79,32 +88,80 @@ finale stays the single largest step (a deliberate "final push") but lands in
 ~2.4-3.3 min of idle output at the realistic ~1,000-1,400 wps band instead of
 being a 15-min wall.
 
-**Where:** `products` state in `src/store/index.js` (~lines 367-434). Update each
-entry's `cost`, `pay`, and `text`. No logic changes — the milestone gates in
-`sellProduct` (~lines 2548-2601) key off counts, not costs, so they keep working.
+**Where:** `products` state in `src/store/index.js`. Update each entry's `cost`,
+`pay`, and `text`. The milestone gates in `sellProduct` still fire on the 5th sale,
+but they now **unlock** the next tier (flag it available) instead of auto-switching
+the active card — see Part 2.3.
 
 ---
 
-## Part 2 — Writing tool ladder
+## Part 2 — Writing tools & the anti-valley loop
 
-Add one rung between AI Model and Supercomputer so the words-per-click curve is
-continuous and clicking degrades to a top-up smoothly instead of via a 33x jump.
+The valley (forced onto a higher tier with a too-weak tool, no cash for the next
+one, no automation floor) is solved **statically** — no dynamic click floor, no
+hidden per-sale wps. The challenge numbers are fixed and identical for every
+player; the legible way out of a click grind is always **buy the next tool**, and
+that tool is always affordable from the tier you're on.
+
+### 2.1 Tool ladder (Set B — throughput-themed)
+
+Named for word *output* (hand-writing -> mechanical -> mass printing), not tech
+era. Early steps are small/cheap/frequent (gentle ramp); late steps are big leaps
+that pay off on high-value stories.
 
 | Tool | words/click | cost |
 | --- | --- | --- |
 | Pencil | 1 | $0 |
-| Pen | 2 | $18 |
-| Typewriter | 8 | $200 |
-| Word Processor | 16 | $800 |
-| AI Model | 60 | $2,400 |
-| **Render Farm (new)** | **350** | **$9,000** |
-| Supercomputer | 2,000 | $26,000 |
+| Ballpoint Pen | 2 | $12 |
+| Fountain Pen | 4 | $40 |
+| Typewriter | 7 | $110 |
+| Electric Typewriter | 14 | $280 |
+| Word Processor | 28 | $650 |
+| Mechanical Keyboard | 80 | $2,400 |
+| Printing Press | 300 | $10,000 |
+| Industrial Printer | 1,200 | $45,000 |
+| Printing Plant | 4,500 | $160,000 |
 
-**Where:** `writeTools` state in `src/store/index.js` (~lines 587-631). Insert
-`renderFarm` between `aimodel` and `supercomputer`. Tool purchasing reads the map
-generically, so no action changes are required; the "previous/next tool" getter
-(`previousToolDetails`, ~line 1648) walks `Object.keys` order, so inserting the
-key in the right position is sufficient.
+Early ratios ~x1.75-2; late ratios ~x3-4. (Names are swappable — e.g. Mechanical
+Keyboard -> Dictation Machine, Industrial Printer -> Offset Printer.)
+
+### 2.2 Two static rules that kill the valley
+
+1. **Price tracks pay.** Each tool costs ~2-4 sales of the product tier it serves,
+   so the next tool is always reachable from the work you're already doing.
+   Anchored against the product pays (logline $6, synopsis $42, outline $300,
+   treatment $2,000, draft $13,000): Pencil->Fountain Pen carry logline/synopsis;
+   Typewriter/Electric Typewriter/Word Processor carry outline; Mechanical Keyboard
+   carries treatment; Printing Press carries draft; Industrial Printer/Printing
+   Plant carry the shooting finale. On the *matched* tool, clicks-per-story stay
+   ~20-40 the whole way.
+2. **Power tracks cost.** Each tool is strong enough that, once bought, it returns
+   clicks-per-story to that ~20-40 band. When you cross into a new tier still
+   holding your old tool, clicks rise (the uniform "go buy the next tool" signal) —
+   identical in shape for everyone, and the upgrade is affordable.
+
+### 2.3 Player-paced advancement
+
+Selling the 5th of a tier **unlocks** the next tier but does **not** auto-switch
+the active card. The current product stays sellable, with a "Next tier ready ->"
+affordance; the player advances when they choose. This lets them bank for the next
+tool before graduating, so they are never shoved onto a tier they cannot yet equip
+for. Compatible with the single-active-card UI: it is still one product card, plus
+an advance control once the next tier is unlocked.
+
+### 2.4 Where (code)
+
+- `writeTools` state in `src/store/index.js`: replace the map with the Set B
+  entries above (renames the former `aimodel`/`renderFarm`/`supercomputer` keys and
+  re-numbers `wordsPerClick`/`cost`). Tool purchasing and the `previousToolDetails`
+  getter read the map by `Object.keys` order, so keep keys ordered low->high.
+  Update any tool-name references in popups/guidance.
+- `sellProduct` (~lines 2548-2601): on the 5th sale, set a "next tier unlocked"
+  flag instead of calling `upgradeWritingProductTier` directly. Add an
+  `advanceWritingProductTier` action the player triggers from the card, and keep
+  the current tier's card visible/sellable until they do. The existing
+  `setWritingProductTierByIndex` / `currentWritingProductTierIndex` machinery drives
+  the switch when the player confirms.
 
 ---
 
@@ -279,9 +336,10 @@ the phase, paced as idle/automation time, not clicking. This number only holds
 because the Script Doctor is now diminishing (Part 4); without that, a
 doctor-stacked player runs 4-8x faster and the fixed cost would not survive.
 
-(If playtesting later shows wide wps variance between players, the robust fallback
-is a **dynamic** cost: "~3 min of current best-tier output, computed at unlock."
-Deferred unless needed.)
+(Because the anti-valley fix is fully static — no dynamic click floor — there is
+no risk of an invisible safety net trivializing the finale; a fully-unautomated
+player simply makes the shooting script on whatever tool they bought, at the same
+fixed cost as everyone else.)
 
 ---
 
@@ -289,8 +347,13 @@ Deferred unless needed.)
 
 All in `src/store/index.js` unless noted.
 
-- `products` (~367-434): update `cost`, `pay`, `text` per Part 1.
-- `writeTools` (~587-631): insert `renderFarm` (350 / $9,000) before `supercomputer`.
+- `products`: update `cost`, `pay`, `text` per Part 1.
+- `writeTools`: replace the whole map with Set B (Part 2.1) — renames the
+  `aimodel`/`renderFarm`/`supercomputer` keys and re-numbers values; keep keys in
+  low->high order; update tool-name references in popups/guidance.
+- `sellProduct` + product-card components: **player-paced advancement** (Part 2.3)
+  — the 5th sale unlocks the next tier as a choice (new `advanceWritingProductTier`
+  action + "next tier unlocked" flag) rather than auto-switching the active card.
 - `workers` (~311-363): restructure each entry to include `employment:
   "freelance" | "contract"`, `signingBase` (contract), `salary` (per-payday lump,
   contract), and keep `wps` / `duration` (freelance). Rename `junior` display to
@@ -327,19 +390,22 @@ All in `src/store/index.js` unless noted.
 
 ## Part 7 — Save / migration
 
-The save system is versioned (`src/services/saveService.js`). Because `workers`
-shape and product costs change:
+The save system is versioned (`src/services/saveService.js`, currently
+`SAVE_VERSION = 2`, which already maps `cowriters -> seniorStaff` and seeds
+`nextPayrollAt`). The save stores only progress keys (`count`/`totalcount`/
+`visible`) and re-derives `cost`/`pay`/`wordsPerClick` from live config on load —
+so product and tool retunes apply to existing saves automatically. When extending:
 
-- Bump the save schema version.
-- On load of an older save: map old `screenwriter`/`cowriters` entries onto the new
-  freelance-screenwriter / senior-staff keys; default any contract worker's
-  `employment`, `signingBase`, `salary` from the static roster; treat all
-  previously-hired writers as expired/cleared so no orphaned timers persist;
-  leave `nextPayrollAt` null until the player signs a contract post-load.
-- Re-derive product `cost`/`pay` and tool/worker static fields from config on load
-  rather than trusting saved values, so retunes apply to existing saves.
-- Add a focused manual check: load a pre-change save and confirm no NaN dollars,
-  no stuck cards, and the contract zone appears at the right milestone.
+- Bump the save version if the worker/tool **shape** changes again.
+- On load: ensure any contract worker's `employment`, `signingBase`, `salary`
+  default from the static roster; clear stale `currentWorkers` timers; leave
+  `nextPayrollAt` null until the player signs a contract post-load.
+- For the tool rename (Set B): map any old saved `currentWriteTool` key
+  (`aimodel`/`renderFarm`/`supercomputer`) to the nearest new key, or reset to the
+  highest affordable tool, so a loaded save never points at a missing tool key.
+- Focused manual check: load a pre-change save and confirm no NaN dollars, no stuck
+  cards, the contract zone appears at the right milestone, and the active tool
+  resolves.
 
 ---
 
@@ -347,8 +413,10 @@ shape and product costs change:
 
 Stage it so each step is independently testable:
 
-1. **Product + tool retune** (Parts 1-2). Pure data; biggest felt impact, lowest
-   risk. Verify cadence by playing to the draft tier.
+1. **Tool ladder (Set B) + player-paced advance** (Part 2). Product costs are
+   already in; swap the tool map to Set B and make tier advancement player-paced.
+   Biggest felt impact on the valley, lowest risk. Verify by playing to the draft
+   tier.
 2. **Script Doctor diminishing** (Part 4). One getter change.
 3. **Shooting Script = 200k** (Part 5). One number; verify finale length.
 4. **Freelance/Contract worker model** (Part 3). The real work — do it last:
@@ -361,6 +429,11 @@ Stage it so each step is independently testable:
 
 - First unlock arrives in < 30s; product unlocks land every ~60-90s early.
 - No stretch of pure clicking longer than ~2-3 min without a purchase/unlock.
+- Clicks-per-story stay ~20-40 on the matched tool; entering a new tier on the old
+  tool raises clicks, but the next tool is affordable within ~2-4 sales of the
+  current tier (no valley) — and the rule is the same for every player.
+- Tier advancement is player-paced: the 5th sale unlocks the next tier as a choice;
+  the current product stays sellable so the player can bank for the next tool first.
 - A Staff Writer signed ~12 min in is net-positive vs. freelancing by ~22 min.
 - At the shooting-script unlock, idle wps sits ~1,000-1,400 (not >3,000); the 200k
   finale takes ~2.4-3.3 min.
@@ -369,7 +442,7 @@ Stage it so each step is independently testable:
   contract (it gets a full free cycle); subsequent paydays charge it.
 - Running out of cash on a payday lapses the **highest-salary** contract first —
   no negative balance, no crash — and a warning toast fired ~30s earlier.
-- Old saves load and migrate without orphaned worker timers.
+- Old saves load and migrate without orphaned worker timers or missing tool keys.
 
 ---
 
@@ -380,9 +453,16 @@ Stage it so each step is independently testable:
   Add only if playtesting shows the phase ends too quickly.
 - **Per-card "day rate vs. sign to contract" toggle** on every archetype (more
   agency, more UI/save cost) instead of the split roster. Revisit if players ask.
-- **Dynamic shooting-script cost** keyed to current throughput (Part 5 fallback).
 - **Script Doctor loosening pass** if the three combined curbs make them too weak
   (Part 4 tuning note).
 - **Lengthening freelance stints** (Intern 30s -> 60s, Junior 60s -> 120s) if the
   early re-hire cadence feels too busy.
 - All preproduction labor/economy work — separate plan.
+
+### Explicitly rejected (do not reintroduce)
+
+- **Dynamic relative click floor** (click value scaling with the current product's
+  size). Rejected: it is a guardrail the player can feel and makes the challenge
+  non-uniform between players. The static tool-sequencing in Part 2 replaces it.
+- **Per-sale permanent "skill" wps.** Rejected for the same reason — passive output
+  comes only from hired workers.
