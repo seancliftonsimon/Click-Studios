@@ -19,7 +19,11 @@
 					Skip tutorial
 				</v-btn>
 				<v-spacer></v-spacer>
-				<v-btn size="small" class="guided-hint-button" @click="completeActiveStep">
+				<v-btn
+					size="small"
+					class="cs-button cs-button-primary guided-hint-button"
+					@click="completeActiveStep"
+				>
 					Got it
 				</v-btn>
 			</div>
@@ -154,27 +158,29 @@ export default {
 
 .guided-hint-highlight {
 	position: fixed;
-	border: 2px solid #f9b233;
-	border-radius: 10px;
-	box-shadow: 0 0 0 9999px rgba(20, 12, 16, 0.18), 0 0 18px rgba(249, 178, 51, 0.6);
-	transition: all 0.18s ease;
+	border: 2px solid var(--cs-color-gold);
+	border-radius: var(--cs-radius-panel);
+	box-shadow:
+		0 0 0 9999px rgba(20, 12, 16, 0.18),
+		0 0 18px rgba(250, 208, 28, 0.6);
+	transition: all var(--cs-motion-medium);
 	pointer-events: none;
 }
 
 .guided-hint-card {
 	position: fixed;
-	background: #fffaf1;
+	background: var(--cs-color-ticket);
 	border: 1px solid rgba(147, 22, 33, 0.18);
-	border-radius: 8px;
-	box-shadow: 0 18px 50px rgba(35, 19, 22, 0.22);
-	color: #2d1c20;
+	border-radius: var(--cs-radius-panel);
+	box-shadow: var(--cs-shadow-soft);
+	color: var(--cs-color-ink);
 	padding: 14px 16px 12px;
 	pointer-events: auto;
-	transition: all 0.18s ease;
+	transition: all var(--cs-motion-medium);
 }
 
 .guided-hint-title {
-	font-family: "Roboto", sans-serif;
+	font-family: var(--cs-font-display);
 	font-size: 1.05rem;
 	font-weight: 800;
 	margin-top: 0;
@@ -193,12 +199,10 @@ export default {
 }
 
 .guided-hint-skip {
-	color: #6b5b5e;
+	color: var(--cs-color-muted);
 }
 
 .guided-hint-button {
-	background: #931621;
-	color: #fff;
 	font-weight: 700;
 }
 </style>

@@ -1,25 +1,25 @@
 <!-- Preproductioncomponent.vue -->
 <template>
-	<v-container fluid class="phase-container bg-grey-lighten-2">
+	<v-container fluid class="phase-container">
 		<!-- First row spanning full width -->
 		<v-row>
 			<v-col cols="3">
 				<PitchingComponent v-if="componentVisibility.pitchingComponent" />
-				<v-card v-else class="center-content"><br /><br /></v-card>
+				<v-card v-else class="cs-panel-quiet center-content"><br /><br /></v-card>
 			</v-col>
 			<v-col cols="9">
 				<!-- Progress bar row -->
 				<v-row>
 					<v-col cols="12">
-						<v-card class="pa-2">
+						<v-card class="cs-panel-quiet pa-2">
 							<div class="d-flex align-center">
-								<span class="mr-3 font-weight-bold"
-									>Progress:</span
+								<span class="cs-section-title mr-3 font-weight-bold"
+									>Progress</span
 								>
 								<v-progress-linear
 									:model-value="totalProgress"
 									height="30"
-									color="primary"
+									class="cs-progress"
 								>
 								</v-progress-linear>
 							</div>
@@ -32,11 +32,11 @@
 						<HireWorkersCard />
 						<v-card
 							v-if="currentInvestorTier < 5"
-							class="mt-2 pa-2 elevation-2"
+							class="cs-panel-quiet mt-2 pa-2 elevation-2"
 						>
 							<v-btn
 								block
-								class="upgrade-button py-2"
+								class="cs-button cs-button-money upgrade-button py-2"
 								@click="upgradeInvestors"
 								:disabled="preproDollarCount < investorUpgradeCost"
 							>
@@ -299,8 +299,8 @@ export default {
 	height: 100%;
 }
 .dollar-counter {
-	color: #4caf50;
-	font-family: Roboto;
+	color: var(--cs-color-success);
+	font-family: var(--cs-font-body);
 	font-size: 22px;
 	font-weight: 600;
 }
@@ -312,7 +312,7 @@ export default {
 	width: 100%; /* Ensure it spans the width of its container */
 }
 .progress-text {
-	color: white;
+	color: var(--cs-color-white);
 	font-weight: bold;
 	text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
 }

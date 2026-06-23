@@ -1,18 +1,21 @@
 <template>
-	<v-card class="text-center pa-3" outlined>
+	<v-card class="cs-panel text-center pa-3">
 		<!-- Show progress bar when auto-searching, button otherwise -->
 		<div v-if="autoSearchEnabled && preproDollarCount > 0" class="mb-4">
 			<div class="text-subtitle-1 mb-1">Auto Searching...</div>
 			<v-progress-linear
 				:model-value="searchActionProgress"
 				height="36"
-				color="primary"
+				class="cs-progress"
 				rounded
 			>
 				<template v-slot:default>Searching...</template>
 			</v-progress-linear>
 		</div>
-		<v-btn v-else color="primary" @click="addSearch"
+		<v-btn
+			v-else
+			class="cs-button cs-button-primary"
+			@click="addSearch"
 			>Search x{{ manualSearchAmount }}</v-btn
 		>
 		<!-- Text: Finding Investors... -->
@@ -22,9 +25,8 @@
 			:model-value="searchCount"
 			:max="searchesNeeded"
 			:height="40"
-			color="blue"
+			class="cs-progress cs-progress-night mb-4"
 			rounded
-			class="mb-4"
 		></v-progress-linear>
 		<!-- Text: Searches per Second -->
 		<div>+ {{ searchesPerSecond }} per second, {{ searchesNeeded }} needed</div>

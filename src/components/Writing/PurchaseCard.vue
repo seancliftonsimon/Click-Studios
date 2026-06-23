@@ -1,15 +1,13 @@
 <template>
 	<v-card
-		class="mx-auto mb-4"
+		class="cs-panel mx-auto mb-4 product-card"
 		:class="{ 'tier-upgrade-pulse': isUpgrading }"
-		shaped
 		elevation="2"
-		style="border-radius: 12px"
 		v-if="isProductVisible"
 		data-guidance-target="story-product-card"
 	>
-		<v-row justify="space-between" class="flex-nowrap">
-			<div style="font-size: 52px" class="ma-auto pa-3">{{ emoji }}</div>
+		<v-row justify="space-between" class="product-card-row" no-gutters>
+			<div class="product-emoji ma-auto pa-3">{{ emoji }}</div>
 			<div class="product-copy flex-grow-1">
 				<div class="tier-pips" :aria-label="tierLabel">
 					<span
@@ -21,22 +19,19 @@
 				</div>
 				<div class="product-name">{{ title }}</div>
 			</div>
-			<div class="pr-3 pt-2 pb-2">
+			<div class="product-action-wrap pr-3 pt-2 pb-2">
 				<v-col
-					class="d-flex flex-column justify-space-between my-1"
-					style="max-width: 170px"
+					class="d-flex flex-column justify-space-between my-1 product-actions"
 				>
 					<v-card-actions>
 						<v-btn
-							class="spend-words-btn"
+							class="cs-button spend-words-btn"
 							:class="{ inactive: !canSell }"
 							:disabled="!canSell"
 							:ripple="false"
 							@click="makeSale(cost, pay)"
 						>
-							<span style="color: black; font-weight: medium">
-								Use {{ $formatNumberShort(cost) }} words
-							</span>
+							<span>Use {{ $formatNumberShort(cost) }} words</span>
 						</v-btn>
 					</v-card-actions>
 					<span class="product-pay mt-2">{{ saleResultLabel }}</span>
@@ -48,7 +43,12 @@
 			justify="center"
 			class="advance-row ma-0 pb-3 px-3"
 		>
-			<v-btn class="advance-btn" block :ripple="false" @click="advance">
+			<v-btn
+				class="cs-button cs-button-primary advance-btn"
+				block
+				:ripple="false"
+				@click="advance"
+			>
 				Advance to {{ nextProductTitle }} →
 			</v-btn>
 		</v-row>
@@ -171,14 +171,33 @@ export default {
 </script>
 
 <style>
+.product-card {
+	border-color: rgba(147, 22, 33, 0.42);
+	container-type: inline-size;
+}
+
+.product-card-row {
+	align-items: center;
+	flex-wrap: wrap;
+	margin: 0;
+	row-gap: 4px;
+}
+
+.product-emoji {
+	font-size: 52px;
+	line-height: 1;
+}
+
 .product-name {
-	font-family: Roboto, sans-serif;
+	font-family: var(--cs-font-body);
 	font-size: 18px;
 	font-weight: 500;
+	line-height: 1.2;
 }
 
 .product-copy {
 	align-self: center;
+	min-width: 82px;
 }
 
 .tier-pips {
@@ -188,30 +207,91 @@ export default {
 }
 
 .tier-pip {
-	border: 1px solid #931621;
+	border: 1px solid var(--cs-color-curtain);
 	border-radius: 999px;
 	height: 7px;
 	width: 7px;
 }
 
 .tier-pip-active {
-	background: #931621;
+	background: var(--cs-color-curtain);
 }
 
 .product-pay {
 	align-self: center;
-	color: rgb(39, 193, 39);
-	font-family: Roboto, sans-serif;
+	color: var(--cs-color-success);
+	font-family: var(--cs-font-body);
 	font-size: 0.9em;
 	font-weight: 500;
+	line-height: 1.2;
+	text-align: center;
 }
 
 .advance-btn {
-	background-color: #931621 !important;
-	color: #fff5bf !important;
 	font-weight: 500;
 	letter-spacing: 0.3px;
 	text-transform: none;
+}
+
+.product-actions {
+	max-width: 170px;
+	min-width: 0;
+	padding: 0;
+	width: 100%;
+}
+
+.product-actions .v-card-actions {
+	min-height: 0;
+	padding: 0;
+}
+
+.product-actions .v-btn {
+	min-width: 0;
+	white-space: normal;
+	width: 100%;
+}
+
+.product-actions .v-btn span {
+	line-height: 1.15;
+	overflow-wrap: anywhere;
+	text-align: center;
+	white-space: normal;
+}
+
+.product-action-wrap {
+	box-sizing: border-box;
+	flex: 1 1 132px;
+	max-width: 100%;
+	min-width: 118px;
+}
+
+@container (max-width: 270px) {
+	.product-card-row {
+		justify-content: center !important;
+		text-align: center;
+	}
+
+	.product-emoji {
+		font-size: 42px;
+		padding-bottom: 4px !important;
+		padding-top: 8px !important;
+	}
+
+	.product-copy {
+		flex-basis: calc(100% - 72px);
+	}
+
+	.product-action-wrap {
+		flex-basis: 100%;
+		min-width: 0;
+		padding: 0 12px 12px !important;
+		width: 100%;
+	}
+
+	.product-actions {
+		margin: 0 !important;
+		max-width: none;
+	}
 }
 
 .tier-upgrade-pulse {
@@ -220,15 +300,15 @@ export default {
 
 @keyframes tier-upgrade-pulse {
 	0% {
-		box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.65);
+		box-shadow: 0 0 0 0 rgba(250, 208, 28, 0.65);
 		transform: scale(0.98);
 	}
 	55% {
-		box-shadow: 0 0 0 8px rgba(255, 193, 7, 0.18);
+		box-shadow: 0 0 0 8px rgba(250, 208, 28, 0.18);
 		transform: scale(1.02);
 	}
 	100% {
-		box-shadow: 0 0 0 0 rgba(255, 193, 7, 0);
+		box-shadow: 0 0 0 0 rgba(250, 208, 28, 0);
 		transform: scale(1);
 	}
 }

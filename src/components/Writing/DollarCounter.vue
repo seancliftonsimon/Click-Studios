@@ -1,6 +1,6 @@
 <template>
 	<v-card
-		class="center-content resource-counter"
+		class="cs-panel center-content resource-counter"
 		:class="{ 'resource-counter-pop': isPopping }"
 		data-guidance-target="money-counter"
 	>
@@ -79,7 +79,7 @@ export default {
 }
 
 .resource-float {
-	font-family: Roboto, sans-serif;
+	font-family: var(--cs-font-body);
 	font-size: 0.95rem;
 	font-weight: 800;
 	left: 50%;
@@ -91,12 +91,12 @@ export default {
 }
 
 .money-float {
-	color: #2ebd4f;
+	color: var(--cs-color-night);
 }
 
 .dollar-counter {
-	color: #4caf50;
-	font-family: Roboto, sans-serif;
+	color: var(--cs-color-success);
+	font-family: var(--cs-font-body);
 	font-size: 20px;
 	font-weight: 600;
 	white-space: nowrap;
@@ -116,7 +116,7 @@ export default {
 		transform: scale(1);
 	}
 	45% {
-		box-shadow: 0 8px 20px rgba(46, 189, 79, 0.22);
+		box-shadow: 0 8px 20px rgba(46, 125, 50, 0.22);
 		transform: scale(1.06);
 	}
 	100% {

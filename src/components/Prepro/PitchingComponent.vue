@@ -23,7 +23,7 @@
 	</div>
 	<v-card
 		v-if="componentVisibility.searchersPitchersCard"
-		class="mt-2 pa-2 elevation-2"
+		class="cs-panel-quiet mt-2 pa-2 elevation-2"
 	>
 		<v-row>
 			<v-col>
@@ -32,14 +32,14 @@
 						<div class="d-flex align-center">
 							<v-btn
 								@click="unassignSearcher"
-								class="plus-minus-btn"
+								class="cs-button cs-button-warning plus-minus-btn"
 								:disabled="searcherCount <= 0"
 								>-</v-btn
 							>
 							<span class="px-2">👤{{ searcherCount }} </span>
 							<v-btn
 								@click="assignSearcher"
-								class="plus-minus-btn"
+								class="cs-button cs-button-money plus-minus-btn"
 								:disabled="!hasUnassignedEmployees"
 								>+</v-btn
 							>
@@ -54,14 +54,14 @@
 						<div class="d-flex align-center">
 							<v-btn
 								@click="unassignPitcher"
-								class="plus-minus-btn"
+								class="cs-button cs-button-warning plus-minus-btn"
 								:disabled="pitcherCount <= 0"
 								>-</v-btn
 							>
 							<span class="px-2">👤{{ pitcherCount }} </span>
 							<v-btn
 								@click="assignPitcher"
-								class="plus-minus-btn"
+								class="cs-button cs-button-money plus-minus-btn"
 								:disabled="!hasUnassignedEmployees"
 								>+</v-btn
 							>
@@ -158,9 +158,10 @@ export default {
 
 /* Add styles for the investor tier indicator */
 .investor-tier-indicator {
-	background-color: #f5f5f5;
+	background-color: var(--cs-color-ticket);
+	border: 1px solid var(--cs-color-line);
+	border-radius: var(--cs-radius-control);
 	padding: 8px;
-	border-radius: 4px;
 	margin-bottom: 12px;
 }
 </style>

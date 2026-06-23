@@ -1,5 +1,5 @@
 <template>
-	<v-card>
+	<v-card class="cs-panel">
 		<v-col>
 			<v-row>
 				<h3 class="dollar-counter-title">{{ title }} Budget</h3>
@@ -24,9 +24,8 @@
 						<v-progress-linear
 							:model-value="assignedProgressValue"
 							height="40"
-							background-color="#EEEEEE"
 							:rounded="false"
-							class="employee-progress"
+							class="cs-progress employee-progress"
 						>
 							<template v-slot:default>
 								<span
@@ -60,7 +59,7 @@
 				</v-row>
 				<v-row>
 					<v-btn
-						class="hire-worker-button mb-3"
+						class="cs-button cs-button-money hire-worker-button mb-3"
 						:class="{ 'active-button': canAffordWorker }"
 						@click="employeeHireClick"
 						:disabled="!canAffordWorker"
@@ -161,7 +160,7 @@ export default {
 }
 
 .active-button {
-	background-color: #fef7e5 !important;
+	background-color: var(--cs-color-night) !important;
 }
 
 .dollar-counter {
@@ -171,12 +170,13 @@ export default {
 }
 
 .dollar-counter-title {
+	font-family: var(--cs-font-display);
 	font-size: 1.2em;
 	margin: auto;
 }
 
 .zero-balance {
-	color: red;
+	color: var(--cs-color-danger);
 }
 
 .payrate-counter {
@@ -195,7 +195,6 @@ export default {
 }
 
 .employee-progress {
-	border-radius: 4px;
 	overflow: hidden;
 }
 
@@ -207,14 +206,14 @@ export default {
 }
 
 :deep(.employee-progress .v-progress-linear__background) {
-	background-color: #eeeeee !important;
+	background-color: var(--cs-color-gray) !important;
 	opacity: 1 !important;
 }
 
 .employee-stats {
 	width: 100%;
 	text-align: center;
-	color: black;
+	color: var(--cs-color-ink);
 	font-size: 1.1rem;
 	font-weight: 500;
 }
@@ -223,8 +222,4 @@ export default {
 	color: white;
 }
 
-/* Custom color to match InspirationShop buttons */
-:deep(.v-btn.hire-worker-button.v-btn--color-custom-beige) {
-	background-color: #fef7e5;
-}
 </style>

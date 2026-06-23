@@ -4,15 +4,7 @@
 		<span v-else>All planned shots have been filmed.</span>
 	</div>
 	<v-row class="side-by-side">
-		<div
-			class="image-container"
-			style="
-				display: flex;
-				flex-direction: column;
-				justify-content: center;
-				align-items: center;
-			"
-		>
+		<div class="image-container">
 			<div class="image-wrapper">
 				<img
 					v-if="selectedImage"
@@ -71,10 +63,10 @@
 	<div class="text-center">
 		<v-btn
 			@click="evaluateAndWrapShot"
-			color="primary"
+			class="cs-button cs-button-primary"
 			:disabled="!currentShot || isComplete"
 		>
-			<span style="font-size: 2em">📣</span> <span>Action!</span>
+			<span class="action-emoji">📣</span> <span>Action!</span>
 		</v-btn>
 
 		<div v-if="isComplete" class="mt-4 feedback-box">
@@ -463,16 +455,24 @@ export default {
 
 <style scoped>
 .current-shot-banner {
+	font-family: var(--cs-font-display);
 	font-size: 1.1rem;
 	font-weight: 600;
 	margin-bottom: 12px;
 	text-align: center;
 }
 
+.image-container {
+	align-items: center;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
 .image-container img {
 	display: block;
 	margin: 0 auto;
-	transition: filter 0.3s ease;
+	transition: filter var(--cs-motion-medium);
 }
 
 .side-by-side {
@@ -529,19 +529,20 @@ export default {
 }
 
 .feedback-box {
-	border: 1px solid #ccc;
-	border-radius: 8px;
+	background-color: var(--cs-color-ticket);
+	border: 1px solid var(--cs-color-line);
+	border-radius: var(--cs-radius-panel);
+	box-shadow: 0 8px 18px rgba(21, 19, 19, 0.08);
 	padding: 16px;
 	margin-top: 16px;
-	background-color: #f5f5f5;
 	max-width: 600px;
 	margin-left: auto;
 	margin-right: auto;
 }
 
 .feedback-item {
+	color: var(--cs-color-muted);
 	margin: 8px 0;
-	color: #666;
 }
 
 .shot-score {
@@ -549,26 +550,30 @@ export default {
 	font-weight: bold;
 	margin-bottom: 12px;
 	padding: 8px;
-	border-radius: 4px;
+	border-radius: var(--cs-radius-control);
 }
 
 .score-excellent {
-	color: #2e7d32;
+	color: var(--cs-color-success);
 	background-color: #e8f5e9;
 }
 
 .score-good {
-	color: #1976d2;
+	color: var(--cs-color-night);
 	background-color: #e3f2fd;
 }
 
 .score-fair {
-	color: #f57c00;
+	color: var(--cs-color-warning);
 	background-color: #fff3e0;
 }
 
 .score-poor {
-	color: #c62828;
+	color: var(--cs-color-danger);
 	background-color: #ffebee;
+}
+
+.action-emoji {
+	font-size: 2em;
 }
 </style>

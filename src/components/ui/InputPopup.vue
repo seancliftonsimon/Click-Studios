@@ -34,7 +34,7 @@
 				:color="cancelColor"
 				text
 				@click="handleCancel"
-				class="me-2"
+				class="cs-button cs-button-warning me-2"
 			>
 				{{ cancelText }}
 			</v-btn>
@@ -42,6 +42,7 @@
 				:color="submitColor"
 				:disabled="!isInputValid"
 				@click="handleSubmit"
+				class="cs-button cs-button-primary"
 			>
 				{{ submitText }}
 			</v-btn>

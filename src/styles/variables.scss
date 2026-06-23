@@ -1,9 +1,46 @@
+:root {
+	--cs-color-curtain: #931621;
+	--cs-color-gold: #fad01c;
+	--cs-color-night: #313b72;
+	--cs-color-popcorn: #fff5bf;
+	--cs-color-ticket: #fffaf0;
+	--cs-color-ink: #151313;
+	--cs-color-muted: #625947;
+	--cs-color-line: #d9c783;
+	--cs-color-gray: #cfcfcf;
+	--cs-color-white: #ffffff;
+	--cs-color-success: #2e7d32;
+	--cs-color-warning: #f57c00;
+	--cs-color-danger: #c62828;
+
+	--cs-font-display: "Voltaire", Arial, sans-serif;
+	--cs-font-body: "Roboto", system-ui, -apple-system, BlinkMacSystemFont,
+		"Segoe UI", sans-serif;
+
+	--cs-radius-panel: 8px;
+	--cs-radius-control: 8px;
+	--cs-shadow-ticket: 8px 8px 0 rgba(147, 22, 33, 0.18);
+	--cs-shadow-soft: 0 16px 36px rgba(21, 19, 19, 0.16);
+	--cs-motion-fast: 140ms ease;
+	--cs-motion-medium: 240ms ease;
+}
+
 $border-radius-card: 8px; // For cards
-$border-radius-button: 4px; // For buttons
-$border-radius-progress: 4px; // For progress bars
+$border-radius-button: 8px; // For buttons
+$border-radius-progress: 8px; // For progress bars
 
 .v-application {
+	background: var(--cs-color-popcorn);
+	color: var(--cs-color-ink);
+	font-family: var(--cs-font-body);
 	user-select: none;
+}
+
+.cs-display,
+.cs-panel-title,
+.cs-section-title,
+.v-toolbar-title {
+	font-family: var(--cs-font-display);
 }
 
 /* Add this class to any elements you want to be selectable */
@@ -11,9 +48,144 @@ $border-radius-progress: 4px; // For progress bars
 	user-select: text !important;
 }
 
-// Global button styles
-.v-btn {
-	&:active {
-		background-color: hsl(34, 100%, 69%); /* Darken the color more */
-	}
+.phase-container {
+	background:
+		linear-gradient(90deg, rgba(147, 22, 33, 0.04) 1px, transparent 1px) 0 0 /
+			32px 32px,
+		var(--cs-color-popcorn) !important;
+	min-height: calc(100vh - 64px);
+}
+
+.cs-panel,
+.v-card.cs-panel {
+	background: var(--cs-color-ticket);
+	border: 1px solid var(--cs-color-line);
+	border-radius: var(--cs-radius-panel) !important;
+	box-shadow: var(--cs-shadow-ticket) !important;
+	color: var(--cs-color-ink);
+	overflow: hidden;
+}
+
+.cs-panel-quiet,
+.v-card.cs-panel-quiet {
+	background: var(--cs-color-white);
+	border: 1px solid rgba(217, 199, 131, 0.84);
+	border-radius: var(--cs-radius-panel) !important;
+	box-shadow: 0 8px 18px rgba(21, 19, 19, 0.08) !important;
+}
+
+.cs-row {
+	align-items: center;
+	border-top: 1px solid rgba(217, 199, 131, 0.56);
+	display: flex;
+	gap: 10px;
+	justify-content: space-between;
+	padding: 8px 0;
+}
+
+.cs-button,
+.v-btn.cs-button {
+	border-radius: var(--cs-radius-control) !important;
+	box-shadow: 3px 3px 0 rgba(21, 19, 19, 0.2);
+	font-family: var(--cs-font-body);
+	font-weight: 800;
+	letter-spacing: 0;
+	text-transform: none;
+	transition:
+		transform var(--cs-motion-fast),
+		box-shadow var(--cs-motion-fast),
+		opacity var(--cs-motion-fast);
+}
+
+.cs-button:hover,
+.v-btn.cs-button:hover {
+	box-shadow: 4px 5px 0 rgba(21, 19, 19, 0.18);
+	transform: translate(-1px, -1px);
+}
+
+.cs-button:active,
+.v-btn.cs-button:active {
+	box-shadow: 1px 1px 0 rgba(21, 19, 19, 0.24);
+	transform: translate(1px, 1px);
+}
+
+.cs-button.v-btn--disabled {
+	box-shadow: none;
+	opacity: 0.48;
+}
+
+.cs-button-primary,
+.v-btn.cs-button-primary {
+	background: var(--cs-color-curtain) !important;
+	border: 1px solid #6f1019;
+	color: var(--cs-color-white) !important;
+}
+
+.cs-button-secondary,
+.v-btn.cs-button-secondary {
+	background: var(--cs-color-gold) !important;
+	border: 1px solid #c89b00;
+	color: var(--cs-color-ink) !important;
+}
+
+.cs-button-money,
+.v-btn.cs-button-money {
+	background: var(--cs-color-night) !important;
+	border: 1px solid #202852;
+	color: var(--cs-color-white) !important;
+}
+
+.cs-button-warning,
+.v-btn.cs-button-warning {
+	background: var(--cs-color-ticket) !important;
+	border: 1px solid var(--cs-color-curtain);
+	color: var(--cs-color-curtain) !important;
+}
+
+.cs-progress,
+.v-progress-linear.cs-progress {
+	border: 1px solid rgba(21, 19, 19, 0.18);
+	border-radius: var(--cs-radius-control) !important;
+	overflow: hidden;
+}
+
+.cs-progress .v-progress-linear__determinate,
+.cs-progress .v-progress-linear__indeterminate {
+	background: var(--cs-color-curtain) !important;
+}
+
+.cs-progress-gold .v-progress-linear__determinate,
+.cs-progress-gold .v-progress-linear__indeterminate {
+	background: var(--cs-color-gold) !important;
+}
+
+.cs-progress-night .v-progress-linear__determinate,
+.cs-progress-night .v-progress-linear__indeterminate {
+	background: var(--cs-color-night) !important;
+}
+
+.cs-chip,
+.v-chip.cs-chip {
+	background: var(--cs-color-popcorn) !important;
+	border: 1px solid var(--cs-color-line);
+	color: var(--cs-color-ink) !important;
+	font-weight: 800;
+}
+
+.cs-modal,
+.v-card.cs-modal {
+	background: var(--cs-color-ticket);
+	border: 1px solid rgba(147, 22, 33, 0.2);
+	border-radius: var(--cs-radius-panel) !important;
+	box-shadow: var(--cs-shadow-soft);
+	color: var(--cs-color-ink);
+}
+
+.cs-segmented-control {
+	background: rgba(255, 245, 191, 0.66);
+	border: 1px solid var(--cs-color-line);
+	border-radius: var(--cs-radius-control);
+	display: inline-flex;
+	gap: 2px;
+	padding: 3px;
 }

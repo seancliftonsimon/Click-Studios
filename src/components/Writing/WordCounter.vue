@@ -1,7 +1,7 @@
 <!-- Word Counter-->
 <template>
 	<v-card
-		class="center-content pt-3 resource-counter"
+		class="cs-panel center-content pt-3 resource-counter"
 		:class="{ 'resource-counter-pop': isPopping }"
 		data-guidance-target="word-counter"
 	>
@@ -116,7 +116,9 @@ export default {
 	overflow: visible;
 	position: relative;
 	transform-origin: center;
-	transition: transform 0.18s ease, box-shadow 0.18s ease;
+	transition:
+		transform var(--cs-motion-medium),
+		box-shadow var(--cs-motion-medium);
 }
 
 .resource-counter-pop {
@@ -124,7 +126,7 @@ export default {
 }
 
 .resource-float {
-	font-family: "Roboto", sans-serif;
+	font-family: var(--cs-font-body);
 	font-size: 1.45rem;
 	font-weight: 800;
 	pointer-events: none;
@@ -137,13 +139,13 @@ export default {
 }
 
 .word-float {
-	color: #931621;
+	color: var(--cs-color-curtain);
 }
 
 .word-display {
-	font-family: "Roboto", sans-serif;
+	color: var(--cs-color-curtain);
+	font-family: var(--cs-font-body);
 	font-size: 21px;
-	color: #931621;
 	font-weight: 600;
 	line-height: 1.1;
 	text-align: center;
@@ -151,7 +153,7 @@ export default {
 }
 
 .wps-display {
-	font-family: "Roboto";
+	font-family: var(--cs-font-body);
 	font-size: 16px;
 	font-weight: 400;
 	white-space: nowrap;

@@ -1,13 +1,11 @@
 <template>
 	<v-card
-		class="mx-auto mb-4"
+		class="cs-panel mx-auto mb-4 worker-card"
 		:class="{
 			'script-doctor': workerType === 'scriptDoctor',
 			'tier-upgrade-pulse': isUpgrading,
 		}"
-		shaped
 		elevation="2"
-		style="border-radius: 16px"
 		v-if="isWorkerVisible"
 		:data-guidance-target="guidanceTarget"
 	>
@@ -30,15 +28,15 @@
 				</div>
 			</v-card-title>
 		</v-row>
-		<v-row style="margin-top: -20px" no-gutters>
+		<v-row class="worker-body-row" no-gutters>
 			<v-col cols="5" class="d-flex justify-center align-center">
-				<span style="font-size: 4rem">{{ emoji }}</span>
+				<span class="worker-emoji">{{ emoji }}</span>
 			</v-col>
 			<v-col cols="7" class="d-flex flex-column justify-space-between">
 				<v-card-actions class="px-4">
 					<v-btn
 						block
-						class="spend-money-btn"
+						class="cs-button spend-money-btn"
 						:class="{ inactive: !(canAfford && isUnderCapacity) }"
 						:disabled="!(canAfford && isUnderCapacity)"
 						@click="makeHire(cost)"
@@ -48,7 +46,7 @@
 				</v-card-actions>
 			</v-col>
 		</v-row>
-		<v-row style="margin-top: -20px" class="pb-3">
+		<v-row class="worker-meta-row pb-3">
 			<v-col class="text-center worker-text pl-3">
 				{{ $formatNumber(wps) }} WPS
 			</v-col>
@@ -167,7 +165,20 @@ export default {
 
 <style scoped>
 .script-doctor {
-	background-color: hsl(34, 100%, 89%);
+	background: var(--cs-color-popcorn);
+}
+
+.worker-card {
+	border-color: rgba(49, 59, 114, 0.22);
+}
+
+.worker-body-row,
+.worker-meta-row {
+	margin-top: -20px;
+}
+
+.worker-emoji {
+	font-size: 4rem;
 }
 
 .slide-enter-active,
@@ -182,7 +193,7 @@ export default {
 
 .worker-title {
 	align-self: center;
-	font-family: "Roboto", sans-serif;
+	font-family: var(--cs-font-body);
 	font-size: 18px;
 	font-weight: 500;
 }
@@ -194,19 +205,19 @@ export default {
 }
 
 .tier-pip {
-	border: 1px solid #931621;
+	border: 1px solid var(--cs-color-curtain);
 	border-radius: 999px;
 	height: 7px;
 	width: 7px;
 }
 
 .tier-pip-active {
-	background: #931621;
+	background: var(--cs-color-curtain);
 }
 
 .worker-text {
-	color: #931621;
-	font-family: "Roboto", sans-serif;
+	color: var(--cs-color-curtain);
+	font-family: var(--cs-font-body);
 	font-weight: 500;
 }
 
@@ -216,15 +227,15 @@ export default {
 
 @keyframes tier-upgrade-pulse {
 	0% {
-		box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.65);
+		box-shadow: 0 0 0 0 rgba(250, 208, 28, 0.65);
 		transform: scale(0.98);
 	}
 	55% {
-		box-shadow: 0 0 0 8px rgba(255, 193, 7, 0.18);
+		box-shadow: 0 0 0 8px rgba(250, 208, 28, 0.18);
 		transform: scale(1.02);
 	}
 	100% {
-		box-shadow: 0 0 0 0 rgba(255, 193, 7, 0);
+		box-shadow: 0 0 0 0 rgba(250, 208, 28, 0);
 		transform: scale(1);
 	}
 }

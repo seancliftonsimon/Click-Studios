@@ -1,7 +1,7 @@
 <template>
-	<v-card class="text-center pa-3" outlined>
+	<v-card class="cs-panel text-center pa-3">
 		<!-- Manual Pitch Button -->
-		<v-btn color="primary" @click="addPitch"
+		<v-btn class="cs-button cs-button-primary" @click="addPitch"
 			>Pitch x{{ manualPitchAmount }}</v-btn
 		>
 		<!-- Text: Pitching Investor Name… -->
@@ -11,9 +11,8 @@
 			:model-value="pitchCount"
 			:max="pitchesNeeded"
 			:height="40"
-			color="green"
+			class="cs-progress cs-progress-gold mb-4"
 			rounded
-			class="mb-4"
 		></v-progress-linear>
 		<!-- Text: Pitches per Second -->
 		<div>+ {{ pitchesPerSecond }} per second {{ pitchesNeeded }} needed</div>

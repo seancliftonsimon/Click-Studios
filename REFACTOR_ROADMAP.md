@@ -22,7 +22,7 @@ Architecture decision: the app now runs on Pinia. The former Vuex root store has
 | [x] | 4 | Preproduction UI | Replace duplicated department bar-stack components with one configurable component |
 | [x] | 5 | Timers | Centralize game-rule ticking for writing workers and preproduction progress |
 | [x] | 6 | Static data | Move preproduction config, balance constants, and investor tiers out of components |
-| [ ] | 7 | Design system | Create shared tokens and component variants for a consistent UI language |
+| [x] | 7 | Design system | Create shared tokens and component variants for a consistent UI language |
 | [ ] | 8 | Tests | Add focused tests for economy, unlocks, save migration, and phase progression |
 | [ ] | 9 | Performance | Reduce bundle weight and clean dependency/build warnings |
 
@@ -258,7 +258,7 @@ Move content pools and balancing constants out of mutable store state.
 
 ## Step 7: Design System
 
-Status: `[ ]` Not started
+Status: `[x]` Complete
 
 ### Goal
 
@@ -297,21 +297,47 @@ Component language:
 - Completed
 - Warning/no funds
 
+### Changes Made
+
+- Added shared Ticket Booth CSS tokens for color, typography, radius, shadow,
+  and motion in `src/styles/variables.scss`.
+- Exposed the Ticket Booth palette through the Vuetify theme.
+- Added reusable primitive classes for panels, buttons, progress, chips, rows,
+  segmented controls, and modals.
+- Updated the app shell/nav/actions to use the shared palette and button
+  language.
+- Converted high-traffic writing cards, counters, writing action, tool upgrade,
+  worker cards, genre progress, and writers room upgrade panels.
+- Converted preproduction investor cards, department progress cards, worker
+  budget card, inspiration shop, and pitcher/searcher assignment controls.
+- Converted filming shell, shot timeline states, viewfinder action button, and
+  feedback panels.
+- Updated popup base, input/confirm actions, and guided hints to match the
+  Ticket Booth modal/button language.
+- Removed representative inline styles from the app shell, writing cards,
+  preproduction cards, and viewfinder support UI. Remaining dynamic inline style
+  bindings are stateful positioning/filter/progress values rather than static
+  visual tokens.
+
 ### Acceptance Checks
 
-- `[ ]` Vuetify theme exposes the app palette.
-- `[ ]` Shared CSS tokens define Ticket Booth colors, typography, radius, shadow,
+- `[x]` Vuetify theme exposes the app palette.
+- `[x]` Shared CSS tokens define Ticket Booth colors, typography, radius, shadow,
   and motion.
-- `[ ]` Display text uses `Voltaire`; body/dense UI text uses `Roboto`/system sans.
-- `[ ]` Cards use one standard radius unless intentionally distinct.
-- `[ ]` Buttons use shared variants/classes instead of local hard-coded colors.
-- `[ ]` Inline styles are removed from high-traffic components.
-- `[ ]` Writing, preproduction, and filming screens share a recognizable layout grammar.
-- `[ ]` Popup, button, row, segmented-control, progress, and modal primitives match
+- `[x]` Display text uses `Voltaire`; body/dense UI text uses `Roboto`/system sans.
+- `[x]` Cards use one standard radius unless intentionally distinct.
+- `[x]` Buttons use shared variants/classes instead of local hard-coded colors.
+- `[x]` Inline styles are removed from high-traffic components.
+- `[x]` Writing, preproduction, and filming screens share a recognizable layout grammar.
+- `[x]` Popup, button, row, segmented-control, progress, and modal primitives match
   the Ticket Booth component language.
-- `[ ]` `npm run lint` passes.
-- `[ ]` `npm run build` passes.
-- `[ ]` Browser smoke test confirms no clipped/overlapping controls at desktop width.
+- `[x]` `npm run lint` passes.
+- `[x]` `npm run build` passes.
+- `[x]` Browser smoke test confirms no clipped/overlapping controls at desktop width
+  for the reachable fresh-save app shell, writing screen, startup modal, and
+  guided hint. Preproduction and filming routes remained guard-locked in the
+  in-app browser fresh-save smoke test; their converted components pass lint and
+  production build.
 
 ## Step 8: Focused Tests
 

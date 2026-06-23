@@ -1,6 +1,6 @@
 <template>
 	<!-- Main card container -->
-	<v-card class="py-6">
+	<v-card class="cs-panel py-6">
 		<!-- Title row -->
 		<v-row class="mx-1 align-center justify-space-between">
 			<!-- Invisible spacer on the left -->
@@ -24,7 +24,7 @@
 			<!-- Button for upgrading searches per click -->
 			<v-col align="center">
 				<v-btn
-					class="upgrade-button"
+					class="cs-button cs-button-secondary upgrade-button"
 					@click="triggerAction('searchesPerClick', costs.searchesPerClick)"
 					:disabled="playerInspiration < costs.searchesPerClick"
 				>
@@ -44,7 +44,7 @@
 			<!-- Button for upgrading pitches per click -->
 			<v-col align="center">
 				<v-btn
-					class="upgrade-button"
+					class="cs-button cs-button-secondary upgrade-button"
 					@click="triggerAction('pitchesPerClick', costs.pitchesPerClick)"
 					:disabled="playerInspiration < costs.pitchesPerClick"
 				>
@@ -67,7 +67,7 @@
 			<!-- Button for shortening search time -->
 			<v-col align="center">
 				<v-btn
-					class="upgrade-button"
+					class="cs-button cs-button-secondary upgrade-button"
 					@click="triggerAction('shortenSearches', costs.shortenSearches)"
 					:disabled="playerInspiration < costs.shortenSearches"
 				>
@@ -81,7 +81,7 @@
 			<!-- Button for improving pitch quality -->
 			<v-col align="center">
 				<v-btn
-					class="upgrade-button"
+					class="cs-button cs-button-secondary upgrade-button"
 					@click="triggerAction('betterPitches', costs.betterPitches)"
 					:disabled="playerInspiration < costs.betterPitches"
 				>
@@ -98,7 +98,12 @@
 			<!-- Button for enabling auto search -->
 			<v-col align="center">
 				<v-btn
-					:class="['upgrade-button', { 'enabled-button': autoSearchEnabled }]"
+					:class="[
+						'cs-button',
+						'cs-button-secondary',
+						'upgrade-button',
+						{ 'enabled-button': autoSearchEnabled },
+					]"
 					@click="triggerAction('autoSearch', 2)"
 					:disabled="playerInspiration < 2 || autoSearchEnabled"
 				>
@@ -114,7 +119,12 @@
 			<!-- Button for enabling auto pitch -->
 			<v-col align="center">
 				<v-btn
-					:class="['upgrade-button', { 'enabled-button': autoPitchEnabled }]"
+					:class="[
+						'cs-button',
+						'cs-button-secondary',
+						'upgrade-button',
+						{ 'enabled-button': autoPitchEnabled },
+					]"
 					@click="triggerAction('autoPitch', 2)"
 					:disabled="playerInspiration < 2 || autoPitchEnabled"
 				>
@@ -130,7 +140,12 @@
 			<!-- Button for enabling auto collect -->
 			<v-col align="center">
 				<v-btn
-					:class="['upgrade-button', { 'enabled-button': autoCollectEnabled }]"
+					:class="[
+						'cs-button',
+						'cs-button-secondary',
+						'upgrade-button',
+						{ 'enabled-button': autoCollectEnabled },
+					]"
 					@click="triggerAction('autoCollect', 2)"
 					:disabled="playerInspiration < 2 || autoCollectEnabled"
 				>
@@ -275,17 +290,16 @@ export default {
 	justify-content: center;
 	align-items: center;
 	text-align: center;
-	background-color: #fef7e5;
 }
 
 .enabled-button {
 	background-color: #e0f2e9 !important;
-	color: #2e7d32 !important;
-	border-color: #2e7d32 !important;
+	border-color: var(--cs-color-success) !important;
+	color: var(--cs-color-success) !important;
 }
 
 .enabled-button .button-text {
-	color: #2e7d32 !important;
+	color: var(--cs-color-success) !important;
 	font-weight: bold;
 }
 

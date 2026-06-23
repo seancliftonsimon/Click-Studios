@@ -1,10 +1,10 @@
 <template>
-		<v-card class="rounded-lg mt-2" data-guidance-target="writers-room-upgrade-card">
+		<v-card class="cs-panel mt-2" data-guidance-target="writers-room-upgrade-card">
 		<v-row>
 			<v-col class="center-content">
 				<v-row class="my-auto">
 					<v-col class="center-content">
-						<v-chip :color="chipColor" label class="ml-1">
+						<v-chip :color="chipColor" label class="cs-chip ml-1">
 							{{ workersDisplay.length }} / {{ currentCapacity }}
 						</v-chip>
 					</v-col>
@@ -17,14 +17,14 @@
 				<span class="capacity-text">NEXT CAPACITY</span>
 			</v-col>
 			<v-col cols="1" class="my-auto pl-0" v-if="writersRoomUpgradeVisible">
-				<v-chip label>
+				<v-chip label class="cs-chip">
 					{{ nextCapacity }}
 				</v-chip>
 			</v-col>
 			<v-col class="center-content" v-if="writersRoomUpgradeVisible">
 				<v-card-actions>
 					<v-btn
-						class="spend-money-btn"
+						class="cs-button spend-money-btn"
 						@click="attemptUpgrade"
 						:class="{ inactive: !canAffordUpgrade }"
 						:disabled="!canAffordUpgrade"
@@ -114,8 +114,8 @@ export default {
 }
 
 .capacity-text {
-	font-family: "Roboto";
-	font-weight: medium;
+	font-family: var(--cs-font-body);
 	font-size: 16px;
+	font-weight: 500;
 }
 </style>

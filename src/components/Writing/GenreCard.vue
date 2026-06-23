@@ -1,10 +1,10 @@
 <template>
-		<v-card class="mt-4" data-guidance-target="genre-card">
+		<v-card class="cs-panel mt-4 genre-card" data-guidance-target="genre-card">
 		<v-row>
 			<v-col cols="4">
 				<v-row align="center" class="my-1" justify="space-around">
 					<span class="genre-name"> {{ selectedGenreName }}</span>
-					<v-chip class="align-right" color="primary" label>
+					<v-chip class="cs-chip align-right" label>
 						Level {{ currentGenreDetails.level }}
 					</v-chip>
 				</v-row>
@@ -22,15 +22,15 @@
 			<v-col cols="8" class="d-flex flex-column justify-center">
 				<v-progress-linear
 					:model-value="progress"
-					class="rounded-t-lg text-red-darken-4 bg-red-lighten-4"
+					class="cs-progress cs-progress-gold genre-progress"
 					:height="60"
 				>
 					<div>
-						<span style="font-size: 2em">{{ emoji }}</span>
+						<span class="genre-emoji">{{ emoji }}</span>
 					</div>
 				</v-progress-linear>
 				<div
-					class="align-under text-center rounded-b-lg text-red-darken-4 bg-red-lighten-4"
+					class="align-under genre-progress-label text-center"
 				>
 					{{ $formatNumber(wordsToNextLevel) }} words until Level
 					{{ currentGenreDetails.level + 1 }}
@@ -115,7 +115,7 @@ export default {
 </script>
 
 <style scoped>
-.v-card {
+.genre-card {
 	padding: 8px;
 }
 .center-content {
@@ -139,9 +139,27 @@ export default {
 }
 
 .genre-name {
-	font-family: Roboto;
+	font-family: var(--cs-font-body);
 	font-weight: normal;
 	font-size: 22px;
+}
+
+.genre-emoji {
+	font-size: 2em;
+}
+
+.genre-progress {
+	background: var(--cs-color-popcorn) !important;
+	color: var(--cs-color-ink);
+}
+
+.genre-progress-label {
+	background: var(--cs-color-popcorn);
+	border: 1px solid rgba(217, 199, 131, 0.75);
+	border-top: 0;
+	border-radius: 0 0 var(--cs-radius-control) var(--cs-radius-control);
+	color: var(--cs-color-curtain);
+	padding: 4px;
 }
 
 .align-under {

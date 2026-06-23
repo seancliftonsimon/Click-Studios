@@ -1,5 +1,5 @@
 <template>
-	<v-card class="text-center pa-3" outlined>
+	<v-card class="cs-panel text-center pa-3">
 		<!-- H2: Funding Received! -->
 		<h2>Funding Received!</h2>
 		<v-container>
@@ -13,14 +13,19 @@
 			<v-progress-linear
 				:model-value="collectProgress"
 				height="36"
-				color="blue"
+				class="cs-progress cs-progress-night"
 				rounded
 				striped
 			>
 				<template v-slot:default>Collecting...</template>
 			</v-progress-linear>
 		</div>
-		<v-btn v-else color="blue" class="mb-3" @click="nextCard">Collect</v-btn>
+		<v-btn
+			v-else
+			class="cs-button cs-button-money mb-3"
+			@click="nextCard"
+			>Collect</v-btn
+		>
 	</v-card>
 </template>
 <script>
@@ -77,7 +82,7 @@ export default {
 </script>
 <style scoped>
 .fundingAmount {
-	color: darkgreen;
+	color: var(--cs-color-success);
 	font-size: 3em;
 	font-weight: bold;
 }

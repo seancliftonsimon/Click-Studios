@@ -12,10 +12,19 @@
 	>
 		<template #actions>
 			<v-spacer></v-spacer>
-			<v-btn :color="cancelColor" text @click="handleCancel" class="me-2">
+			<v-btn
+				:color="cancelColor"
+				text
+				@click="handleCancel"
+				class="cs-button cs-button-warning me-2"
+			>
 				{{ cancelText }}
 			</v-btn>
-			<v-btn :color="confirmColor" @click="handleConfirm">
+			<v-btn
+				:color="confirmColor"
+				@click="handleConfirm"
+				class="cs-button cs-button-primary"
+			>
 				{{ confirmText }}
 			</v-btn>
 		</template>

@@ -1,9 +1,11 @@
 <!-- FilmingComponent.vue-->
 <template>
-	<v-container fluid class="phase-container bg-grey-lighten-2">
-		<v-card class="fill-height center-content">
+	<v-container fluid class="phase-container">
+		<v-card class="cs-panel fill-height center-content">
 			<v-card-title class="d-flex flex-wrap align-center justify-space-between">
-				<span>Filming {{ scriptTitle ? `: ${scriptTitle}` : "" }}</span>
+				<span class="cs-panel-title"
+					>Filming {{ scriptTitle ? `: ${scriptTitle}` : "" }}</span
+				>
 				<span class="text-subtitle-1">
 					{{ filmedShotsCount }}/{{ filmingShotGoal }} shots wrapped
 					<span v-if="averageFilmingScore">

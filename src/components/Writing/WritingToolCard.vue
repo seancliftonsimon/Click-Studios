@@ -2,31 +2,29 @@
 
 <template>
 		<v-card
-			rounded-s-xl
 			elevation="2"
 			v-if="isVisible"
-			class="tool-card"
+			class="cs-panel tool-card"
 			data-guidance-target="writing-tool-upgrade-card"
 		>
 		<transition name="slide">
 			<v-row align="center">
 				<v-col cols="5" class="d-flex flex-column justify-center align-center">
-					<h3 style="text-transform: uppercase" class="py-3 ml-3">
+					<h3 class="tool-title py-3 ml-3">
 						{{ title }}
 					</h3>
-					<span style="font-size: 3em">{{ emoji }}</span>
+					<span class="tool-emoji">{{ emoji }}</span>
 				</v-col>
 				<v-col cols="7" class="d-flex flex-column justify-space-between">
 					<!-- Use text prop here -->
 					<v-card-text
-						style="text-transform: uppercase"
 						class="wpc-text my-auto"
 						>{{ $formatNumber(wordsPerClick) }} words per click</v-card-text
 					>
 					<v-card-actions class="px-4 pb-4">
 						<v-btn
 							block
-							class="spend-money-btn"
+							class="cs-button spend-money-btn"
 							@click="handlePurchase"
 							:class="{ inactive: !canAfford }"
 							:disabled="!canAfford"
@@ -105,9 +103,19 @@ export default {
 	width: 100%;
 }
 
+.tool-title {
+	font-family: var(--cs-font-display);
+	text-transform: uppercase;
+}
+
+.tool-emoji {
+	font-size: 3em;
+}
+
 .wpc-text {
-	font-family: "Roboto";
-	font-weight: 500;
+	font-family: var(--cs-font-body);
 	font-size: 14px;
+	font-weight: 500;
+	text-transform: uppercase;
 }
 </style>

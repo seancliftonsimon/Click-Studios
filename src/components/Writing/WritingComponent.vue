@@ -1,7 +1,7 @@
 <!-- WritingComponent.vue -->
 
 <template>
-	<v-container fluid class="phase-container bg-grey-lighten-2">
+	<v-container fluid class="phase-container">
 		<v-row>
 			<v-col cols="3">
 				<PurchaseCard
@@ -35,7 +35,7 @@
 				<!-- Zone 2: Contract staff -->
 				<div v-if="contractWorkersArray.length > 0">
 					<v-divider class="my-2" />
-					<div class="zone-label">Staff (Contract)</div>
+					<div class="cs-section-title zone-label">Staff</div>
 					<ContractWorkerCard
 						v-for="worker in contractWorkersArray"
 						:key="worker.workerType"
@@ -173,8 +173,8 @@ export default {
 
 <style scoped>
 .phase-container {
-	padding-left: 5%;
 	padding-right: 5%;
+	padding-left: 5%;
 	padding-top: 2.5%;
 	height: 100%;
 }
@@ -197,20 +197,21 @@ export default {
 }
 
 .zone-label {
+	color: var(--cs-color-muted);
 	font-size: 11px;
 	font-weight: 600;
-	text-transform: uppercase;
 	letter-spacing: 0.05em;
-	color: #666;
 	margin-bottom: 4px;
+	text-transform: uppercase;
 }
 
 .payroll-readout {
+	background: var(--cs-color-ticket);
+	border: 1px solid var(--cs-color-line);
+	border-radius: var(--cs-radius-control);
+	color: var(--cs-color-muted);
 	font-size: 12px;
-	color: #444;
 	padding: 4px 6px;
-	background: #f0f0f4;
-	border-radius: 6px;
 	display: flex;
 	gap: 4px;
 	align-items: center;
@@ -223,10 +224,10 @@ export default {
 .payroll-timer {
 	font-variant-numeric: tabular-nums;
 	font-weight: 600;
-	color: #1a3a6b;
+	color: var(--cs-color-night);
 }
 
 .payroll-amount {
-	color: #888;
+	color: var(--cs-color-muted);
 }
 </style>

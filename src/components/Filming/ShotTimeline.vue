@@ -1,8 +1,8 @@
 <template>
 	<div class="shot-timeline-container">
-		<h2 class="text-h5 mb-4">Shot Timeline</h2>
+		<h2 class="cs-section-title text-h5 mb-4">Shot Timeline</h2>
 
-		<v-card class="mb-6">
+		<v-card class="cs-panel-quiet mb-6">
 			<v-card-title class="text-subtitle-1">Shooting Schedule</v-card-title>
 			<v-card-text class="position-relative pa-0">
 				<div class="timeline-wrapper">
@@ -90,24 +90,26 @@ export default {
 }
 
 .shot-card {
-	transition: all 0.3s ease;
+	border-radius: var(--cs-radius-control) !important;
+	transition: all var(--cs-motion-medium);
 	flex-shrink: 0;
 	width: 110px !important;
 }
 
 .shot-pending {
-	background-color: #f5f5f5;
+	background-color: var(--cs-color-ticket);
 	opacity: 0.7;
 }
 
 .shot-current {
-	background-color: #bbdefb;
-	border: 2px solid #1976d2 !important;
-	box-shadow: 0 0 10px rgba(25, 118, 210, 0.5);
+	background-color: var(--cs-color-popcorn);
+	border: 2px solid var(--cs-color-night) !important;
+	box-shadow: 0 0 0 4px rgba(49, 59, 114, 0.16);
 }
 
 .shot-completed {
-	background-color: #e8f5e9;
+	background-color: rgba(250, 208, 28, 0.22);
+	border-color: var(--cs-color-gold) !important;
 }
 
 .shot-number {

@@ -10,7 +10,7 @@
 		@keydown.esc="handleEscKey"
 		@click:outside="handleOutsideClick"
 	>
-			<v-card class="popup-card" :class="[`popup-theme-${theme}`]">
+			<v-card class="cs-modal popup-card" :class="[`popup-theme-${theme}`]">
 				<div v-if="theme === 'premiere'" class="premiere-strip"></div>
 				<v-card-title
 					class="popup-title text-h5 d-flex align-center justify-center text-center"
@@ -32,7 +32,7 @@
 						v-if="showCloseButton"
 						:color="closeButtonColor"
 						@click="$emit('close')"
-						class="popup-close-btn"
+						class="cs-button cs-button-primary popup-close-btn"
 					>
 						{{ closeButtonText }}
 					</v-btn>
@@ -125,19 +125,18 @@ export default {
 </script>
 
 <style scoped>
-	.popup-card {
-		border-radius: 8px;
-		overflow: hidden;
-		box-shadow: 0 24px 80px rgba(30, 15, 18, 0.28);
-	}
+.popup-card {
+	overflow: hidden;
+}
 
-	.popup-title {
-		color: #2d1c20;
-		padding: 24px 28px 8px;
-		font-weight: 800;
-		text-align: center;
-		width: 100%;
-	}
+.popup-title {
+	color: var(--cs-color-ink);
+	font-family: var(--cs-font-display);
+	font-weight: 800;
+	padding: 24px 28px 8px;
+	text-align: center;
+	width: 100%;
+}
 
 .popup-emoji {
 	font-size: 1.5em;
@@ -146,40 +145,45 @@ export default {
 	text-align: center;
 }
 
-	.popup-content {
-		padding: 0 28px 22px;
-		text-align: center;
-	}
+.popup-content {
+	padding: 0 28px 22px;
+	text-align: center;
+}
 
-	.popup-text {
-		white-space: pre-line;
-		color: #4b3a3d;
-		font-size: 1rem;
-		line-height: 1.4;
-		text-align: center;
-	}
+.popup-text {
+	color: var(--cs-color-muted);
+	font-size: 1rem;
+	line-height: 1.4;
+	text-align: center;
+	white-space: pre-line;
+}
 
-	.popup-actions {
-		padding: 0 28px 24px;
-	}
+.popup-actions {
+	padding: 0 28px 24px;
+}
 
 /* Theme variations */
 .popup-theme-default {
-	background-color: #ffffff;
+	background-color: var(--cs-color-white);
 }
 
-	.popup-theme-tutorial {
-		background-color: #fffaf1;
-	}
+.popup-theme-tutorial {
+	background-color: var(--cs-color-ticket);
+}
 
-	.popup-theme-achievement {
-		background-color: #fffaf1;
-	}
+.popup-theme-achievement {
+	background-color: var(--cs-color-ticket);
+}
 
-	.popup-theme-premiere {
-		background: linear-gradient(180deg, #fff7e8 0%, #ffffff 52%, #fffaf1 100%);
-		border: 1px solid rgba(147, 22, 33, 0.16);
-	}
+.popup-theme-premiere {
+	background: linear-gradient(
+		180deg,
+		var(--cs-color-popcorn) 0%,
+		var(--cs-color-white) 52%,
+		var(--cs-color-ticket) 100%
+	);
+	border: 1px solid rgba(147, 22, 33, 0.16);
+}
 
 .popup-theme-error {
 	background-color: #ffebee;
@@ -189,31 +193,31 @@ export default {
 	background-color: #e8f5e9;
 }
 
-	.popup-theme-warning {
-		background-color: #fff8e1;
-	}
+.popup-theme-warning {
+	background-color: #fff8e1;
+}
 
-	.premiere-strip {
-		background: repeating-linear-gradient(
-			90deg,
-			#931621 0,
-			#931621 22px,
-			#f9b233 22px,
-			#f9b233 34px
-		);
-		height: 8px;
-	}
+.premiere-strip {
+	background: repeating-linear-gradient(
+		90deg,
+		var(--cs-color-curtain) 0,
+		var(--cs-color-curtain) 22px,
+		var(--cs-color-gold) 22px,
+		var(--cs-color-gold) 34px
+	);
+	height: 8px;
+}
 
 /* Accessibility focus styles */
 .popup-card:focus {
-	outline: 2px solid #1976d2;
+	outline: 2px solid var(--cs-color-night);
 	outline-offset: 2px;
 }
 
 /* Animation enhancements */
 .dialog-transition-enter-active,
 .dialog-transition-leave-active {
-	transition: all 0.3s ease;
+	transition: all var(--cs-motion-medium);
 }
 
 .dialog-transition-enter-from,

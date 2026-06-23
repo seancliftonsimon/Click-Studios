@@ -1,6 +1,6 @@
 <template>
 	<!-- NOTE TO SELF XYZ this width below is just for testing and the container size should be set by the holder component-->
-	<v-card class="text-center pa-3">
+	<v-card class="cs-panel text-center pa-3">
 		<!-- H2: Investor Found! -->
 		<h2>Investor Found!</h2>
 		<!-- Container for Side-by-Side Sections -->
@@ -25,13 +25,15 @@
 			<v-progress-linear
 				:model-value="pitchProgress"
 				height="36"
-				color="success"
+				class="cs-progress cs-progress-gold"
 				rounded
 			>
 				<template v-slot:default>Pitching...</template>
 			</v-progress-linear>
 		</div>
-		<v-btn v-else color="success" @click="nextCard">Pitch Investor</v-btn>
+		<v-btn v-else class="cs-button cs-button-primary" @click="nextCard"
+			>Pitch Investor</v-btn
+		>
 	</v-card>
 </template>
 

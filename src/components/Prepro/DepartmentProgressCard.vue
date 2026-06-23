@@ -1,11 +1,17 @@
 <template>
 	<v-container>
-		<v-card class="d-flex flex-column align-center">
-			<h3>{{ config.emoji }} {{ config.title }}</h3>
+		<v-card class="cs-panel department-card d-flex flex-column align-center">
+			<h3 class="cs-panel-title department-title">
+				{{ config.emoji }} {{ config.title }}
+			</h3>
 
 			<v-container v-show="deptLocked" align="center">
 				<span>{{ config.hireLabel }}</span>
-				<v-btn :disabled="!canAffordHire" @click="hireDeptHead">
+				<v-btn
+					class="cs-button cs-button-money ml-2"
+					:disabled="!canAffordHire"
+					@click="hireDeptHead"
+				>
 					${{ departmentHeadCost }}
 				</v-btn>
 			</v-container>
@@ -19,13 +25,13 @@
 					<v-list-item
 						v-for="bar in progressBars"
 						:key="bar.key"
-						:style="{ color: bar.color }"
+						:class="['department-row', `department-row-${bar.key}`]"
 						class="px-0"
 					>
 						<v-col class="pa-0">
 							<h3>{{ bar.label }}</h3>
 							<v-progress-linear
-								class="department-progress"
+								class="cs-progress department-progress"
 								:model-value="bar.value"
 								:max="bar.max"
 							/>
@@ -38,7 +44,11 @@
 				</v-list>
 
 				<div class="d-flex justify-center">
-					<v-btn @click="updateProgressOnClick">+{{ ticksPerClick }}</v-btn>
+					<v-btn
+						class="cs-button cs-button-secondary"
+						@click="updateProgressOnClick"
+						>+{{ ticksPerClick }}</v-btn
+					>
 				</div>
 
 				<br />
@@ -48,7 +58,7 @@
 					<v-btn
 						v-show="isHireWorkersVisible"
 						@click="unassignEmployee"
-						class="plus-minus mx-1"
+						class="cs-button cs-button-warning plus-minus mx-1"
 						:disabled="localEmployees <= 0"
 					>
 						-
@@ -57,7 +67,7 @@
 					<v-btn
 						v-show="isHireWorkersVisible"
 						@click="assignEmployee"
-						class="plus-minus mx-1"
+						class="cs-button cs-button-money plus-minus mx-1"
 						:disabled="!hasUnassignedEmployees"
 					>
 						+
@@ -68,8 +78,7 @@
 
 			<v-container
 				v-if="!deptLocked && !hasItemsToComplete"
-				class="d-flex flex-column align-center justify-center text-center"
-				style="min-height: 100%"
+				class="department-complete d-flex flex-column align-center justify-center text-center"
 			>
 				<span>{{ config.completeText }}</span>
 				<br />
@@ -105,7 +114,6 @@ export default {
 	data() {
 		return {
 			unregisterTicker: null,
-			barColors: ["maroon", "red", "orangered"],
 		};
 	},
 	computed: {
@@ -175,21 +183,18 @@ export default {
 					label: this.config.progressLabels[0],
 					value: this.currentProgress.barOne,
 					max: this.progressMax.barOne,
-					color: this.barColors[0],
 				},
 				{
 					key: "barTwo",
 					label: this.config.progressLabels[1],
 					value: this.currentProgress.barTwo,
 					max: this.progressMax.barTwo,
-					color: this.barColors[1],
 				},
 				{
 					key: "barThree",
 					label: this.config.progressLabels[2],
 					value: this.currentProgress.barThree,
 					max: this.progressMax.barThree,
-					color: this.barColors[2],
 				},
 			];
 		},
@@ -277,6 +282,30 @@ export default {
 </script>
 
 <style scoped>
+.department-card {
+	padding: 12px;
+}
+
+.department-title {
+	margin-bottom: 6px;
+}
+
+.department-complete {
+	min-height: 100%;
+}
+
+.department-row-barOne {
+	color: var(--cs-color-curtain);
+}
+
+.department-row-barTwo {
+	color: var(--cs-color-danger);
+}
+
+.department-row-barThree {
+	color: var(--cs-color-warning);
+}
+
 .plus-minus {
 	min-width: 0;
 	max-width: fit-content;

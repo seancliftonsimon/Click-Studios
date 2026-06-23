@@ -21,11 +21,10 @@
 
 		<v-row class="mb-0">
 			<!-- Permanent Navigation Bar -->
-			<v-app-bar color="#931621" permanent class="game-app-bar">
+			<v-app-bar color="curtain-red" permanent class="game-app-bar">
 				<div class="image-container">
 					<img :src="ticketImage" alt="Click Studios" class="ticket-image" />
 					<span
-						style="width: 100%"
 						:style="{ fontSize: titleFontSize }"
 						class="title-text"
 					>
@@ -75,9 +74,24 @@
 				</v-container>
 				<span class="alpha-note">Very early alpha</span>
 				<div class="game-actions">
-					<v-btn size="small" @click="saveGame">Save</v-btn>
-					<v-btn size="small" @click="loadGame">Load</v-btn>
-					<v-btn size="small" color="error" @click="resetGame">Reset</v-btn>
+					<v-btn
+						size="small"
+						class="cs-button cs-button-secondary"
+						@click="saveGame"
+						>Save</v-btn
+					>
+					<v-btn
+						size="small"
+						class="cs-button cs-button-secondary"
+						@click="loadGame"
+						>Load</v-btn
+					>
+					<v-btn
+						size="small"
+						class="cs-button cs-button-warning"
+						@click="resetGame"
+						>Reset</v-btn
+					>
 				</div>
 			</v-app-bar>
 
@@ -206,14 +220,18 @@ export default {
 			},
 		},
 		titleFontSize() {
-			if (this.studioName.length >= 28) {
-				return "1.2em";
-			} else if (this.studioName.length >= 16 && this.studioName.length <= 27) {
-				return "1.5em";
-			} else if (this.studioName.length <= 15) {
+			if (this.studioName.length <= 12) {
 				return "2em";
+			} else if (this.studioName.length <= 18) {
+				return "1.6em";
+			} else if (this.studioName.length <= 24) {
+				return "1.32em";
+			} else if (this.studioName.length <= 32) {
+				return "1.08em";
+			} else if (this.studioName.length <= 42) {
+				return "0.94em";
 			}
-			return "1em";
+			return "0.82em";
 		},
 		preproductionDisabled() {
 			return !this.isPreproductionUnlocked;
@@ -252,8 +270,13 @@ export default {
 
 <style>
 .spend-words-btn {
-	background-color: rgb(249, 155, 31);
-	font-weight: bold;
+	background: var(--cs-color-curtain) !important;
+	border: 1px solid #6f1019;
+	border-radius: var(--cs-radius-control) !important;
+	box-shadow: 3px 3px 0 rgba(21, 19, 19, 0.2);
+	color: var(--cs-color-white) !important;
+	font-weight: 800;
+	text-transform: none;
 }
 
 .spend-words-btn span {
@@ -266,7 +289,13 @@ export default {
 }
 
 .spend-money-btn {
-	background-color: rgb(50, 207, 50);
+	background: var(--cs-color-night) !important;
+	border: 1px solid #202852;
+	border-radius: var(--cs-radius-control) !important;
+	box-shadow: 3px 3px 0 rgba(21, 19, 19, 0.2);
+	color: var(--cs-color-white) !important;
+	font-weight: 800;
+	text-transform: none;
 }
 
 .spend-money-btn span {
@@ -342,14 +371,20 @@ export default {
 }
 
 .title-text {
-	font-family: "Voltaire", sans-serif;
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	color: #4a4a4a; /* Adjust text color as needed */
+	color: var(--cs-color-muted);
+	display: block;
+	font-family: var(--cs-font-display);
 	font-weight: bold;
+	left: 50%;
 	line-height: 1em;
+	max-width: 146px;
+	overflow: hidden;
+	position: absolute;
+	text-overflow: ellipsis;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	white-space: nowrap;
+	width: max-content;
 }
 
 .v-list-item {

@@ -1,14 +1,14 @@
 <template>
-	<div style="width: 100%" align="center">
+	<div class="write-button-wrap">
 			<v-btn
 				:ripple="false"
 				@mouseup="handleClick"
-				class="write-tool-button d-flex flex-column mx-auto"
+				class="cs-button write-tool-button d-flex flex-column mx-auto"
 				data-guidance-target="writing-tool-button"
 			>
 			<v-col>
 				<h3 class="py-2">{{ previousToolDetails.name }}</h3>
-				<span class="py-1" style="font-size: 4em">{{
+				<span class="write-tool-emoji py-1">{{
 					previousToolDetails.emoji
 				}}</span>
 				<br />
@@ -40,18 +40,44 @@ export default {
 </script>
 
 <style scoped>
+.write-button-wrap {
+	text-align: center;
+	width: 100%;
+}
+
 .write-tool-button {
-	border-radius: 12px;
-	width: 90%;
-	height: 100%;
+	align-items: center;
+	background: linear-gradient(
+		180deg,
+		var(--cs-color-white) 0%,
+		var(--cs-color-ticket) 100%
+	) !important;
+	border: 1px solid var(--cs-color-line);
+	box-shadow: 3px 3px 0 rgba(49, 59, 114, 0.14);
+	color: var(--cs-color-ink) !important;
 	display: flex;
 	flex-direction: column;
-	align-items: center;
+	font-weight: 500 !important;
+	height: 100%;
 	justify-content: center;
-	background-color: hsl(34, 100%, 89%);
+	width: 90%;
 }
 
 .write-tool-button:active {
-	background-color: hsl(34, 100%, 69%); /* Darken the color more */
+	background: var(--cs-color-popcorn) !important;
+}
+
+.write-tool-button h3 {
+	font-family: var(--cs-font-display);
+	font-size: 1.45rem;
+	font-weight: 500;
+}
+
+.write-tool-button :deep(.v-btn__content) {
+	font-weight: 500;
+}
+
+.write-tool-emoji {
+	font-size: 4em;
 }
 </style>

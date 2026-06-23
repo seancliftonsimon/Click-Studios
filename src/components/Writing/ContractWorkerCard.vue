@@ -1,9 +1,8 @@
 <template>
 	<v-card
-		class="mx-auto mb-4 contract-worker-card"
+		class="cs-panel mx-auto mb-4 contract-worker-card"
 		:class="{ 'script-doctor-card': workerType === 'scriptDoctor' }"
 		elevation="2"
-		style="border-radius: 16px"
 		v-if="isWorkerVisible"
 		:data-guidance-target="workerType === 'scriptDoctor' ? 'script-doctor-card' : undefined"
 	>
@@ -15,15 +14,15 @@
 				</div>
 			</v-card-title>
 		</v-row>
-		<v-row style="margin-top: -20px" no-gutters>
+		<v-row class="worker-body-row" no-gutters>
 			<v-col cols="5" class="d-flex justify-center align-center">
-				<span style="font-size: 4rem">{{ emoji }}</span>
+				<span class="worker-emoji">{{ emoji }}</span>
 			</v-col>
 			<v-col cols="7" class="d-flex flex-column justify-space-between">
 				<v-card-actions class="px-4">
 					<v-btn
 						block
-						class="spend-money-btn"
+						class="cs-button spend-money-btn"
 						:class="{ inactive: !canSign }"
 						:disabled="!canSign"
 						@click="makeSign"
@@ -33,7 +32,7 @@
 				</v-card-actions>
 			</v-col>
 		</v-row>
-		<v-row style="margin-top: -20px" class="pb-3">
+		<v-row class="worker-meta-row pb-3">
 			<v-col class="text-center worker-text pl-3">
 				<template v-if="workerType === 'scriptDoctor'">
 					ALL WRITING X{{ currentMultiplier }}
@@ -115,16 +114,26 @@ export default {
 
 <style scoped>
 .contract-worker-card {
-	background-color: hsl(220, 40%, 96%);
+	background: var(--cs-color-white);
+	border-color: rgba(49, 59, 114, 0.24);
 }
 
 .script-doctor-card {
-	background-color: hsl(34, 100%, 89%);
+	background: var(--cs-color-popcorn);
+}
+
+.worker-body-row,
+.worker-meta-row {
+	margin-top: -20px;
+}
+
+.worker-emoji {
+	font-size: 4rem;
 }
 
 .worker-title {
 	align-self: center;
-	font-family: "Roboto", sans-serif;
+	font-family: var(--cs-font-body);
 	font-size: 16px;
 	font-weight: 500;
 	display: flex;
@@ -134,14 +143,14 @@ export default {
 }
 
 .worker-count {
+	color: var(--cs-color-muted);
 	font-size: 13px;
-	color: #555;
 	font-weight: 400;
 }
 
 .worker-text {
-	color: #1a3a6b;
-	font-family: "Roboto", sans-serif;
+	color: var(--cs-color-night);
+	font-family: var(--cs-font-body);
 	font-weight: 500;
 }
 </style>
