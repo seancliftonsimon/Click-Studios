@@ -1,5 +1,5 @@
 <template>
-	<div class="gdp" :class="{ 'gdp-collapsed': collapsed }">
+	<div v-if="visible" class="gdp" :class="{ 'gdp-collapsed': collapsed }">
 		<button class="gdp-toggle" @click="collapsed = !collapsed">
 			🎬 Greenlight Test {{ collapsed ? "▸" : "▾" }}
 		</button>
@@ -45,7 +45,7 @@ import { useGameStore } from "@/store";
 export default {
 	name: "GreenlightDebugPanel",
 	data() {
-		return { collapsed: false };
+		return { collapsed: false, visible: false };
 	},
 	computed: {
 		...mapState(useGameStore, ["currentGenre", "projectUnlocks"]),
@@ -63,6 +63,27 @@ export default {
 		unlock(category) {
 			useGameStore().unlockNextProjectTier({ category });
 		},
+		toggleVisible() {
+			this.visible = !this.visible;
+			if (this.visible) this.collapsed = false;
+		},
+		onKeydown(event) {
+			const target = event.target;
+			const isTyping =
+				target?.isContentEditable ||
+				["INPUT", "TEXTAREA", "SELECT"].includes(target?.tagName);
+			if (isTyping || event.metaKey || event.ctrlKey || event.altKey) return;
+			if (event.key === "`") {
+				event.preventDefault();
+				this.toggleVisible();
+			}
+		},
+	},
+	mounted() {
+		window.addEventListener("keydown", this.onKeydown);
+	},
+	beforeUnmount() {
+		window.removeEventListener("keydown", this.onKeydown);
 	},
 };
 </script>

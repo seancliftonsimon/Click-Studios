@@ -2632,62 +2632,7 @@ export const useGameStore = defineStore("game", {
 					}
 				}
 
-				// Generate a new script with the current genre
-				this.generateScript({
-					genre: this.currentGenre,
-					skipPopup: true,
-				});
-
-				// Ensure the script_details popup is correctly set up with current script information
-				const scriptDetails =
-					usePopupStore().popupRegistry["script_details"];
-				usePopupStore().registerPopup(
-					{
-						id: "script_details",
-						config: {
-							...scriptDetails,
-							title: this.currentScript.title || "Script Details",
-							text: this.scriptDescription,
-						},
-					}
-				);
-
-				// Get the popup from the registry
-				const popup =
-					usePopupStore().popupRegistry["script_firstShootingScript"];
-
-				// Get the current genre and capitalize the first letter
-				const genre = this.currentGenre;
-				const capitalizedGenre = genre.charAt(0).toUpperCase() + genre.slice(1);
-
-				// Show the popup with the genre replacement
-				usePopupStore().showPopup(
-					{
-						id: "script_firstShootingScript",
-						props: {
-							text: popup.text.replace("{genre}", capitalizedGenre),
-							onSubmit: (inputValue) => {
-								// Update the currentScript title with the input value
-								this.UPDATE_STATE_VARIABLE({
-									key: "currentScript.title",
-									value: inputValue,
-								});
-
-								// Update the script_details popup again with the new title
-								usePopupStore().registerPopup(
-									{
-										id: "script_details",
-										config: {
-											...usePopupStore().popupRegistry["script_details"],
-											title: inputValue || "Script Details",
-											text: this.scriptDescription,
-										},
-									}
-								);
-							},
-						},
-					}
-				);
+				this.openGreenlight();
 			} else {
 				// Check for product-based milestones
 				if (
