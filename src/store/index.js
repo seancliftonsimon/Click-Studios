@@ -366,7 +366,7 @@ export const useGameStore = defineStore("game", {
 				visible: false,
 			},
 			seniorStaff: {
-				name: "Senior Staff",
+				name: "Co-writers",
 				employment: "contract",
 				count: 0,
 				totalcount: 0,

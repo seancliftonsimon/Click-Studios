@@ -114,7 +114,7 @@ export const guidanceSteps = {
 	unlock_staff_writer: {
 		id: "unlock_staff_writer",
 		group: "unlock",
-		target: "writer-hire-card",
+		target: "staff-writer-card",
 		placement: "left",
 		title: "Staff Writers",
 		body: "Contract staff stay on permanently — no re-hiring required.",
@@ -122,9 +122,9 @@ export const guidanceSteps = {
 	unlock_senior_staff: {
 		id: "unlock_senior_staff",
 		group: "unlock",
-		target: "writer-hire-card",
+		target: "co-writer-card",
 		placement: "left",
-		title: "Senior Staff",
+		title: "Co-writers",
 		body: "Your fastest writers. Sign them to anchor your idle output.",
 	},
 	unlock_script_doctors: {

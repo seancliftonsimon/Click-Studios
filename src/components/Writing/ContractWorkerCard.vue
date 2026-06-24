@@ -4,7 +4,7 @@
 		:class="{ 'script-doctor-card': workerType === 'scriptDoctor' }"
 		elevation="2"
 		v-if="isWorkerVisible"
-		:data-guidance-target="workerType === 'scriptDoctor' ? 'script-doctor-card' : undefined"
+		:data-guidance-target="guidanceTarget"
 	>
 		<v-row no-gutters>
 			<v-card-title class="worker-title py-1">
@@ -23,11 +23,12 @@
 					<v-btn
 						block
 						class="cs-button spend-money-btn"
-						:class="{ inactive: !canSign }"
+						:class="{ inactive: atCapacity ? !canAfford : !canSign }"
 						:disabled="!canSign"
 						@click="makeSign"
 					>
-						<span>Sign for ${{ $formatNumber(cost) }}</span>
+						<span v-if="atCapacity">Room at Capacity</span>
+						<span v-else>Sign for ${{ $formatNumber(cost) }}</span>
 					</v-btn>
 				</v-card-actions>
 			</v-col>
@@ -94,8 +95,17 @@ export default {
 				this.currentWritersRoomCapacity > 0
 			);
 		},
+		atCapacity() {
+			return !this.isUnderCapacity;
+		},
 		canSign() {
 			return this.canAfford && this.isUnderCapacity;
+		},
+		guidanceTarget() {
+			if (this.workerType === "scriptDoctor") return "script-doctor-card";
+			if (this.workerType === "staffWriter") return "staff-writer-card";
+			if (this.workerType === "seniorStaff") return "co-writer-card";
+			return undefined;
 		},
 		currentMultiplier() {
 			const effect = this.workerDetails.effect ?? 0.2;

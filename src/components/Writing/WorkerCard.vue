@@ -37,11 +37,12 @@
 					<v-btn
 						block
 						class="cs-button spend-money-btn"
-						:class="{ inactive: !(canAfford && isUnderCapacity) }"
+						:class="{ inactive: atCapacity ? !canAfford : !(canAfford && isUnderCapacity) }"
 						:disabled="!(canAfford && isUnderCapacity)"
 						@click="makeHire(cost)"
 					>
-						<span>Hire for ${{ $formatNumber(cost) }}</span>
+						<span v-if="atCapacity">Room at Capacity</span>
+						<span v-else>Hire for ${{ $formatNumber(cost) }}</span>
 					</v-btn>
 				</v-card-actions>
 			</v-col>
@@ -111,6 +112,9 @@ export default {
 				this.currentWorkerAmount < this.currentWritersRoomCapacity &&
 				this.currentWritersRoomCapacity > 0
 			);
+		},
+		atCapacity() {
+			return !this.isUnderCapacity;
 		},
 		writerTierNumber() {
 			return this.writerTierOrder.indexOf(this.workerType) + 1;

@@ -51,6 +51,9 @@
 			>
 				Advance to {{ nextProductTitle }} →
 			</v-btn>
+			<div v-if="nextProductCost" class="next-tier-cost">
+				costs {{ $formatNumberShort(nextProductCost) }} words each
+			</div>
 		</v-row>
 	</v-card>
 </template>
@@ -84,6 +87,12 @@ export default {
 				? this.getProductCardDetails(this.nextProductTierKey)
 				: null;
 			return details ? details.title : "";
+		},
+		nextProductCost() {
+			const details = this.nextProductTierKey
+				? this.getProductCardDetails(this.nextProductTierKey)
+				: null;
+			return details ? details.cost : 0;
 		},
 		productDetails() {
 			return this.getProductCardDetails(this.cardType);
@@ -231,6 +240,15 @@ export default {
 	font-weight: 500;
 	letter-spacing: 0.3px;
 	text-transform: none;
+}
+
+.next-tier-cost {
+	color: var(--cs-color-muted);
+	font-family: var(--cs-font-body);
+	font-size: 0.8em;
+	margin-top: 4px;
+	text-align: center;
+	width: 100%;
 }
 
 .product-actions {

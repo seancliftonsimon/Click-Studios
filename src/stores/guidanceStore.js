@@ -109,7 +109,9 @@ export const useGuidanceStore = defineStore("guidance", {
 				this.activeStepId = completedStep.nextStep;
 				return;
 			}
-			this.showNextPendingStep();
+			// Brief pause before showing queued unlock steps so they don't feel
+			// simultaneous when several milestones fire from a single action.
+			window.setTimeout(() => this.showNextPendingStep(), 500);
 		},
 		markStepComplete(stepId) {
 			if (!this.completedStepIds.includes(stepId)) {

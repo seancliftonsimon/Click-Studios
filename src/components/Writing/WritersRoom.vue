@@ -18,6 +18,11 @@
 					:words-per-second="getWorkerWps(worker)"
 					@worker-expired="handleWorkerExpired(worker)"
 				/>
+				<div
+					v-for="i in ghostSeatCount"
+					:key="`ghost-${i}`"
+					class="ghost-seat"
+				>🪑</div>
 			</div>
 		</v-container>
 	</v-card>
@@ -57,6 +62,12 @@ export default {
 		},
 		atCapacity() {
 			return this.workersDisplay.length >= this.currentCapacity;
+		},
+		displayedCapacity() {
+			return Math.min(this.currentCapacity, 20);
+		},
+		ghostSeatCount() {
+			return Math.max(0, this.displayedCapacity - this.workersDisplay.length);
 		},
 		roomColor() {
 			return this.atCapacity ? "lightgrey" : "ghostwhite";
@@ -148,5 +159,20 @@ export default {
 	gap: 8px;
 	justify-content: center;
 	padding: 10px;
+}
+
+.ghost-seat {
+	width: 70px;
+	height: 70px;
+	border-radius: 8px;
+	border: 1px solid #ddd;
+	background-color: #f5f5f5;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 2.5em;
+	opacity: 0.18;
+	margin: 8px;
+	box-sizing: border-box;
 }
 </style>
