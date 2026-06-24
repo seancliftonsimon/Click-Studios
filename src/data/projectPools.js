@@ -6,14 +6,14 @@
 //
 // Unlocking is tier-based and ordered: each pool is a flat ordered array, and a
 // category's "unlocked tier" reveals progressively more of it
-// (starter items first, then `STEP` more each time a tier unlocks). Roles are
+// (starter items first, then one more each time a tier unlocks). Roles are
 // scoped per genre; sets / locations / shots are shared across all genres.
 //
 // Budgets are intentionally fixed for now (no economy/cost yet) — a budget tier
 // only determines the SCALE of the project.
 
 export const POOL_STARTER = 6; // items available at tier 0 (brand-new studio)
-export const POOL_STEP = 6; // additional items revealed per unlocked tier
+export const POOL_STEP = 1; // additional item revealed per unlocked tier
 
 export const budgetTiers = [
 	{
