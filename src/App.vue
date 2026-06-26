@@ -108,7 +108,12 @@
 				class="game-app-bar-mobile"
 			>
 				<div class="mobile-brand">
-					<img :src="ticketImage" alt="Click Studios" class="mobile-ticket" />
+					<img
+						v-if="mobileShowTicket"
+						:src="ticketImage"
+						alt="Click Studios"
+						class="mobile-ticket"
+					/>
 					<span class="mobile-studio-name">{{ studioName }}</span>
 				</div>
 				<v-spacer />
@@ -283,6 +288,11 @@ export default {
 		]),
 		isCompact() {
 			return this.$vuetify.display.smAndDown;
+		},
+		mobileShowTicket() {
+			// The ticket mark only earns its space next to a short studio name;
+			// longer names get the full width and drop the mark.
+			return this.studioName.length <= 14;
 		},
 		phaseNav() {
 			return [
