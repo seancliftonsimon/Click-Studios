@@ -165,6 +165,17 @@ export function migrateSave(rawSave) {
 	// Run structural migrations before normalization
 	let save = rawSave;
 
+	// The original save format stored the entire game state as flat top-level
+	// fields (no `version`, no structured `player`/`progression`/`writing`
+	// sections). `adaptLegacySave` reads those flat fields, but the v1→v2 path
+	// below assumes an already-structured `{ writing: { … } }` shape — given a
+	// flat save it would stamp `version: 2` without restructuring, and the data
+	// would be dropped by `normalizeVersionTwoSave`. Route flat saves directly
+	// to the legacy adapter instead.
+	if (!save.version && !isStructuredSave(save)) {
+		return normalizeVersionTwoSave(adaptLegacySave(renameLegacyWorkers(save)));
+	}
+
 	if (!save.version || save.version < 2) {
 		save = migrateV1toV2(save);
 	}
@@ -174,6 +185,33 @@ export function migrateSave(rawSave) {
 	}
 
 	return normalizeVersionTwoSave(adaptLegacySave(save));
+}
+
+function isStructuredSave(save) {
+	return Boolean(
+		save.player || save.progression || save.writing || save.preproduction
+	);
+}
+
+// Rename the legacy `cowriters` worker key to the current `seniorStaff` key in
+// the worker-definition map, and drop active hires so old saves don't restore
+// orphaned worker timers (matching the v1→v2 behavior for structured saves).
+function renameLegacyWorkers(rawSave) {
+	const save = { ...rawSave };
+	const workers = { ...(save.workers || {}) };
+
+	if (workers.cowriters && !workers.seniorStaff) {
+		workers.seniorStaff = {
+			count: workers.cowriters.count ?? 0,
+			totalcount: workers.cowriters.totalcount ?? 0,
+			visible: workers.cowriters.visible ?? false,
+		};
+		delete workers.cowriters;
+	}
+
+	save.workers = workers;
+	save.currentWorkers = [];
+	return save;
 }
 
 function migrateV1toV2(rawSave) {

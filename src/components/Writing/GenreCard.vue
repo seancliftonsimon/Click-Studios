@@ -1,7 +1,7 @@
 <template>
 		<v-card class="cs-panel mt-4 genre-card" data-guidance-target="genre-card">
 		<v-row>
-			<v-col cols="4">
+			<v-col cols="12" sm="4">
 				<v-row align="center" class="my-1" justify="space-around">
 					<span class="genre-name"> {{ selectedGenreName }}</span>
 					<v-chip class="cs-chip align-right" label>
@@ -15,11 +15,13 @@
 						v-model="selectedGenreName"
 						item-text="name"
 						item-value="name"
-						class="pl-4 pr-0"
+						density="compact"
+						hide-details
+						class="px-4"
 					></v-select
 				></v-row>
 			</v-col>
-			<v-col cols="8" class="d-flex flex-column justify-center">
+			<v-col cols="12" sm="8" class="d-flex flex-column justify-center">
 				<v-progress-linear
 					:model-value="progress"
 					class="cs-progress cs-progress-gold genre-progress"

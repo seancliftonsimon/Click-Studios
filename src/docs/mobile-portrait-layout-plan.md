@@ -49,6 +49,26 @@ Filming parts of later steps are parked below for when they are).
   bottom-sheet treatment was deferred as polish to avoid risking the desktop
   modal — left as a follow-up.
 
+### Polish pass
+
+- **Bottom nav clarity:** active phase gets a gold top-accent ("you are here");
+  locked phases are plainly dimmed alongside their lock icon.
+- **Genre card:** stacks on phones so the genre `v-select` is full-width
+  (previously truncated to "Dr…"); made compact with `hide-details`.
+
+### Adjacent bug fixed: legacy save migration
+
+Not a layout item, but found while building the screenshot harness and fixed in
+the same pass. `migrateSave` (`src/services/saveService.js`) dropped all data
+from the original *flat* save format (game state stored as top-level fields with
+no `version`). `migrateV1toV2` assumes an already-structured `{ writing: { … } }`
+shape, so it stamped `version: 2` on a flat save without restructuring it, and
+`normalizeVersionTwoSave` then found none of the expected sections. Flat saves
+(including the `p` debug second-phase checkpoint) now route through
+`adaptLegacySave`, with the legacy `cowriters` → `seniorStaff` worker rename
+applied and active hires cleared (matching the v1→v2 behavior). Verified the
+checkpoint restores studio name, word count, money, unlock flags, and staff.
+
 ## Design Principles
 
 These keep the work aligned with the Ticket Booth design system and AGENTS.md.

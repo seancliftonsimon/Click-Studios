@@ -570,6 +570,16 @@ export default {
 	padding: 0 !important;
 }
 
+/* Clear "you are here" accent on the active phase tab. */
+.game-bottom-nav .phase-nav-btn.v-btn--active {
+	box-shadow: inset 0 3px 0 var(--cs-color-gold);
+}
+
+/* Locked phases read as plainly unavailable. */
+.game-bottom-nav .phase-nav-btn.v-btn--disabled {
+	opacity: 0.42 !important;
+}
+
 .phase-nav-label {
 	font-family: var(--cs-font-display);
 	font-size: 0.7rem;
