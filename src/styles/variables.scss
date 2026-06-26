@@ -51,6 +51,16 @@ $border-radius-progress: 8px; // For progress bars
 	color: var(--cs-color-ink);
 	font-family: var(--cs-font-body);
 	user-select: none;
+	/* Disable double-tap-to-zoom so rapid tapping (e.g. the write button)
+	   never zooms the page. Pinch-zoom and scrolling still work. */
+	touch-action: manipulation;
+}
+
+.v-btn,
+button,
+[role="button"],
+.cs-button {
+	touch-action: manipulation;
 }
 
 .cs-display,
