@@ -146,30 +146,29 @@
 				<StudioLibrary v-if="!isMockupRoute" />
 				<GreenlightDebugPanel v-if="!isMockupRoute" />
 				<router-view />
-			</v-main>
 
-			<!-- Phase navigation (mobile portrait) -->
-			<v-bottom-navigation
-				v-if="isCompact && !isMockupRoute"
-				v-model="activePhase"
-				color="academy-gold"
-				bg-color="curtain-red"
-				:height="64"
-				grow
-				class="game-bottom-nav safe-bottom"
-			>
-				<v-btn
-					v-for="phase in phaseNav"
-					:key="phase.value"
-					:value="phase.value"
-					:to="phase.disabled ? undefined : { name: phase.value }"
-					:disabled="phase.disabled"
-					class="phase-nav-btn"
+				<!-- Phase navigation (mobile portrait): in normal flow below the
+				phase content rather than fixed, so it never covers the screen.
+				Scroll down to switch phases. -->
+				<nav
+					v-if="isCompact && !isMockupRoute"
+					class="game-phase-nav safe-bottom"
 				>
-					<v-icon>{{ phase.disabled ? "mdi-lock" : phase.icon }}</v-icon>
-					<span class="phase-nav-label">{{ phase.label }}</span>
-				</v-btn>
-			</v-bottom-navigation>
+					<v-btn
+						v-for="phase in phaseNav"
+						:key="phase.value"
+						:to="phase.disabled ? undefined : { name: phase.value }"
+						:disabled="phase.disabled"
+						:active="activePhase === phase.value"
+						variant="text"
+						stacked
+						class="phase-nav-btn"
+					>
+						<v-icon>{{ phase.disabled ? "mdi-lock" : phase.icon }}</v-icon>
+						<span class="phase-nav-label">{{ phase.label }}</span>
+					</v-btn>
+				</nav>
+			</v-main>
 		</v-app>
 </template>
 
@@ -571,22 +570,32 @@ export default {
 	margin-right: 2px;
 }
 
-.game-bottom-nav {
+/* In-flow phase nav bar (not fixed): full-bleed strip below the content. */
+.game-phase-nav {
+	display: flex;
+	align-items: stretch;
+	background: var(--cs-color-curtain);
 	border-top: 2px solid rgba(255, 255, 255, 0.16);
+	margin-top: 16px;
 }
 
-.phase-nav-btn {
+.game-phase-nav .phase-nav-btn {
+	flex: 1 1 0;
 	min-width: 0 !important;
+	height: 64px;
 	padding: 0 !important;
+	border-radius: 0 !important;
+	color: rgba(255, 255, 255, 0.85) !important;
 }
 
 /* Clear "you are here" accent on the active phase tab. */
-.game-bottom-nav .phase-nav-btn.v-btn--active {
+.game-phase-nav .phase-nav-btn.v-btn--active {
+	color: var(--cs-color-gold) !important;
 	box-shadow: inset 0 3px 0 var(--cs-color-gold);
 }
 
 /* Locked phases read as plainly unavailable. */
-.game-bottom-nav .phase-nav-btn.v-btn--disabled {
+.game-phase-nav .phase-nav-btn.v-btn--disabled {
 	opacity: 0.42 !important;
 }
 

@@ -201,6 +201,8 @@ export default {
 		padding-left: var(--cs-gutter-mobile);
 		padding-right: var(--cs-gutter-mobile);
 		padding-top: var(--cs-gutter-mobile);
+		/* Size to content so the in-flow phase nav sits just below it. */
+		height: auto;
 	}
 
 	.word-counter-panel {

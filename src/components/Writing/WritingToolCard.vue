@@ -118,4 +118,27 @@ export default {
 	font-weight: 500;
 	text-transform: uppercase;
 }
+
+/* Compact the next-tool card on phones so it doesn't push the rest of the
+   writing screen down. */
+@media (max-width: 600px) {
+	.tool-emoji {
+		font-size: 1.9em;
+	}
+
+	.tool-title {
+		padding-top: 6px !important;
+		padding-bottom: 6px !important;
+		font-size: 1rem;
+	}
+
+	.tool-card .wpc-text {
+		padding-top: 4px;
+		padding-bottom: 4px;
+	}
+
+	.tool-card .v-card-actions {
+		padding-bottom: 10px !important;
+	}
+}
 </style>

@@ -83,6 +83,15 @@ button,
 	min-height: calc(100vh - 64px);
 }
 
+/* On phones the phase nav lives in the scroll flow below the content, so the
+   phase container shouldn't reserve a full viewport — let it size to content
+   and keep the nav close. */
+@media (max-width: 600px) {
+	.phase-container {
+		min-height: auto;
+	}
+}
+
 .cs-panel,
 .v-card.cs-panel {
 	background: var(--cs-color-ticket);
