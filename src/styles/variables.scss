@@ -23,6 +23,23 @@
 	--cs-shadow-soft: 0 16px 36px rgba(21, 19, 19, 0.16);
 	--cs-motion-fast: 140ms ease;
 	--cs-motion-medium: 240ms ease;
+
+	/* Mobile / touch tokens */
+	--cs-touch-min: 44px; /* minimum tap target */
+	--cs-gutter-mobile: 16px; /* phase content side padding on phones */
+	--cs-stack-gap: 12px; /* vertical gap between stacked cards */
+	--cs-bottom-nav-h: 64px; /* reserve space so content isn't hidden */
+	--cs-safe-bottom: env(safe-area-inset-bottom, 0px);
+	--cs-safe-top: env(safe-area-inset-top, 0px);
+}
+
+/* Safe-area utilities for notch / home-indicator devices */
+.safe-bottom {
+	padding-bottom: var(--cs-safe-bottom);
+}
+
+.safe-top {
+	padding-top: var(--cs-safe-top);
 }
 
 $border-radius-card: 8px; // For cards

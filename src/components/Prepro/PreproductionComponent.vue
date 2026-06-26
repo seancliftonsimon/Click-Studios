@@ -3,11 +3,11 @@
 	<v-container fluid class="phase-container">
 		<!-- First row spanning full width -->
 		<v-row>
-			<v-col cols="3">
+			<v-col cols="12" md="3">
 				<PitchingComponent v-if="componentVisibility.pitchingComponent" />
 				<v-card v-else class="cs-panel-quiet center-content"><br /><br /></v-card>
 			</v-col>
-			<v-col cols="9">
+			<v-col cols="12" md="9">
 				<!-- Progress bar row -->
 				<v-row>
 					<v-col cols="12">
@@ -28,7 +28,7 @@
 				</v-row>
 				<!-- HireWorkersCard and InspirationShop row -->
 				<v-row>
-					<v-col cols="4">
+					<v-col cols="12" md="4">
 						<HireWorkersCard />
 						<v-card
 							v-if="currentInvestorTier < 5"
@@ -49,7 +49,7 @@
 							</v-btn>
 						</v-card>
 					</v-col>
-					<v-col cols="8">
+					<v-col cols="12" md="8">
 						<InspirationShop v-if="componentVisibility.inspirationShop" />
 						<v-card v-else class="cs-panel-quiet center-content"
 							><br /><br
@@ -299,6 +299,13 @@ export default {
 	padding-right: 5%;
 	padding-top: 2.5%;
 	height: 100%;
+}
+@media (max-width: 600px) {
+	.phase-container {
+		padding-left: var(--cs-gutter-mobile);
+		padding-right: var(--cs-gutter-mobile);
+		padding-top: var(--cs-gutter-mobile);
+	}
 }
 .dollar-counter {
 	color: var(--cs-color-success);

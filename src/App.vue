@@ -5,7 +5,7 @@
 		<v-snackbar
 			v-model="toastVisible"
 			:timeout="toastType === 'temporary' ? 4000 : -1"
-			location="top right"
+			:location="isCompact ? 'top' : 'top right'"
 			color="success"
 		>
 			{{ toastMessage }}
@@ -19,9 +19,13 @@
 			</template>
 		</v-snackbar>
 
-		<v-row class="mb-0">
-			<!-- Permanent Navigation Bar -->
-			<v-app-bar color="curtain-red" permanent class="game-app-bar">
+		<!-- Permanent Navigation Bar (desktop) -->
+		<v-app-bar
+			v-if="!isCompact"
+			color="curtain-red"
+			permanent
+			class="game-app-bar"
+		>
 				<div class="image-container">
 					<img :src="ticketImage" alt="Click Studios" class="ticket-image" />
 					<span
@@ -95,6 +99,40 @@
 				</div>
 			</v-app-bar>
 
+			<!-- Compact header (mobile portrait) -->
+			<v-app-bar
+				v-else
+				color="curtain-red"
+				:height="56"
+				flat
+				class="game-app-bar-mobile"
+			>
+				<div class="mobile-brand">
+					<img :src="ticketImage" alt="Click Studios" class="mobile-ticket" />
+					<span class="mobile-studio-name">{{ studioName }}</span>
+				</div>
+				<v-spacer />
+				<v-chip class="cs-chip mobile-money-chip" size="small">
+					${{ $formatNumber(writingDollarCount) }}
+				</v-chip>
+				<v-menu location="bottom end">
+					<template v-slot:activator="{ props }">
+						<v-btn
+							icon="mdi-dots-vertical"
+							variant="text"
+							color="white"
+							v-bind="props"
+							aria-label="More options"
+						></v-btn>
+					</template>
+					<v-list class="mobile-actions-menu" density="compact">
+						<v-list-item title="Save" @click="saveGame"></v-list-item>
+						<v-list-item title="Load" @click="loadGame"></v-list-item>
+						<v-list-item title="Reset" @click="resetGame"></v-list-item>
+					</v-list>
+				</v-menu>
+			</v-app-bar>
+
 			<!-- Main Area -->
 			<v-main>
 				<PopupManager v-if="!isMockupRoute" />
@@ -104,7 +142,29 @@
 				<GreenlightDebugPanel v-if="!isMockupRoute" />
 				<router-view />
 			</v-main>
-			</v-row>
+
+			<!-- Phase navigation (mobile portrait) -->
+			<v-bottom-navigation
+				v-if="isCompact && !isMockupRoute"
+				v-model="activePhase"
+				color="academy-gold"
+				bg-color="curtain-red"
+				:height="64"
+				grow
+				class="game-bottom-nav safe-bottom"
+			>
+				<v-btn
+					v-for="phase in phaseNav"
+					:key="phase.value"
+					:value="phase.value"
+					:to="phase.disabled ? undefined : { name: phase.value }"
+					:disabled="phase.disabled"
+					class="phase-nav-btn"
+				>
+					<v-icon>{{ phase.disabled ? "mdi-lock" : phase.icon }}</v-icon>
+					<span class="phase-nav-label">{{ phase.label }}</span>
+				</v-btn>
+			</v-bottom-navigation>
 		</v-app>
 </template>
 
@@ -219,7 +279,59 @@ export default {
 			"isReleaseUnlocked",
 			"toastMessage",
 			"toastType",
+			"writingDollarCount",
 		]),
+		isCompact() {
+			return this.$vuetify.display.smAndDown;
+		},
+		phaseNav() {
+			return [
+				{
+					value: "writing",
+					label: "Write",
+					icon: "mdi-pencil",
+					disabled: false,
+				},
+				{
+					value: "preproduction",
+					label: "Prep",
+					icon: "mdi-clipboard-text",
+					disabled: this.preproductionDisabled,
+				},
+				{
+					value: "filming",
+					label: "Film",
+					icon: "mdi-movie-open",
+					disabled: this.filmingDisabled,
+				},
+				{
+					value: "postproduction",
+					label: "Post",
+					icon: "mdi-content-cut",
+					disabled: this.postproductionDisabled,
+				},
+				{
+					value: "marketing",
+					label: "Promo",
+					icon: "mdi-bullhorn",
+					disabled: this.marketingDisabled,
+				},
+				{
+					value: "release",
+					label: "Release",
+					icon: "mdi-ticket",
+					disabled: this.releaseDisabled,
+				},
+			];
+		},
+		activePhase: {
+			get() {
+				return this.$route.name;
+			},
+			set() {
+				// Navigation is handled by each tab's :to binding.
+			},
+		},
 		toastVisible: {
 			get() {
 				return useGameStore().toastVisible;
@@ -412,6 +524,58 @@ export default {
 .v-list-item__content {
 	overflow: visible;
 	white-space: nowrap;
+}
+
+/* --- Mobile portrait shell --- */
+.game-app-bar-mobile .v-toolbar__content {
+	padding-left: 12px;
+	padding-right: 4px;
+}
+
+.mobile-brand {
+	align-items: center;
+	display: flex;
+	gap: 8px;
+	min-width: 0;
+	overflow: hidden;
+}
+
+.mobile-ticket {
+	height: 34px;
+	flex: 0 0 auto;
+}
+
+.mobile-studio-name {
+	color: white;
+	font-family: var(--cs-font-display);
+	font-size: 1.15rem;
+	font-weight: bold;
+	line-height: 1.1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.mobile-money-chip {
+	font-variant-numeric: tabular-nums;
+	margin-right: 2px;
+}
+
+.game-bottom-nav {
+	border-top: 2px solid rgba(255, 255, 255, 0.16);
+}
+
+.phase-nav-btn {
+	min-width: 0 !important;
+	padding: 0 !important;
+}
+
+.phase-nav-label {
+	font-family: var(--cs-font-display);
+	font-size: 0.7rem;
+	letter-spacing: 0.01em;
+	margin-top: 2px;
+	text-transform: none;
 }
 </style>
 

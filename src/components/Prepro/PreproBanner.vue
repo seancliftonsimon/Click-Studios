@@ -4,7 +4,7 @@
 			<v-row>
 				<v-col class="py-0" cols="12">
 					<v-row justify="space-between" align="start">
-						<v-col class="py-0">
+						<v-col class="py-0 dept-col" cols="6" sm="4" md="2">
 							<div class="w-100 d-flex justify-center align-start">
 								<CastingBarStack class="px-0" @roleCast="handleRoleCast" />
 							</div>
@@ -37,7 +37,7 @@
 								</v-chip>
 							</div>
 						</v-col>
-						<v-col class="py-0">
+						<v-col class="py-0 dept-col" cols="6" sm="4" md="2">
 							<div class="w-100 d-flex justify-center align-start">
 								<ShotPlanningBarStack
 									class="px-0"
@@ -66,7 +66,7 @@
 								</v-chip>
 							</div>
 						</v-col>
-						<v-col class="py-0">
+						<v-col class="py-0 dept-col" cols="6" sm="4" md="2">
 							<div class="w-100 d-flex justify-center align-start">
 								<SetBuildingBarStack class="px-0" @setBuilt="handleSetBuilt" />
 							</div>
@@ -92,7 +92,7 @@
 								</v-chip>
 							</div>
 						</v-col>
-						<v-col class="py-0">
+						<v-col class="py-0 dept-col" cols="6" sm="4" md="2">
 							<div class="w-100 d-flex justify-center align-start">
 								<LocationScoutingBarStack
 									class="px-0"
@@ -121,7 +121,7 @@
 								</v-chip>
 							</div>
 						</v-col>
-						<v-col class="py-0">
+						<v-col class="py-0 dept-col" cols="6" sm="4" md="2">
 							<div class="w-100 d-flex justify-center align-start">
 								<CostumeMakingBarStack
 									class="px-0"
@@ -150,7 +150,7 @@
 								</v-chip>
 							</div>
 						</v-col>
-						<v-col class="py-0">
+						<v-col class="py-0 dept-col" cols="6" sm="4" md="2">
 							<div class="w-100 d-flex justify-center align-start">
 								<LookDesigningBarStack
 									class="px-0"
@@ -303,6 +303,21 @@ export default {
 <style scoped>
 .prepro-banner {
 	padding: 8px 4px 16px;
+}
+
+/* On phones the six departments wrap to 2-per-row; tighten the gutter and add
+   a light separator so each department row stays readable. */
+@media (max-width: 600px) {
+	.prepro-banner :deep(.px-8) {
+		padding-left: 8px !important;
+		padding-right: 8px !important;
+	}
+
+	.dept-col {
+		border-bottom: 1px solid rgba(217, 199, 131, 0.5);
+		padding-bottom: 10px !important;
+		padding-top: 10px !important;
+	}
 }
 
 .v-chip {

@@ -3,19 +3,12 @@
 <template>
 	<v-container fluid class="phase-container">
 		<v-row>
-			<v-col cols="3">
-				<PurchaseCard
-					v-for="card in cardsArray"
-					:key="card.cardType"
-					:cardType="card.cardType"
-				/>
-			</v-col>
-			<v-col cols="6">
+			<v-col cols="12" md="6" order="1" order-md="2">
 				<div class="resource-counter-row">
 					<DollarCounter class="money-counter-panel" />
 					<WordCounter class="word-counter-panel" />
 				</div>
-				<div class="d-flex mt-5">
+				<div class="d-flex mt-5 write-action-row">
 					<WriteButton cols="6" />
 					<WritingToolCard cols="6" />
 				</div>
@@ -23,7 +16,14 @@
 				<WritersRoom v-if="writersRoomVisible" />
 				<WritersRoomUpgradeCard v-if="writersRoomVisible" />
 			</v-col>
-			<v-col cols="3">
+			<v-col cols="12" md="3" order="2" order-md="1">
+				<PurchaseCard
+					v-for="card in cardsArray"
+					:key="card.cardType"
+					:cardType="card.cardType"
+				/>
+			</v-col>
+			<v-col cols="12" md="3" order="3" order-md="3">
 				<!-- Zone 1: Freelancers (single active card) -->
 				<div>
 					<WorkerCard
@@ -194,6 +194,31 @@ export default {
 .word-counter-panel {
 	flex: 1 1 68%;
 	min-width: 260px;
+}
+
+@media (max-width: 600px) {
+	.phase-container {
+		padding-left: var(--cs-gutter-mobile);
+		padding-right: var(--cs-gutter-mobile);
+		padding-top: var(--cs-gutter-mobile);
+	}
+
+	.word-counter-panel {
+		min-width: 0;
+	}
+
+	.money-counter-panel {
+		min-width: 0;
+	}
+
+	.write-action-row {
+		flex-direction: column;
+		gap: 12px;
+	}
+
+	.write-action-row > * {
+		width: 100%;
+	}
 }
 
 .zone-label {
